@@ -1,0 +1,4 @@
+﻿-- game.ServerScriptService.GamePlay.ClimbTower.ClimbTowerGameServerHandler
+-- game.ServerScriptService.ScriptAlias.ClimbTowerGameServerHandler
+local ClimbTowerGameServerHandler = require(game.ServerScriptService.GamePlay.ClimbTower.ClimbTowerGameServerHandler)
+return ClimbTowerGameServerHandler

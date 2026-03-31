@@ -1,0 +1,4 @@
+﻿-- game.ReplicatedStorage.Module.Activity.Christmas2025.BuildingActivityChristmas2025
+-- game.ReplicatedStorage.ScriptAlias.BuildingActivityChristmas2025
+local BuildingActivityChristmas2025 = require(game.ReplicatedStorage.Module.Activity.Christmas2025.BuildingActivityChristmas2025)
+return BuildingActivityChristmas2025

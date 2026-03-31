@@ -1,0 +1,4 @@
+﻿-- game.ReplicatedStorage.Module.Guide.Step.GuideStep_11_CloseRailUpdate
+-- game.ReplicatedStorage.ScriptAlias.GuideStep_11_CloseRailUpdate
+local GuideStep_11_CloseRailUpdate = require(game.ReplicatedStorage.Module.Guide.Step.GuideStep_11_CloseRailUpdate)
+return GuideStep_11_CloseRailUpdate

@@ -1,0 +1,3 @@
+﻿local UIPropRuntimeItem = {}
+
+return UIPropRuntimeItem

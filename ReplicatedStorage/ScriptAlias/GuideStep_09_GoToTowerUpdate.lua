@@ -1,0 +1,4 @@
+﻿-- game.ReplicatedStorage.Module.Guide.Step.GuideStep_09_GoToTowerUpdate
+-- game.ReplicatedStorage.ScriptAlias.GuideStep_09_GoToTowerUpdate
+local GuideStep_09_GoToTowerUpdate = require(game.ReplicatedStorage.Module.Guide.Step.GuideStep_09_GoToTowerUpdate)
+return GuideStep_09_GoToTowerUpdate
