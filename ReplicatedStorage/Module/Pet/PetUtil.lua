@@ -27,15 +27,13 @@ function PetUtil:ProcessPetInfo(info)
 	info.Rarity = data.Rarity
 
 	local getCoinFactor = 0
-	if data.MaxExistCoinFactor > 0 then
-		getCoinFactor = data.MaxExistCoinFactor * info.UpgradeFactor * MaxPower
-		local displayValue = (data.MaxExistCoinFactor * info.UpgradeFactor) * 100
-		info.DisplayGetCoinFactor = ""..string.format("%.0f", displayValue).."%"
+	if data.MaxExistGetCoinFactor1 > 0 then
+		
 	else
 		getCoinFactor = data.GetCoinFactor1 * info.UpgradeFactor
 		info.DisplayGetCoinFactor = ""..string.format("%.2f", getCoinFactor).."X"
 	end
-	
+
 	info.GetCoinFactor1 = getCoinFactor
 	info.IsSelect = false
 

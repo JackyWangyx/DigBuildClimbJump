@@ -25,7 +25,6 @@ local PetDataTemplate = {
 		PackageAdditional = 0,		-- 额外背包容量，特殊方式获得
 		EquipLevel = 1,				-- 装备栏位，按表格提供容量
 		EquipAdditional = 0,		-- 额外装备容量，特殊方式获得
-		MaxCoinFacotr = 0,			-- 当前背包内宠物的最大数值
 	}
 }
 
@@ -55,12 +54,6 @@ function Pet:GetPackageList(player)
 	end
 	
 	return packageList
-end
-
-function Pet:RefreshPackageInfo(player)
-	local saveInfo = LoadInfo(player)
-	local maxCoinFactor = Pet:GetMaxCoinFactor(player)
-	saveInfo.MaxCoinFactor = maxCoinFactor
 end
 
 function Pet:GetMaxCoinFactor(player)
@@ -146,9 +139,7 @@ function Pet:Add(player, param)
 	
 	local packageList = Pet:GetPackageList(player)
 	table.insert(packageList, petInfo)
-	
-	Pet:RefreshPackageInfo(player)
-	
+
 	Pet:EquipBest(player)
 	
 	PlayerRecord:AddValue(player, PlayerRecord.Define.TotalGetPet, 1)
@@ -173,8 +164,6 @@ function Pet:Delete(player, param)
 		return info.InstanceID == instanceID
 	end)
 	
-	Pet:RefreshPackageInfo(player)
-	
 	EventManager:Dispatch(EventManager.Define.RefreshPet, player)
 	EventManager:DispatchToClient(player, EventManager.Define.RefreshPet)
 	EventManager:Dispatch(EventManager.Define.RefreshPlayerProperty, player)
@@ -190,9 +179,7 @@ function Pet:DeleteAll(player, param)
 			return info.InstanceID == instanceID
 		end)
 	end
-	
-	Pet:RefreshPackageInfo(player)
-	
+
 	EventManager:Dispatch(EventManager.Define.RefreshPet, player)
 	EventManager:DispatchToClient(player, EventManager.Define.RefreshPet)
 	EventManager:Dispatch(EventManager.Define.RefreshPlayerProperty, player)
@@ -275,8 +262,6 @@ function Pet:Craft(player, param)
 		UpgradeLevel = petUpgradeLevel
 	})
 	
-	Pet:RefreshPackageInfo(player)
-	
 	if result then
 		EventManager:Dispatch(EventManager.Define.RefreshPlayerProperty, player)
 		return true
@@ -301,8 +286,6 @@ function Pet:CraftRobux(player, param)
 		ID = nextPetData.TargetID,
 		UpgradeLevel = petUpgradeLevel
 	})
-	
-	Pet:RefreshPackageInfo(player)
 	
 	if result then
 		EventManager:Dispatch(EventManager.Define.RefreshPlayerProperty, player)
@@ -579,8 +562,7 @@ function Pet:Upgrade(player, param)
 	end
 
 	result.Result = true
-	Pet:RefreshPackageInfo(player)
-	
+
 	EventManager:Dispatch(EventManager.Define.RefreshPlayerProperty, player)
 	PlayerRecord:AddValue(player, PlayerRecord.Define.TotalPetUpgrade, 1)
 	

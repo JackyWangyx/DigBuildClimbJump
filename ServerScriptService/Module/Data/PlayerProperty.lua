@@ -170,120 +170,124 @@ end
 
 function PlayerProperty:CollectAllProperties(player)
 	local allPropertys = {}
-	local suffixList = {"1", "2", "3"}
-	for _, suffix in ipairs(suffixList) do
-		allPropertys[suffix] = {}
+	local propertySuffixList = {"1", "2", "3"}
+	for _, propertySuffix in ipairs(propertySuffixList) do
+		allPropertys[propertySuffix] = {}
 	end
 
-	local function collect(propSourceName, data)
-		for _, suffix in ipairs(suffixList) do
-			local prop = PlayerProperty:SelectProperty(data, suffix)
-			PlayerProperty:PropertyCombineAdd(allPropertys[suffix], prop)
+	local function collect(logName, configName, infoList, sourceData)
+		for _, propertySuffix in ipairs(propertySuffixList) do
+			local propertyDic = PlayerProperty:SelectProperty(configName, infoList, sourceData, propertySuffix)
+			PlayerProperty:PropertyCombineAdd(allPropertys[propertySuffix], propertyDic)
 		end
-		PlayerProperty:Log(propSourceName, data)
+		
+		PlayerProperty:Log(logName, sourceData)
 	end
 
 	-- 🐰Pet
 	local petRequest = NetServer:RequireModule("Pet")
-	do
-		local petProperty = {}
-		local maxPower = petRequest:GetMaxCoinFactor(player)
-		petProperty["GetCoinFactor1"] = 0
-		for _, petInfo in ipairs(petRequest:GetEquipList(player)) do
+	local equipPetInfoList = petRequest:GetEquipList(player)
+	if equipPetInfoList then
+		local packageInfoList = petRequest:GetPackageList(player)
+		for _, petInfo in ipairs(equipPetInfoList) do
 			local petData = ConfigManager:GetData("Pet", petInfo.ID)
-			local power = 0
-			if petData.MaxExistCoinFactor > 0 then
-				power = petData.MaxExistCoinFactor * maxPower * petInfo.UpgradeFactor
-			else
-				power = petData.GetCoinFactor1 * petInfo.UpgradeFactor
-			end
-			
-			petProperty["GetCoinFactor1"] += power
+			local tempData = Util:TableCopy(petData)
+			tempData["GetCoinFactor1"] = tempData["GetCoinFactor1"] * petInfo.UpgradeFactor
+			collect("🐰Pet", "Pet", packageInfoList, tempData)
 		end
-		collect("🐰Pet", petProperty)
 	end
-	
+		
 	-- 🐶Animal
 	--local animalRequest = NetServer:RequireModule("Animal")
 	--do
-	--	local animalProperty = {}
-	--	for _, animalInfo in ipairs(animalRequest:GetEquipList(player)) do
+	--	local infoList = animalRequest:GetEquipList(player)
+	--	for _, animalInfo in ipairs(infoList) do
 	--		local animalData = ConfigManager:GetData("Animal", animalInfo.ID)
-	--		collect("🐶Animal", animalData)
+	--		collect("🐶Animal", "Animal", infoList, animalData)
 	--	end
 	--end
 
 	-- 🛠️Tool
 	local toolRequest = NetServer:RequireModule("Tool")
 	local toolInfo = toolRequest:GetEquip(player)
-	--if toolInfo then collect("🛠️Tool", ConfigManager:GetData("🛠️Tool", toolInfo.ID)) end
-	
-	-- Start : Max PowerCapacity
-	local maxPowerCapacity = toolRequest:GetMaxPowerCapacity(player)
-	local toolData = ConfigManager:GetData("Tool", toolInfo.ID)
-	local toolProperty = {}
-	local powerCapacity = 0
-	if toolData.MaxExistPowerCapacityFactor and toolData.MaxExistPowerCapacityFactor > 0 then
-		powerCapacity = toolData.MaxExistPowerCapacityFactor * maxPowerCapacity
-	else
-		powerCapacity = toolData.PowerCapacity
+	if toolInfo then 
+		local infoList = toolRequest:GetOwnList(player)
+		local toolData = ConfigManager:GetData("Tool", toolInfo.ID)
+		collect("🛠️Tool", "Tool", infoList, toolData) 
 	end
-	toolProperty["PowerCapacity"] = powerCapacity
-	if toolInfo then collect("🛠️Tool", toolProperty) end
-	-- End : Max PowerCapacity
-	
+
 	-- 🛠️Equipment
 	local equipmentRequest = NetServer:RequireModule("Equipment")
 	local equipmentInfo = equipmentRequest:GetEquip(player)
-	if equipmentInfo then collect("🛠️Equipment", ConfigManager:GetData("Equipment", equipmentInfo.ID)) end
+	if equipmentInfo then 
+		local infoList = equipmentRequest:GetOwnList(player)
+		local equipmentData = ConfigManager:GetData("Equipment", equipmentInfo.ID)
+		collect("🛠️Equipment", "Equipment", infoList, equipmentData) 
+	end
 
 	-- 💫Trail
 	local trailRequest = NetServer:RequireModule("Trail")
 	local trailInfo = trailRequest:GetEquip(player)
-	if trailInfo then collect("💫Trail", ConfigManager:GetData("Trail", trailInfo.ID)) end
+	if trailInfo then
+		local infoList = trailRequest:GetOwnList(player)
+		local trailData = ConfigManager:GetData("Trail", trailInfo.ID)
+		collect("💫Trail", "Trail", infoList, trailData) 
+	end
 	
 	-- 🧑Partner
 	local partnerRequest = NetServer:RequireModule("Partner")
 	local partnerInfo = partnerRequest:GetEquip(player)
-	if partnerInfo then collect("🧑Partner", ConfigManager:GetData("Partner", partnerInfo.ID)) end
+	if partnerInfo then 
+		local infoList = partnerRequest:GetOwnList(player)
+		local partnerData = ConfigManager:GetData("Partner", partnerInfo.ID)
+		collect("🧑Partner", "Partner", infoList, partnerData) 
+	end
 	
 	-- ♻️Rebirth
 	local rebirthRequest = NetServer:RequireModule("Rebirth")
 	local rebirthData = rebirthRequest:GetInfo(player)
-	if rebirthData then collect("♻️Rebirth", rebirthData) end
+	if rebirthData then 
+		collect("♻️Rebirth", nil, nil, rebirthData) 
+	end
 
 	-- 💊Prop
 	local propRequest = NetServer:RequireModule("Prop")
 	for _, propData in ipairs(propRequest:GetRuntimePropertyList(player)) do
-		collect("💊Prop : " .. propData.Name, propData)
+		collect("💊Prop : " .. propData.Name, nil, nil, propData)
 	end
 
 	-- 🟢Buff Online
 	local buffOnline = require(game.ServerScriptService.ScriptAlias.BuffOnlineHandler)
 	local buffOnlineProperty = buffOnline:GetProperty(player)
-	if buffOnlineProperty then collect("🟢Buff Online", buffOnlineProperty) end
+	if buffOnlineProperty then 
+		collect("🟢Buff Online", nil, nil, buffOnlineProperty) 
+	end
 
 	-- 💖Buff Friend Online
 	local friendOnline = NetServer:RequireModule("Friend")
 	local friendProperty = friendOnline:GetProperty(player)
-	if friendProperty then collect("💖Buff Friend Online", friendProperty) end
+	if friendProperty then 
+		collect("💖Buff Friend Online", nil, nil, friendProperty) 
+	end
 	
 	-- ✨Buff Premium
 	local premium = NetServer:RequireModule("RobloxPremium")
 	local premiumProperty = premium:GetProperty(player)
-	if premiumProperty then collect("✨Buff Premium", premiumProperty) end
+	if premiumProperty then 
+		collect("✨Buff Premium", nil, nil, premiumProperty) 
+	end
 
 	-- 💎Game Pass
 	local iapProperty = require(game.ServerScriptService.ScriptAlias.IAPProperty)
 	for _, iap in pairs(iapProperty:GetPropertyList(player)) do
-		collect("💎Game Pass : " .. iap.ProductKey, iap)
+		collect("💎Game Pass : " .. iap.ProductKey, nil, nil, iap)
 	end
 	
 	-- 💎Season Pass
-	local quest = require(game.ServerScriptService.ScriptAlias.Quest)
-	local hasPass = quest:CheckSeasonPass(player)
+	local questRequest = require(game.ServerScriptService.ScriptAlias.Quest)
+	local hasPass = questRequest:CheckSeasonPass(player)
 	if hasPass then
-		collect("💎Season Pass", Define.Quest.SeasonPassProperty)
+		collect("💎Season Pass", nil, nil, Define.Quest.SeasonPassProperty)
 	end
 
 	return allPropertys
@@ -422,37 +426,85 @@ function PlayerProperty:GetPlayerProperty(player, prefix)
 	return nil
 end
 
+-------------------------------------------------------------------------------------
+-- Util
+
 -- 筛选指定后缀的属性
-function PlayerProperty:SelectProperty(property, propertySuffix)
+function PlayerProperty:SelectProperty(configName, infoList, sourceData, propertySuffix)
 	local suffixLen = #propertySuffix
-	local result = {}
-	for key, value in pairs(property) do
+	
+	local propertyDic = {}
+	
+	-- 普通属性
+	for key, value in pairs(sourceData) do
 		if string.sub(key, -suffixLen) == propertySuffix then
 			local baseKey = string.sub(key, 1, #key - suffixLen)
-			result[baseKey] = value
+			propertyDic[baseKey] = value
 		end
 	end
-	return result
+	
+	-- MaxExist 属性
+	if configName and infoList then
+		local maxPropertyPrefix = "MaxExist"
+		local maxPreffixLen = #maxPropertyPrefix
+		
+		--warn(configName)
+		for key, value in pairs(sourceData) do
+			if string.sub(key, 1, maxPreffixLen) == maxPropertyPrefix then	
+				if value == 0 then continue end
+				local propertyName = string.sub(key, maxPreffixLen + 1, #key - 1)
+				local propertyFactor = value
+				local propertyMaxValue = PlayerProperty:GetMaxPropertyInInfoList(configName, infoList, propertyName, propertySuffix)
+				--print(propertyName, propertyFactor, propertyMaxValue, propertySuffix)
+				value = propertyFactor * propertyMaxValue
+				propertyDic[propertyName] = value	
+			end
+		end
+	end	
+	
+	return propertyDic
 end
 
 -- 属性表相加
-function PlayerProperty:PropertyCombineAdd(result, property)
-	for key, value in pairs(property) do
+function PlayerProperty:PropertyCombineAdd(result, propertyDic)
+	for key, value in pairs(propertyDic) do
 		if result[key] == nil then
 			result[key] = 0
 		end
+		
 		result[key] = result[key] + value
 	end
 end
 
 -- 属性表相乘
-function PlayerProperty:PropertyCombineMultiple(result, property)
-	for key, value in pairs(property) do
+function PlayerProperty:PropertyCombineMultiple(result, propertyDic)
+	for key, value in pairs(propertyDic) do
 		if result[key] == nil then
 			result[key] = 0
 		end
+		
 		result[key] = result[key] * value
 	end
+end
+
+-- 找出已有信息列表中，指定属性的最大值
+function PlayerProperty:GetMaxPropertyInInfoList(configName, infoList, propertyName, propertySuffix)
+	if not configName then return 0 end
+	if propertySuffix then
+		propertyName = propertyName..propertySuffix
+	end
+
+	local result = 0
+	for index, info in ipairs(infoList) do
+		local data = ConfigManager:GetData(configName, info.ID)
+		if not data then continue end
+		local propertyValue = data[propertyName]
+		if propertyValue and propertyValue > result then
+			result = propertyValue
+		end
+	end
+
+	return result
 end
 
 return PlayerProperty

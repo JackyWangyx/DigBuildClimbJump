@@ -81,6 +81,18 @@ function Equipment:GetPackageList(player)
 	return packageList
 end
 
+function Equipment:GetOwnList(player)
+	local result = {}
+	local pacakgeList = Equipment:GetPackageList(player)
+	for index, info in pairs(pacakgeList) do
+		if info.IsBuy then
+			table.insert(result, info)
+		end
+	end
+
+	return result
+end
+
 function Equipment:Buy(player, param)
 	local id = param.ID
 	local packageList = Equipment:GetPackageList(player)

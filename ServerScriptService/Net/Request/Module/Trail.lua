@@ -58,6 +58,18 @@ function Trail:GetPackageList(player)
 	return packageList
 end
 
+function Trail:GetOwnList(player)
+	local result = {}
+	local pacakgeList = Trail:GetPackageList(player)
+	for index, info in pairs(pacakgeList) do
+		if info.IsBuy then
+			table.insert(result, info)
+		end
+	end
+
+	return result
+end
+
 function Trail:Buy(player, param)
 	local id = param.ID
 	local packageList = Trail:GetPackageList(player)

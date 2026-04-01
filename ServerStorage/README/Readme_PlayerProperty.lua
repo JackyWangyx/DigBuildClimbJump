@@ -1,4 +1,4 @@
-﻿-- [👨 玩家属性]
+﻿-- [👨 玩家基础属性]
 
 -- 数值
 -- BasePower = 10,			-- 初始 Power
@@ -7,9 +7,6 @@
 -- MaxSpeedFactor = 1，		-- 最大速度加成百分比
 
 -- 百分比
-
--- [📁 玩家属性]
-
 -- GetPowerFactor = 1,		-- 获取速度倍率系数 1 = 100% 1 倍
 -- GetCoinFactor = 1,		-- 获取金币倍率系数
 -- GetWinsFactor = 1,		-- 获取奖杯倍率系数
@@ -29,3 +26,9 @@
 -- FinalValue = [(PlayerValue + BaseValue) x (1 + BaseFactor)] x (1 + FinalFactor)
 -- 公式中的 BaseValue, BaseFactor, FinalFactor
 -- 对应配置 ValueName1, ValueName2, ValueName3, DisplayValueName, ValueName 为具体属性名
+
+-- [📁 MaxExist 属性]
+
+-- 1. 比如存在属性名为 GetPowerFactor1 ，增加前缀 [MaxExist]，配置 MaxExistGetPowerFactor1 （需要大于0， 如为0 则忽略）。
+-- 2. 此时会找到已经拥有的所有物品的 GetPowerFactor1 中最大值。
+-- 3. 将找到的最大值，与 倍率系数MaxExistGetPowerFactor1 相乘，作为该配置中 GetPowerFactor1 实际生效的属性值。

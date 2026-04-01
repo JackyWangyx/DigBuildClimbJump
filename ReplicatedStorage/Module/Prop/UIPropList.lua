@@ -14,6 +14,8 @@ local UIPropList = {}
 UIPropList.Root = nil
 
 function UIPropList:Init(root)
+	if not root then return end
+	
 	UIPropList.Root = root.Layout
 	for _, child in ipairs(UIPropList.Root:GetChildren()) do
 		if child:IsA("Frame") then
@@ -29,6 +31,8 @@ function UIPropList:Init(root)
 end
 
 function UIPropList:RefreshList()
+	if not UIPropList.Root then return end
+	
 	NetClient:Request("Prop", "GetPackageList", function(packageList)
 		for _, child in ipairs(UIPropList.Root:GetChildren()) do
 			if child:IsA("Frame") then

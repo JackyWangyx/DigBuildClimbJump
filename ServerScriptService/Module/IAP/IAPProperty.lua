@@ -57,13 +57,13 @@ end
 
 function IAPProperty:UltraLuck()
 	return {
-		["LuckyGetPetLegendary1"] = 9,
+		["LuckyGetPetLegendary1"] = 1,
 	}
 end
 
 function IAPProperty:SecretHunter()
 	return {
-		["LuckyGetPetSecret1"] = 99,
+		["LuckyGetPetSecret1"] = 1,
 	}
 end
 

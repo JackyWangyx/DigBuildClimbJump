@@ -21,7 +21,6 @@ local DataTemplate = {
 				IsBuy = true,
 			},
 		},
-		MaxPowerCapacity = 0,
 	}
 }
 
@@ -31,19 +30,6 @@ end
 function LoadInfo(player)
 	local saveInfo = PlayerPrefs:GetModule(player, "Tool")
 	return saveInfo
-end
-
--------------------------------------------------
-
-function Tool:GetMaxPowerCapacity(player)
-	local saveInfo = LoadInfo(player)
-	local result = saveInfo.MaxPowerCapacity
-	if not result then
-		saveInfo.MaxPowerCapacity = 0
-		result = 0
-	end
-	
-	return result
 end
 
 -------------------------------------------------
@@ -85,6 +71,18 @@ function Tool:GetPackageList(player)
 		end
 	end
 	return packageList
+end
+
+function Tool:GetOwnList(player)
+	local result = {}
+	local pacakgeList = Tool:GetPackageList(player)
+	for index, info in pairs(pacakgeList) do
+		if info.IsBuy then
+			table.insert(result, info)
+		end
+	end
+	
+	return result
 end
 
 function Tool:Buy(player, param)

@@ -60,6 +60,18 @@ function Partner:GetPackageList(player)
 	return packageList
 end
 
+function Partner:GetOwnList(player)
+	local result = {}
+	local pacakgeList = Partner:GetPackageList(player)
+	for index, info in pairs(pacakgeList) do
+		if info.IsBuy then
+			table.insert(result, info)
+		end
+	end
+
+	return result
+end
+
 function Partner:Buy(player, param)
 	local id = param.ID
 	local packageList = Partner:GetPackageList(player)

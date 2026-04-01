@@ -9,6 +9,9 @@ local TweenService = game:GetService("TweenService")
 
 local Util = {}
 
+------------------------------------------------------------------------------------
+-- Valid
+
 function Util:IsValueValid(value)
 	if value == nil or value == "" or value == "nil" or value == "NIL" or value == 0 then
 		return false
@@ -17,7 +20,9 @@ function Util:IsValueValid(value)
 	return true
 end
 
+------------------------------------------------------------------------------------
 -- Error
+
 function Util:HandleError(err)
 	local trace = debug.traceback(err, 2)
 	local formattedTrace = {}
@@ -110,12 +115,14 @@ function Util:BindPartProperty(part, propertyName, func)
 	return connection
 end
 
+------------------------------------------------------------------------------------
 -- Load
+
 function Util:LoadPrefab(path)
 	return ResourcesManager:Load(path)
 end
 
-function Util:RequireWaitForChild(root, childName)
+function Util:RequireWaitForChild(root, childName, timeout)
 	timeout = timeout or 10
 	local startTime = tick()
 	local object = root:WaitForChild(childName, timeout)
@@ -126,7 +133,9 @@ function Util:RequireWaitForChild(root, childName)
 	return object
 end
 
+------------------------------------------------------------------------------------
 -- Get Child / Parent
+
 function Util:GetParentByType(part, typeName)
 	local current = part.Parent
 	while current do
@@ -259,20 +268,26 @@ function Util:DestroyAllChild(part)
 	end
 end
 
+------------------------------------------------------------------------------------
 -- Time / Date
+
 function Util:GetDateStr()
 	local str = os.date("%Y-%m-%d %H:%M:%S")
 	return str
 end
 
+------------------------------------------------------------------------------------
 -- Float
+
 function Util:RoundFloat(num, decimals)
 	local factor = 10 ^ decimals
 	return math.floor(num * factor + 0.5) / factor
 	--return tonumber(string.format("%." .. decimals .. "f", num))
 end
 
+------------------------------------------------------------------------------------
 -- Vector3
+
 function Util:RoundVector3(vec, decimals)
 	return Vector3.new(
 		Util:RoundFloat(vec.X, decimals),
@@ -280,6 +295,13 @@ function Util:RoundVector3(vec, decimals)
 		Util:RoundFloat(vec.Z, decimals)
 	)
 end
+
+function Util:Vector3Multiply(vector1, vector2)
+	return Vector3.new(vector1.X * vector2.X, vector1.Y * vector2.Y, vector1.Z * vector2.Z)
+end
+
+------------------------------------------------------------------------------------
+-- String
 
 function Util:IsStrEmpty(str)
 	if str == nil or str == "" or str == "nil" or str == "null" or str == "NIL" or str == "NULL" then
@@ -322,7 +344,9 @@ function Util:FormatProbability(probability)
 	return result
 end
 
+------------------------------------------------------------------------------------
 -- List
+
 function Util:IsListEmpty(target)
 	if target == nil then return true end
 	if next(target) == nil then return true end
@@ -430,6 +454,7 @@ end
 	--	function(info) return -info.Rarity end,
 	--	function(info) return -info.Value1 end,
 	--})
+	
 function Util:ListSort(array, compareItemGetters)
 	if not array then return array end
 	local comparors = Util:CreateSortComparers(compareItemGetters)
@@ -600,8 +625,10 @@ function Util:ListIndexOf(array, item)
 	return -1
 end
 
+------------------------------------------------------------------------------------
 -- Rand
 -- Item = { Weight = xxx }
+
 function Util:ListRandomWeight(weightList, count)
 	count = count or 1
 	local results = {}
@@ -651,8 +678,9 @@ function Util:ListRandomWeight(weightList, count)
 	end
 end
 
-
+------------------------------------------------------------------------------------
 -- Table
+
 function Util:TableCount(array, condition)
 	if not array then return 0 end
 	local count = 0
@@ -809,12 +837,16 @@ function Util:TableRandom(luaTable)
 	return luaTable[randomKey], randomKey
 end
 
+------------------------------------------------------------------------------------
 -- Guid
+
 function Util:NewGuid()
 	return HttpService:GenerateGUID(false)
 end
 
+------------------------------------------------------------------------------------
 -- Color
+
 function Util:ColorToHtml(color)
 	-- RGB
 	local r = math.floor(color.R * 255 + 0.5)
@@ -831,7 +863,9 @@ function Util:ToColorText(str, color)
 	return result
 end
 
+------------------------------------------------------------------------------------
 -- Object - Position
+
 function Util:SetPosition(object, position)
 	if object:IsA("Model") then
 		local pivot = object:GetPivot()
@@ -910,17 +944,16 @@ function Util:SetForward(object, forward)
 	end
 end
 
--- Vector3
-function Util:Vector3Multiply(vector1, vector2)
-	return Vector3.new(vector1.X * vector2.X, vector1.Y * vector2.Y, vector1.Z * vector2.Z)
-end
-
+------------------------------------------------------------------------------------
 -- CFrame
+
 function Util:CFrameFromAngles360(rotation)
 	return CFrame.fromEulerAnglesXYZ(math.rad(rotation.x), math.rad(rotation.y), math.rad(rotation.z))
 end
 
+------------------------------------------------------------------------------------
 -- Folder
+
 function Util:GetReplicatedFolder(folderName)
 	local folder = game.ReplicatedStorage:FindFirstChild(folderName)
 	if not folder then
@@ -941,7 +974,9 @@ function Util:GetWorkspaceFolder(folderName)
 	return folder
 end
 
+------------------------------------------------------------------------------------
 -- Active DeActive (Show / Hide) - Move to replicatedStoreage
+
 local DeActiveCache = {}
 local DeActiveFolder = Util:GetReplicatedFolder("RuntimeOnly_DeActive")
 
@@ -963,7 +998,9 @@ function Util:DeActiveObject(object)
 	object.Parent = DeActiveFolder
 end
 
+------------------------------------------------------------------------------------
 -- Fx
+
 function Util:SpawnFx(fxPrefab, pos, destroyTime)
 	local fx = fxPrefab:Clone()
 	fx.Position = pos
