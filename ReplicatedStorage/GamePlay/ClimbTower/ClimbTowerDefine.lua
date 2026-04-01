@@ -23,6 +23,7 @@ ClimbTowerDefine.Game = {
 	TowerHeightDefault = 20,
 	TowerUpgradeDuration = 3,
 	TowerUpgradeFx = "Fx/Fx_PlayerDrop",
+	AutoClimbStopTopOffset = -1,
 	-- 挖掘区域生成参数
 	DigAreaPos = Vector3.new(0, -515, 0),
 	DigAreaSize = Vector3.new(256, 1024, 256),
@@ -37,7 +38,7 @@ ClimbTowerDefine.Game = {
 	-- 检查落地高度阈值
 	LandedCheckHeight = 12,
 	-- 攀爬最大速度
-	MaxClimbSpeed = 500,
+	MaxClimbSpeed = 1000,
 	-- 坠落动画
 	PlayerFallAnimation = "rbxassetid://126206551463192",
 	-- 落地特效延迟
@@ -63,6 +64,7 @@ ClimbTowerDefine.GamePhase = {
 ClimbTowerDefine.Event = {
 	EnterDig = "EnterDig",
 	ExitDig = "ExitDig",
+	Dig = "Dig",
 	
 	Enter = "Enter",
 	ArriveEnd = "ArriveEnd",

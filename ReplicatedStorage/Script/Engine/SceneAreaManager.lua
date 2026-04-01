@@ -24,7 +24,7 @@ function SceneAreaManager:Init()
 			Area = area,
 			OnlySelf = area:FindFirstChild("OnlySelf"),
 			SpawnLocation = area:FindFirstChild("SpawnLocation"),		
-			ThemeKey = nil,
+			ThemeKey = "Default",
 			ThemeList = {},
 			
 			-- Additional
@@ -72,6 +72,7 @@ end
 function SceneAreaManager:RefreshServerAreaInfo(serverAreaInfoList)
 	SceneAreaManager.ServerAeraInfoList = serverAreaInfoList
 	SceneAreaManager:InitSelfAreaIndex()
+	
 	for areaIndex, serverAreaInfo in ipairs(serverAreaInfoList) do
 		local areaInfo = SceneAreaManager.AreaInfoList[areaIndex]
 		if serverAreaInfo.ThemeKey ~= areaInfo.ThemeKey then

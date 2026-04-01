@@ -6,6 +6,7 @@ local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local UpdatorManager = require(game.ReplicatedStorage.ScriptAlias.UpdatorManager)
 local UIInfo = require(game.ReplicatedStorage.ScriptAlias.UIInfo)
+local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 
 local GuideDefine = require(game.ReplicatedStorage.ScriptAlias.GuideDefine)
 
@@ -23,7 +24,14 @@ function GuideStep.new(key, config, info)
 		self.TargetPos = self.TargetBuilding.BuildingPart:GetPivot().Position
 	elseif config.TargetMode == GuideDefine.TargetMode.Pos then
 		self.TargetPos = config.TargetPos
+	elseif config.TargetMode == GuideDefine.TargetMode.Custom then
+		self.TargetPos = self.Config.TargetCustomPosFunc()
 	end
+	
+	self.Arrow = nil
+	self.Tip = nil
+	self.UI = nil
+	self.UpdateHandle = nil
 	
 	self:Init()
 	self.IsInit = true
@@ -71,6 +79,21 @@ function GuideStep:Enable()
 		self:Update(deltaTime)
 	end)
 	
+	if self.Config.TriggerMode == GuideDefine.TriggerMode.Event then
+		self.TriggerFunc = function(eventParam)
+			local param = self.Config.TriggerEventParam
+			if param then
+				if param == eventParam then
+					self:Complete()
+				end	
+			else
+				self:Complete()
+			end		
+		end
+
+		EventManager:Listen(self.Config.TriggerEvent, self.TriggerFunc)
+	end
+	
 	self:EnableImpl()
 	
 	--warn("Guide Start", self.Key)
@@ -87,6 +110,11 @@ function GuideStep:Disable()
 	if self.UpdateHandle then
 		self.UpdateHandle:Destroy()
 		self.UpdateHandle = nil
+	end
+	
+	if self.Config.TriggerMode == GuideDefine.TriggerMode.Event then
+		EventManager:Remove(self.Config.TriggerEvent, self.TriggerFunc)
+		self.TriggerFun = nil
 	end
 	
 	self:DisableImpl()

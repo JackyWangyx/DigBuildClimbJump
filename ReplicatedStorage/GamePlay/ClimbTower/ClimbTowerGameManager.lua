@@ -142,9 +142,9 @@ function ClimbTowerGameManager:Exit(index)
 end
 
 function ClimbTowerGameManager:GetWins(index)
-	if ClimbTowerGameLoop.GamePhase == ClimbTowerDefine.GamePhase.ArriveEnd then
-		NetClient:Request("ClimbTower", "GetWins")
-	end
+	NetClient:Request("ClimbTower", "GetWins")
+	--if ClimbTowerGameLoop.GamePhase == ClimbTowerDefine.GamePhase.ArriveEnd then
+	--end
 end
 
 function ClimbTowerGameManager:GetCoin(index)
@@ -249,6 +249,8 @@ function ClimbTowerGameManager:OnDigSuccess(success, hitPos)
 	task.delay(equipmentData.DigInterval, function()
 		ClimbTowerGameManager.IsDigging = false
 	end)
+	
+	EventManager:Dispatch(ClimbTowerDefine.Event.Dig)
 end
 
 function ClimbTowerGameManager:OnDigFail()

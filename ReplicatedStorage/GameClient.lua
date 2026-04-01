@@ -64,7 +64,7 @@ function GameClient:Init()
 	GameClient:RegisterLoadProcess("Debug Client", require(game.ReplicatedStorage.ScriptAlias.DebugClient))	
 	GameClient:RegisterLoadProcess("Camera Manager", require(game.ReplicatedStorage.ScriptAlias.CameraManager))	
 	
-	--GameClient:RegisterLoadProcess("Guide Manager", require(game.ReplicatedStorage.ScriptAlias.GuideManager))
+	GameClient:RegisterLoadProcess("Guide Manager", require(game.ReplicatedStorage.ScriptAlias.GuideManager))
 	
 	task.spawn(function()
 		local success = GameClient:StartLoading()

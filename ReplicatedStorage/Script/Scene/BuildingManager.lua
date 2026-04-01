@@ -129,7 +129,11 @@ function BuildingManager:GetBuilding(buildingName)
 	for _, buildingInfo in ipairs(BuildingManager.BuildingList) do
 		if buildingInfo.Name == buildingName then
 			if isClient then
-				if buildingInfo.AreaIndex > 0 and buildingInfo.AreaIndex == currentAreaIndex then 
+				if buildingInfo.AreaIndex > 0 then 
+					if buildingInfo.AreaIndex == currentAreaIndex then
+						return buildingInfo
+					end		
+				else
 					return buildingInfo
 				end
 			else

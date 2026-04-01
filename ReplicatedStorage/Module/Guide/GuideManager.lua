@@ -11,10 +11,21 @@ function GuideManager:Init()
 	NetClient:Request("Guide", "GetInfoList", function(infoList)
 		SaveInfoList = infoList
 		
+		local guideStepFolder = script.Parent:FindFirstChild("Step")
 		for index, guideConfig in ipairs(GuideDefine.GuideList) do
 			local key = guideConfig.Key
 			local guideInfo = infoList[key]
-			local guideScriptFile = script.Parent.Step:FindFirstChild(key)
+			-- 查找同名
+			local guideScriptFile = nil
+			if guideStepFolder then
+				guideScriptFile = guideStepFolder:FindFirstChild(key)
+			end
+
+			if not guideScriptFile then
+				-- 找不到，则直接用基础实现
+				guideScriptFile = script.Parent.GuideStep
+			end
+
 			local guideScript = require(guideScriptFile)
 			local guide = guideScript.new(key, guideConfig, guideInfo)
 			table.insert(GuideList, guide)
