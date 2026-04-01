@@ -38,7 +38,7 @@ ClimbTowerDefine.Game = {
 	-- 检查落地高度阈值
 	LandedCheckHeight = 12,
 	-- 攀爬最大速度
-	MaxClimbSpeed = 1000,
+	MaxClimbSpeed = 1500,
 	-- 坠落动画
 	PlayerFallAnimation = "rbxassetid://126206551463192",
 	-- 落地特效延迟
