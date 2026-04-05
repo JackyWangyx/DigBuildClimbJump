@@ -1,4 +1,4 @@
-﻿-- game.ServerScriptService.Module.Data.PlayerProperty
+﻿-- game.ServerScriptService.Module.Player.PlayerProperty
 -- game.ServerScriptService.ScriptAlias.PlayerProperty
-local PlayerProperty = require(game.ServerScriptService.Module.Data.PlayerProperty)
+local PlayerProperty = require(game.ServerScriptService.Module.Player.PlayerProperty)
 return PlayerProperty

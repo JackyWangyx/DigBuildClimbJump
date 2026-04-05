@@ -117,6 +117,16 @@ function ClimbTowerGameServerHandler:Update(deltaTime)
 	NetServer:BroadcastAll("ClimbTower", "UpdateGameInfo", brocadcastInfo)
 end
 
+function ClimbTowerGameServerHandler:KickAllPlayers(towerIndex)
+	local infoList = table.clone(PlayerCache)
+	for player, playerInfo in pairs(infoList) do
+		if playerInfo.TowerIndex == towerIndex then
+			ClimbTowerGameServerHandler:Exit(player)
+			ClimbTowerGameServerHandler:ResetToTower(player)
+		end
+	end
+end
+
 function ClimbTowerGameServerHandler:Enter(player, param)
 	local towerInfo = ClimbTowerServerHandler:GetTowerByIndex(param.Index)
 	if towerInfo.Player == nil then

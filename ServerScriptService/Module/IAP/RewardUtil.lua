@@ -3,7 +3,41 @@ local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 
 local NetServer = require(game.ServerScriptService.ScriptAlias.NetServer)
 
+local Define = require(game.ReplicatedStorage.Define)
+
 local RewardUtil = {}
+
+------------------------------------------------------------------------------------
+-- Internal Impl
+
+function RewardUtil:GetRewardRequest(player, rewardData)
+	if not rewardData then
+		return {
+			Success = false,
+			Message = Define.Message.RedeemNotExist,
+		}
+	end
+
+	local rewardType = rewardData.RewardType
+	local rewardID = rewardData.RewardID
+	local rewardCount = rewardData.RewardCount
+	RewardUtil:GetReward(player, rewardType, rewardID, rewardCount)
+	local rewardList = {}
+	if rewardType == "Package" then
+		rewardList = ConfigManager:SearchAllData("RewardPackage", "PackageID", rewardID)
+	else
+		table.insert(rewardList, rewardData)
+	end
+
+	return {
+		Success = true,
+		Message = "Success",
+		RewardList = rewardList
+	}
+end
+
+------------------------------------------------------------------------------------
+-- Internal Impl
 
 function RewardUtil:GetRewardList(player, rewardList)
 	for _, data in ipairs(rewardList) do

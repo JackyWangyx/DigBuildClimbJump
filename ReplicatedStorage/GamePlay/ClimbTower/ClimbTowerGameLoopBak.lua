@@ -28,19 +28,19 @@ function ClimbTowerGameLoop:Init()
 	UpdateManager:RenderStepped(function(deltaTime)
 		ClimbTowerGameLoop:Update(deltaTime)
 	end)
-
+	
 	local player = game.Players.LocalPlayer
 	PlayerManager:HandleStateChanged(player, function(oldState, newState)
 		ClimbTowerGameLoop:OnStateChanged(player, oldState, newState)
 	end)
-
+	
 	EventManager:Listen(ClimbTowerDefine.Event.Enter, function(gameInitParam)
 		ClimbTowerGameLoop.GameInitParam = gameInitParam
 		ClimbTowerGameLoop:EnterUp()
-
+		
 		--local areaInfo = SceneAreaManager.AreaInfoList[ClimbTowerGameLoop.GameInitParam.TowerIndex]
 	end)
-
+	
 	EventManager:Listen(ClimbTowerDefine.Event.ArriveEnd, function()
 		ClimbTowerGameLoop:EnterTop()
 
@@ -48,23 +48,23 @@ function ClimbTowerGameLoop:Init()
 		--	local areaInfo = SceneAreaManager.AreaInfoList[ClimbTowerGameLoop.GameInitParam.TowerIndex]
 		--end)	
 	end)
-
+	
 	EventManager:Listen(ClimbTowerDefine.Event.Slide, function()
 		ClimbTowerGameLoop:EnterDown()
 	end)
-
+	
 	EventManager:Listen(ClimbTowerDefine.Event.Exit, function()
 		ClimbTowerGameLoop:EnterFinish()
-
+		
 		--task.delay(ClimbTowerDefine.Game.DropEffectDelay, function()
 		--	local areaInfo = SceneAreaManager.AreaInfoList[ClimbTowerGameLoop.GameInitParam.TowerIndex]
 		--end)	
 	end)
-
+	
 	EventManager:Listen(ClimbTowerDefine.Event.Reset, function()
 		SceneAreaManager:ResetPlayerPos(game.Players.LocalPlayer)
 	end)
-
+	
 	EventManager:Listen(ClimbTowerDefine.Event.LogGameProperty, function()
 		ClimbTowerGameLoop:LogGameProperty()
 	end)
@@ -83,19 +83,9 @@ end
 
 function ClimbTowerGameLoop:GetTowerLength()
 	local areaInfo = SceneAreaManager.AreaInfoList[ClimbTowerGameLoop.GameInitParam.TowerIndex]
-	local tower = areaInfo.Area.Game.Tower
-	local top = tower.Top
+	local top = areaInfo.Area.Game.Tower.Top
 	local height = top.Position.Y
 	return height
-end
-
-function ClimbTowerGameLoop:GetTowerMaxLength()
-	local areaInfo = SceneAreaManager.AreaInfoList[ClimbTowerGameLoop.GameInitParam.TowerIndex]
-	local tower = areaInfo.Area.Game.Tower
-	local top = tower.Top
-	local root = tower.Root
-	local length = top.Position.Y - root.Postiton.Y
-	return length
 end
 
 function ClimbTowerGameLoop:GetClimbingPart()
@@ -121,7 +111,7 @@ function ClimbTowerGameLoop:GetClimbingPart()
 	if cast and cast.Instance:IsA("TrussPart") then
 		return cast.Instance  -- 返回 Truss
 	end
-
+	
 	return nil
 end
 
@@ -147,7 +137,7 @@ function ClimbTowerGameLoop:CheckClimbComplete()
 	if distance > ClimbTowerGameLoop:GetTowerLength() then
 		return true
 	end
-
+	
 	return false
 end
 
@@ -173,38 +163,27 @@ function ClimbTowerGameLoop:OnStateChanged(player, oldState, newState)
 		-- 上升阶段，攀爬中
 		if newState == Enum.HumanoidStateType.Freefall then
 			if not ClimbTowerGameLoop.UpdateInfo.IsClimbComplete then
+				-- 攀爬过程中主动跳落
+				local gameManager = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameManager)
+				gameManager:Slide()
+				PlayerManager:ClearMove(player)
 
-				-- 【新思路：延迟确认】
-				-- 记录当前是在 Up 阶段触发的掉落
-				local dropPhase = ClimbTowerGameLoop.GamePhase
-
-				-- 延迟 0.15 秒（这个时间足够玩家翻越梯子边缘站上平台，又不会让主动跳落显得太卡顿）
-				task.delay(0.15, function()
-					-- 延迟结束后，如果游戏还处于 Up 阶段，再去检查玩家的实时状态
-					if ClimbTowerGameLoop.GamePhase == dropPhase then
-						local currentState = PlayerManager:GetState(player)
-
-						-- 如果 0.15 秒后，玩家【依然】处于自由落体状态，说明是真跳崖了
-						if currentState == Enum.HumanoidStateType.Freefall then
-							local gameManager = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameManager)
-							gameManager:Slide()
-							PlayerManager:ClearMove(player)
-							PlayerManager:DisableClimb(player)
-							--warn("延迟确认：主动跳落触发")
-						end
-					end
-				end)
-
+				PlayerManager:DisableClimb(player)
+				
+				--warn("Slide 2")
 			else
-				-- 到顶部平台主动跳落（不需要延迟，直接下落）
+				-- 到顶部跳落
 				local distance = ClimbTowerGameLoop:GetPlayerDistance()
-				if distance < ClimbTowerGameLoop:GetTowerLength() - 2 then
+				if distance < ClimbTowerGameLoop:GetTowerLength() then
 					local gameManager = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameManager)
 					gameManager:Slide()
 					PlayerManager:ClearMove(player)
+
 					PlayerManager:DisableClimb(player)
+					
+					--warn("Slide 1")
 				end
-			end
+			end	
 		elseif newState == Enum.HumanoidStateType.Running then
 			-- 攀爬过程中切换到跑步状态
 			local distance = ClimbTowerGameLoop:GetPlayerDistance()
@@ -212,9 +191,9 @@ function ClimbTowerGameLoop:OnStateChanged(player, oldState, newState)
 				-- 向下爬回地面
 				local gameManager = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameManager)
 				gameManager:Exit()
-
+				
 				PlayerManager:EnableClimb(player)
-
+				
 				--warn("Exit 2")
 			elseif distance >= ClimbTowerGameLoop:GetTowerLength() and
 				not ClimbTowerGameLoop.UpdateInfo.IsClimbComplete 
@@ -222,53 +201,40 @@ function ClimbTowerGameLoop:OnStateChanged(player, oldState, newState)
 				-- 爬到梯子顶端
 				--local gameManager = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameManager)
 				--gameManager:ArriveEnd()
-
+				
 				ClimbTowerGameLoop.UpdateInfo.IsClimbComplete = true		
 				PlayerManager:ClearMove(player)
 				local rootPart = PlayerManager:GetHumanoidRootPart(player)
 				if rootPart then
 					rootPart.Velocity = Vector3.new(0, 5, 0)
 				end
-
+				
 				local humanoid = PlayerManager:GetHumanoid(player)
 				humanoid.WalkSpeed = Define.Game.WalkSpeed
-
+				
 				--warn("Climb Complete")
 			end
 		end	
-		
 	elseif ClimbTowerGameLoop.GamePhase == ClimbTowerDefine.GamePhase.Down then	
 		if newState == Enum.HumanoidStateType.Landed or
 			newState == Enum.HumanoidStateType.Running
 		then
 			local distance = ClimbTowerGameLoop:GetPlayerDistance()
-
-			-- 【恢复严苛的贴地检查】：去掉之前的 +5，只允许在紧贴地面时触发奖励
-			if distance <= ClimbTowerDefine.Game.LandedCheckHeight + 1 then
-
-				local rootPart = PlayerManager:GetHumanoidRootPart(player)
-				if rootPart then
-					rootPart.AssemblyLinearVelocity = Vector3.zero
-					rootPart.AssemblyAngularVelocity = Vector3.zero
-				end
-
-				-- 确保此时不再播放下落动画
-				local humanoid = PlayerManager:GetHumanoid(player)
-				if humanoid and humanoid:GetState() ~= Enum.HumanoidStateType.Landed then
-					humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-				end
-
+			if distance < ClimbTowerDefine.Game.LandedCheckHeight then
+				-- 跳落 -> 落地
 				PlayerManager:ClearMove(player)
-
+				
 				local gameManager = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameManager)
 				gameManager:GetCoin()
-
+				
 				task.wait()
-
+				
 				gameManager:Exit()
 
 				PlayerManager:EnableClimb(player)
 				ClimbTowerGameLoop:DropEffect()
+				
+				--warn("Exit 1")
 			end
 		end
 	end
@@ -284,13 +250,13 @@ function ClimbTowerGameLoop:EnterUp()
 
 	-- Create Tower
 	ClimbTowerGameLoop.TowerIndex = gameInitParam.TowerIndex
-
+	
 	local towerRoot = SceneManager.AreaList[ClimbTowerGameLoop.TowerIndex]
 
 	-- Init Status
 	local player = game.Players.LocalPlayer
 	local rootPart = PlayerManager:GetHumanoidRootPart(player)
-
+	
 	ClimbTowerGameLoop.UpdateInfo = {
 		Player = player,
 		RootPart = rootPart,
@@ -305,7 +271,7 @@ end
 function ClimbTowerGameLoop:EnterTop()
 	ClimbTowerGameLoop.GamePhase = ClimbTowerDefine.GamePhase.ArriveEnd
 	local updateInfo = ClimbTowerGameLoop.UpdateInfo
-
+	
 	if ClimbTowerAutoPlay.Info.IsAutoGame then
 		task.wait(1)
 		local player = game.Players.LocalPlayer
@@ -317,69 +283,19 @@ end
 
 function ClimbTowerGameLoop:EnterDown()
 	local player = game.Players.LocalPlayer
-	local rootPart = PlayerManager:GetHumanoidRootPart(player)
-	local updateInfo = ClimbTowerGameLoop.UpdateInfo
-
 	if ClimbTowerGameLoop.GamePhase == ClimbTowerDefine.GamePhase.ArriveEnd then
 
 	end
-
+	
 	local state = PlayerManager:GetState(player)
 	if state == Enum.HumanoidStateType.Climbing then
 		ClimbTowerGameLoop:ManualSlide()
 	end
-
+	
 	ClimbTowerGameLoop.GamePhase = ClimbTowerDefine.GamePhase.Down
 	local updateInfo = ClimbTowerGameLoop.UpdateInfo
 	updateInfo.MoveSpeed = 0
 	updateInfo.MoveDistance = ClimbTowerGameLoop:GetPlayerDistance()
-	
-	-- 【新增】：记录下落时间，用于计算渐进式重力
-	updateInfo.FallTime = 0
-
-	-- 【核心修复】：利用 Top 部件计算绝对向外的下落点
-	if rootPart then
-		local areaInfo = SceneAreaManager.AreaInfoList[ClimbTowerGameLoop.GameInitParam.TowerIndex]
-		local topPart = areaInfo.Area.Game.Tower.Top
-
-		if topPart then
-			-- 1. 计算水平向外的向量
-			local towerPos = Vector2.new(topPart.Position.X, topPart.Position.Z)
-			local playerPos = Vector2.new(rootPart.Position.X, rootPart.Position.Z)
-			local awayDir2D = (playerPos - towerPos).Unit
-			if playerPos == towerPos then awayDir2D = Vector2.new(0, 1) end
-
-			local awayDir = Vector3.new(awayDir2D.X, 0, awayDir2D.Y)
-
-			-- 2. 计算 10 Studs 外的目标点
-			local dropOffset = 10 
-			local targetDropPos = rootPart.Position + (awayDir * dropOffset)
-
-			-- 3. 【核心新增】：计算“面朝外”的旋转
-			local targetRotation = CFrame.lookAt(Vector3.zero, awayDir).Rotation
-
-			-- 4. 存入 updateInfo，锁定位置和旋转
-			updateInfo.FixedDropX = targetDropPos.X
-			updateInfo.FixedDropZ = targetDropPos.Z
-			updateInfo.FixedRotation = targetRotation 
-
-			-- 5. 瞬间对齐：位置移到轨道，朝向转到外面
-			rootPart.CFrame = CFrame.new(targetDropPos.X, rootPart.Position.Y, targetDropPos.Z) * targetRotation
-		end
-	end
-
-	-- 【核心新增】：进入下落阶段，立刻剥夺玩家的方向键控制权
-	local control = PlayerManager:GetControl(player)
-	if control then
-		control:Disable()
-	end
-
-	-- ▼▼▼ 就在这里！【防躺地修复】：彻底禁用下落时的绊倒和布娃娃状态 ▼▼▼
-	local humanoid = PlayerManager:GetHumanoid(player)
-	if humanoid then
-		humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
-		humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
-	end
 end
 
 function ClimbTowerGameLoop:ManualSlide()
@@ -405,20 +321,10 @@ end
 
 function ClimbTowerGameLoop:EnterFinish()
 	ClimbTowerGameLoop.GamePhase = ClimbTowerDefine.GamePhase.Idle
-
+	
 	local player = game.Players.LocalPlayer
-	local control = PlayerManager:GetControl(player)
-	if control then
-		control:Enable()
-	end
-
-	-- 【恢复状态】：恢复跌倒状态，以免影响游戏其他机制
-	local humanoid = PlayerManager:GetHumanoid(player)
-	if humanoid then
-		humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
-		humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
-	end
 end
+
 ---------------------------------------------------------------------------------------------------------
 -- Update
 
@@ -432,7 +338,7 @@ end
 
 function ClimbTowerGameLoop:UpdateUp(deltaTime)
 	local updateInfo = ClimbTowerGameLoop.UpdateInfo
-
+	
 	if updateInfo.IsClimbComplete then
 		-- 爬完梯子（无所谓是否到顶部平台）,后主动跳下
 		local player = game.Players.LocalPlayer
@@ -443,7 +349,7 @@ function ClimbTowerGameLoop:UpdateUp(deltaTime)
 			local gameManager = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameManager)
 			gameManager:Slide()
 			ClimbTowerGameLoop.GamePhase = ClimbTowerDefine.GamePhase.Busy
-
+			
 			PlayerManager:DisableClimb(player)
 
 			--warn("Slide 1")
@@ -457,55 +363,7 @@ function ClimbTowerGameLoop:UpdateUp(deltaTime)
 end
 
 function ClimbTowerGameLoop:UpdateDown(deltaTime)
-	local player = game.Players.LocalPlayer
-	local state = PlayerManager:GetState(player)
-	local humanoid = PlayerManager:GetHumanoid(player)
-	local rootPart = PlayerManager:GetHumanoidRootPart(player)
-	local updateInfo = ClimbTowerGameLoop.UpdateInfo
 
-	if not rootPart or not humanoid then return end
-
-	local distance = ClimbTowerGameLoop:GetPlayerDistance()
-	local currentVelocityY = rootPart.AssemblyLinearVelocity.Y
-
-	if state == Enum.HumanoidStateType.Freefall then
-		-- 【修改】：优化碰撞预测，消除半空发奖的现象
-		local fallDistanceNextFrame = math.abs(currentVelocityY) * deltaTime
-
-		-- 如果下一帧会穿模，或者距离地面已经极近
-		if distance <= fallDistanceNextFrame or distance < 2 then
-			-- 核心修复：直接把角色传送到贴地的绝对位置！
-			-- 消除所有悬空感，让角色瞬间精确踩在地面上
-			local targetY = rootPart.Position.Y - distance
-			rootPart.CFrame = CFrame.new(rootPart.Position.X, targetY, rootPart.Position.Z) * rootPart.CFrame.Rotation
-
-			-- 瞬间消除动能
-			rootPart.AssemblyLinearVelocity = Vector3.zero
-			rootPart.AssemblyAngularVelocity = Vector3.zero
-
-			-- 强制切换到落地状态
-			humanoid:ChangeState(Enum.HumanoidStateType.Landed)
-			return
-		end
-
-		-- 渐进式重力计算
-		updateInfo.FallTime = (updateInfo.FallTime or 0) + deltaTime
-		local startGravity = 0
-		local gravityIncreaseRate = 400
-		local maxExtraGravity = 2000
-
-		local currentExtraGravity = math.min(maxExtraGravity, startGravity + (gravityIncreaseRate * updateInfo.FallTime))
-		local extraDropVelocity = Vector3.new(0, -currentExtraGravity * deltaTime, 0)
-		local newVelocity = rootPart.AssemblyLinearVelocity + extraDropVelocity
-
-		-- 终端速度限制
-		local maxFallSpeed = -5000 
-		if newVelocity.Y < maxFallSpeed then
-			newVelocity = Vector3.new(newVelocity.X, maxFallSpeed, newVelocity.Z)
-		end
-
-		rootPart.AssemblyLinearVelocity = newVelocity
-	end
 end
 
 ---------------------------------------------------------------------------------------------------------
@@ -514,7 +372,7 @@ end
 function ClimbTowerGameLoop:DropEffect()
 	local player = game.Players.LocalPlayer
 	local rootPart = PlayerManager:GetHumanoidRootPart(player)
-
+	
 	--local fxPrefab = ResourcesManager:Load("Fx/Fx_PlayerDrop")
 	--Util:SpawnFxEmit(fxPrefab, rootPart.CFrame.Position, 20, 2)
 

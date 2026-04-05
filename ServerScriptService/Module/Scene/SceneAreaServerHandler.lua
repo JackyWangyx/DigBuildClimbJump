@@ -26,7 +26,7 @@ function SceneAreaServerHandler:Init()
 			Index = areaIndex,
 			Area = area,
 			SpawnLocation = area:FindFirstChild("SpawnLocation"),
-			ThemeKey = "Default",
+			ThemeKey = "None",
 			ThemeList = {},
 		}
 		

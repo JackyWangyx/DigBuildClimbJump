@@ -14,6 +14,7 @@ local CameraManager = require(game.ReplicatedStorage.ScriptAlias.CameraManager)
 local SceneAreaManager = require(game.ReplicatedStorage.ScriptAlias.SceneAreaManager)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local SoundManager = require(game.ReplicatedStorage.ScriptAlias.SoundManager)
+local BuildingManager = require(game.ReplicatedStorage.ScriptAlias.BuildingManager)
 
 local DigAreaRewardManager = require(game.ReplicatedStorage.ScriptAlias.DigAreaRewardManager)
 local ClimbTowerGameLoop = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameLoop)
@@ -102,6 +103,9 @@ function ClimbTowerGameManager:Enter(index)
 		if success then
 			EventManager:Dispatch(EventManager.Define.GameStart)			
 			NetClient:Request("Equipment", "HideEquipment")
+			
+			local buildingGetWins = BuildingManager:GetBuilding("BuildingGetWins")
+			Util:ActiveObject(buildingGetWins.BuildingPart)
 		end
 		
 		isEntering = false
@@ -142,13 +146,20 @@ function ClimbTowerGameManager:Exit(index)
 end
 
 function ClimbTowerGameManager:GetWins(index)
-	NetClient:Request("ClimbTower", "GetWins")
+	NetClient:Request("ClimbTower", "GetWins", function(success)
+		if success then
+			local buildingGetWins = BuildingManager:GetBuilding("BuildingGetWins")
+			Util:DeActiveObject(buildingGetWins.BuildingPart)
+		end
+	end)
 	--if ClimbTowerGameLoop.GamePhase == ClimbTowerDefine.GamePhase.ArriveEnd then
 	--end
 end
 
 function ClimbTowerGameManager:GetCoin(index)
-	NetClient:Request("ClimbTower", "GetCoin")
+	NetClient:Request("ClimbTower", "GetCoin", function(success)
+
+	end)
 end
 
 ----------------------------------------------------------------------------------------------------------

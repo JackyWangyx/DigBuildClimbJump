@@ -27,21 +27,21 @@ function GuideStep.new(key, config, info)
 	elseif config.TargetMode == GuideDefine.TargetMode.Custom then
 		self.TargetPos = self.Config.TargetCustomPosFunc()
 	end
-	
+
 	self.Arrow = nil
 	self.Tip = nil
 	self.UI = nil
 	self.UpdateHandle = nil
-	
+
 	self:Init()
 	self.IsInit = true
-	
+
 	return self
 end
 
 function GuideStep:Init()
 	self:InitImpl()
-	
+
 	--warn("Guide Init", self.Key)
 end
 
@@ -52,13 +52,13 @@ function GuideStep:Update(deltaTime)
 		if not player then return end	
 		local startPos = PlayerManager:GetPosition(player)
 		if not startPos then return end
-		
+
 		local endPos = self.TargetPos
 		if not endPos then return end
-		
+
 		startPos = Vector3.new(startPos.X, GuideDefine.ArrowHeight, startPos.Z)
 		endPos = Vector3.new(endPos.X, GuideDefine.ArrowHeight, endPos.Z)
-		
+
 		local parentCFrame = self.Arrow.CFrame
 		local startWorldCFrame = CFrame.new(startPos)
 		self.Arrow.Start.CFrame = parentCFrame:Inverse() * startWorldCFrame
@@ -74,11 +74,11 @@ function GuideStep:Enable()
 	if self.Config.TargetMode ~= GuideDefine.TargetMode.None then
 		self:SetArrow(true)
 	end
-	
+
 	self.UpdateHandle = UpdatorManager:RenderStepped(function(deltaTime)
 		self:Update(deltaTime)
 	end)
-	
+
 	if self.Config.TriggerMode == GuideDefine.TriggerMode.Event then
 		self.TriggerFunc = function(eventParam)
 			local param = self.Config.TriggerEventParam
@@ -93,9 +93,9 @@ function GuideStep:Enable()
 
 		EventManager:Listen(self.Config.TriggerEvent, self.TriggerFunc)
 	end
-	
+
 	self:EnableImpl()
-	
+
 	--warn("Guide Start", self.Key)
 end
 
@@ -106,19 +106,19 @@ function GuideStep:Disable()
 	if self.Config.TargetMode ~= GuideDefine.TargetMode.None then
 		self:SetArrow(false)
 	end
-	
+
 	if self.UpdateHandle then
 		self.UpdateHandle:Destroy()
 		self.UpdateHandle = nil
 	end
-	
+
 	if self.Config.TriggerMode == GuideDefine.TriggerMode.Event then
 		EventManager:Remove(self.Config.TriggerEvent, self.TriggerFunc)
 		self.TriggerFun = nil
 	end
-	
+
 	self:DisableImpl()
-	
+
 	--warn("Guide End", self.Key)
 end
 
@@ -128,7 +128,7 @@ function GuideStep:SetTip(active)
 	local uiGuide = Util:GetChildByName(root, "GuideFrame", true)
 	local info = nil
 	if active then
-		 info = {
+		info = {
 			GuideTip = self.Config.TipText
 		}
 	else
@@ -136,7 +136,7 @@ function GuideStep:SetTip(active)
 			GuideTip = ""
 		}
 	end
-	
+
 	UIInfo:SetInfo(uiGuide, info)
 end
 
@@ -195,7 +195,7 @@ end
 function GuideStep:Complete()
 	local guideManager = require(game.ReplicatedStorage.ScriptAlias.GuideManager)
 	guideManager:Complete(self.Key)
-	
+
 	--print("Complete", self.Key)
 end
 

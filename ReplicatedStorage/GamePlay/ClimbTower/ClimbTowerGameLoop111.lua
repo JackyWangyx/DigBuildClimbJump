@@ -83,19 +83,9 @@ end
 
 function ClimbTowerGameLoop:GetTowerLength()
 	local areaInfo = SceneAreaManager.AreaInfoList[ClimbTowerGameLoop.GameInitParam.TowerIndex]
-	local tower = areaInfo.Area.Game.Tower
-	local top = tower.Top
+	local top = areaInfo.Area.Game.Tower.Top
 	local height = top.Position.Y
 	return height
-end
-
-function ClimbTowerGameLoop:GetTowerMaxLength()
-	local areaInfo = SceneAreaManager.AreaInfoList[ClimbTowerGameLoop.GameInitParam.TowerIndex]
-	local tower = areaInfo.Area.Game.Tower
-	local top = tower.Top
-	local root = tower.Root
-	local length = top.Position.Y - root.Postiton.Y
-	return length
 end
 
 function ClimbTowerGameLoop:GetClimbingPart()
@@ -236,7 +226,7 @@ function ClimbTowerGameLoop:OnStateChanged(player, oldState, newState)
 				--warn("Climb Complete")
 			end
 		end	
-		
+
 	elseif ClimbTowerGameLoop.GamePhase == ClimbTowerDefine.GamePhase.Down then	
 		if newState == Enum.HumanoidStateType.Landed or
 			newState == Enum.HumanoidStateType.Running
@@ -333,7 +323,7 @@ function ClimbTowerGameLoop:EnterDown()
 	local updateInfo = ClimbTowerGameLoop.UpdateInfo
 	updateInfo.MoveSpeed = 0
 	updateInfo.MoveDistance = ClimbTowerGameLoop:GetPlayerDistance()
-	
+
 	-- 【新增】：记录下落时间，用于计算渐进式重力
 	updateInfo.FallTime = 0
 

@@ -6,11 +6,18 @@ function UIThemeItem.new()
 	return self
 end
 
-function UIThemeItem:Button_SelectItem(button, param)
+function UIThemeItem:Button_Select(button, param)
 	local uiList = param.UIListScript
 	local uiRoot = param.UIRoot
 	local index = param.Index
-	uiList:SelectItem(index)
+	uiList:Select(index)
+end
+
+function UIThemeItem:Button_Buy(button, param)
+	local uiList = param.UIListScript
+	local uiRoot = param.UIRoot
+	local index = param.Index
+	uiList:Buy(index)
 end
 
 return UIThemeItem

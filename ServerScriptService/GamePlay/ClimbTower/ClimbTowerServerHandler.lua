@@ -46,7 +46,6 @@ function ClimbTowerTowerServerHandler:Init()
 			local towerInfo = ClimbTowerTowerServerHandler.TowerList[index]
 			if not towerInfo then continue end
 			if areaInfo.ThemeKey ~= nil and areaInfo.ThemeKey ~= towerInfo.ThemeKey and towerInfo.Player ~= nil then
-				towerInfo.ThemeKey = areaInfo.ThemeKey
 				task.spawn(function()
 					ClimbTowerTowerServerHandler:RefreshTower(towerInfo.Player)
 				end)
@@ -128,6 +127,7 @@ function ClimbTowerTowerServerHandler:CreateTower(towerInfo)
 	local cframe = towerInfo.TowerPos.CFrame
 	
 	local tower = nil
+	--warn(towerInfo.ThemeKey, themeKey)
 	if towerInfo.ThemeKey == themeKey and towerInfo.Tower then
 		-- 已经存在相同的塔，不重新生成，重新计算位置
 		tower = towerInfo.Tower
@@ -139,7 +139,12 @@ function ClimbTowerTowerServerHandler:CreateTower(towerInfo)
 		
 		EventManager:DispatchToClient(player, ClimbTowerDefine.Event.BuildTower)
 	else
-		-- 主题变化，重新生成
+		-- 主题变化
+		-- 踢出游戏中玩家
+		local gameServerHandler = require(game.ServerScriptService.ScriptAlias.ClimbTowerGameServerHandler)
+		gameServerHandler:KickAllPlayers(towerInfo.Index)
+		
+		-- 重新生成塔
 		if towerInfo.Tower then
 			ClimbTowerTowerServerHandler:ClearTower(towerInfo)
 		end

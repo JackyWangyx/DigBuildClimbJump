@@ -18,7 +18,7 @@ GuideDefine.TriggerMode = {
 }
 
 GuideDefine.ArrowPrefab = "GuideArrow"
-GuideDefine.ArrowHeight = 5
+GuideDefine.ArrowHeight = 1
 
 ----------------------------------------------------------------------------------------
 -- Demo

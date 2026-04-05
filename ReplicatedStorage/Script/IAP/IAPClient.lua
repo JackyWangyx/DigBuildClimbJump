@@ -6,7 +6,7 @@ local RunService = game:GetService("RunService")
 local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
-local EventMnaager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
+local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 
 local Define = require(game.ReplicatedStorage.Define)
@@ -90,7 +90,7 @@ function OnPurchaseGamePass(player, productID, purchaseResult)
 	
 		NetClient:Request("IAP", "PurchaseGamePass", requestParam, function(result)
 			if result then
-				EventMnaager:Dispatch(EventMnaager.Define.RefreshGamePass)
+				EventManager:Dispatch(EventManager.Define.RefreshGamePass)
 			end		
 		end)
 	else

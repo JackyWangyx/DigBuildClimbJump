@@ -2,12 +2,18 @@
 
 -- 定义单位（从 K 到 F）
 --BigNumber.Unit = { "K", "M", "B", "T", "P", "E", "Z", "Y", "A", "D", "F" }
-BigNumber.Unit = { "K", "M", "B", "T", "Qa" }
+BigNumber.Unit = { "K", "M", "B", "T", "Qa" , "Qi", "Sx", "Sp", "Oc", "No", "Dc","Ud", "Dd", "Td", "Qad", "Qid", "Sxd", "Spd", "Od", "Nd", "Vg", "Uvg", "Dvg", "Tvg", "Qavg", "Qivg", "Sxvg", "Spvg", "Ovg", "Nvg"}
 
 -- 格式化大数
 function BigNumber:Format(number)
 	-- 转换为字符串，确保可以获取长度
 	local numStr = tostring(number)
+	
+	if numStr:find("[eE]") then
+		-- 使用 string.format("%.0f", ...) 强制转为完整数字字符串
+		-- 注意：超过 2^53 左右精度会丢失，但至少能拿到正确的数量级
+		numStr = string.format("%.0f", tonumber(number) or 0)
+	end
 
 	-- 如果长度小于等于 3，则直接返回
 	if #numStr <= 3 then

@@ -1,4 +1,4 @@
-﻿-- game.ReplicatedStorage.Script.Engine.SceneAreaManager
+﻿-- game.ReplicatedStorage.Script.Scene.SceneAreaManager
 -- game.ReplicatedStorage.ScriptAlias.SceneAreaManager
-local SceneAreaManager = require(game.ReplicatedStorage.Script.Engine.SceneAreaManager)
+local SceneAreaManager = require(game.ReplicatedStorage.Script.Scene.SceneAreaManager)
 return SceneAreaManager

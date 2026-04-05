@@ -65,7 +65,7 @@ local function SafeCall(updator, dt)
 		updator.Enabled = false
 		updator.LastError = err
 
-		warn("[UpdatorManager] Update error, system disabled:", debug.traceback(err, 2))
+		warn("[UpdatorManager] Update Error : ", debug.traceback(err, 2), "\n[Updator] \n", updator)
 	end
 end
 
@@ -126,13 +126,14 @@ end
 -- API
 
 local function Register(cache, func, interval, priority)
+	local source = debug.info(func, "s")
 	local updator = {
 		Func = func,
 		Interval = interval or 0,
 		Elapsed = 0,
 		Priority = priority or 100,
 		Enabled = true,
-
+		Source = source,
 		-- Debug / Error
 		LastError = nil,
 	}

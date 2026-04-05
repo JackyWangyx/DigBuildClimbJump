@@ -108,6 +108,11 @@ function UIInfo:SetValue(itemPart, key, value, cacheChildList)
 			local size = infoPart.Size
 			infoPart.Size = UDim2.new(value, size.X.Offset, size.Y.Scale, size.Y.Offset)
 		end,  cacheChildList)
+		
+		UIInfo:SetValueByTypeImpl(itemPart, "ImageLabel", "Image_FillAmount_"..key.."_V", function(infoPart)
+			local size = infoPart.Size
+			infoPart.Size = UDim2.new(size.X.Scale, size.X.Offset,  value, size.Y.Offset)
+		end,  cacheChildList)
 	end
 
 	-- Boolean

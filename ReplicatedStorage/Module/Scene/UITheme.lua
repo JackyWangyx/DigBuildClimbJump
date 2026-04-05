@@ -90,23 +90,31 @@ function UITheme:RefreshInfo()
 	UIInfo:SetInfo(UITheme.InfoFrame, info)
 end
 
-function UITheme:SelectItem(index)
-	if not UITheme.ItemList then return end
-	UITheme.SelectIndex = index
-	UITheme:Refresh()
-end
+--function UITheme:SelectItem(index)
+--	if not UITheme.ItemList then return end
+--	UITheme.SelectIndex = index
+--	UITheme:Refresh()
+--end
 
-function UITheme:Button_Switch()
+function UITheme:Select(index)
 	if not UITheme.ItemList then return end
-	local themeKey = UITheme.SelectThemeInfo.ThemeKey
+	
+	UITheme.SelectIndex = index
+	local item = UITheme.ItemList[index]
+	local info = UITheme.InfoList[index]
+	
+	local themeKey = info.ThemeKey
 	NetClient:Request("Theme", "SwitchTheme", { ThemeKey = themeKey }, function(result)
 		UITheme:Refresh()
 	end)
 end
 
-function UITheme:Button_Buy()
+function UITheme:Buy(index)
 	if not UITheme.ItemList then return end
-	local themeKey = UITheme.SelectThemeInfo.ThemeKey
+	local item = UITheme.ItemList[index]
+	local info = UITheme.InfoList[index]
+	
+	local themeKey = info.ThemeKey
 	NetClient:Request("Theme", "UnlockTheme", { ThemeKey = themeKey }, function(result)
 		if result.Success then
 			UITheme:Refresh()

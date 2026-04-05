@@ -11,6 +11,7 @@ local function Init()
 	require(game.ServerScriptService.ScriptAlias.PlayerStatus):Init()
 	require(game.ServerScriptService.ScriptAlias.PlayerProperty):Init()
 	require(game.ServerScriptService.ScriptAlias.PlayerLeaderStats):Init()
+	require(game.ServerScriptService.ScriptAlias.PlayerHud):Init()
 	require(game.ServerScriptService.ScriptAlias.PlayerRecord):Init()
 	require(game.ServerScriptService.ScriptAlias.GameRank):Init()
 

@@ -147,6 +147,8 @@ function  IAPServer:OnProcessReceipt(receiptInfo)
 		ReceiptInfo = receiptInfo }
 	)
 	
+	EventManager:Dispatch(EventManager.Define.RefreshGamePass, player)
+	
 	IAPServer.PurchaseRequestInfoCache[requestID] = nil
 	return Enum.ProductPurchaseDecision.PurchaseGranted
 end
@@ -168,6 +170,7 @@ function IAPServer:ProcessPurchaseGamePass(player, productID)
 	if not iapData then
 		return false
 	end
+	
 	local productKey = iapData.ProductKey
 	local processFunc = IAPHandler[productKey]
 	local processResult = processFunc(IAPHandler, player)

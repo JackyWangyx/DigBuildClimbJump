@@ -240,6 +240,10 @@ Define.Message = {
 	TradePackageFull = "Package Full ! Can't Confirm!",
 	TradeComplete = "Trade Complete!",
 	
+	-- Reward
+	RewardGotten = "Rewards have been claimed",
+	RewardNotExist = "Reward Not Exist!",
+	
 	-- Redeem
 	RedeemNotExist = "Code not exist!",
 	RedeemFail = "Code already redeemed",
@@ -277,7 +281,6 @@ Define.Event = {
 	RefreshAutoPlay = "RefreshAutoPlay",
 	RefreshGameInfo = "RefreshGameInfo",
 	RefreshOfficalGroup = "RefreshOfficalGroup",
-	RefreshTheme = "RefreshTheme",
 	RefreshTower = "RefreshTower",
 	RefreshArea = "RefreshArea",
 	
@@ -394,6 +397,7 @@ Define.Event = {
 	QuestOnlineTime = "QuestOnlineTime",
 	QuestArriveEnd = "QuestArriveEnd",
 	QuestGetTool = "QuestGetTool",
+	QuestGetEquipment = "QuestGetEquipment",
 	QuestPetUpgrade = "QuestPetUpgrade",
 	QuestUnlockLevel = "QuestUnlockLevel",
 }
@@ -436,6 +440,7 @@ Define.PlayerRecord = {
 	TotalOnlineTime = "TotalOnlineTime",
 	TotalArriveEnd = "TotalArriveEnd",
 	TotalGetTool = "TotalGetTool",
+	TotalGetEquipment = "TotalGetEquipment",
 	TotalGetAnimal = "TotalGetAnimal",
 	TotalGetPartner = "TotalGetPartner",
 	TotalPetUpgrade = "TotaltPetUpgrade",

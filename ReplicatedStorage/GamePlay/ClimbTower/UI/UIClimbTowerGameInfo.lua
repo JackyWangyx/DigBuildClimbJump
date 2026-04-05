@@ -6,6 +6,7 @@ local UpdatorManager = require(game.ReplicatedStorage.ScriptAlias.UpdatorManager
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local SceneAreaManager = require(game.ReplicatedStorage.ScriptAlias.SceneAreaManager)
 
 local ClimbTowerGameManager = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameManager)
 local ClimbTowerGameLoop = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameLoop)
@@ -82,6 +83,10 @@ function UIClimbTowerGameInfo:Init(root)
 	UpdatorManager:RenderStepped(function(deltaTime)
 		UIClimbTowerGameInfo:Refresh()
 	end)
+	
+	EventManager:Listen(ClimbTowerDefine.Event.BuildTower, function()
+		UIClimbTowerGameInfo:RefreshBuildInfo()
+	end)
 end
 
 function UIClimbTowerGameInfo:Refresh()	
@@ -91,6 +96,7 @@ function UIClimbTowerGameInfo:Refresh()
 	UIClimbTowerGameInfo:RefreshBottonRank(updateGameInfo)
 	
 	UIClimbTowerGameInfo:RefreshDigInfo()
+	UIClimbTowerGameInfo:RefreshBuildInfo()
 end
 
 function UIClimbTowerGameInfo:RefreshDigInfo()
@@ -123,6 +129,26 @@ function UIClimbTowerGameInfo:RefreshToolInfo()
 	UIInfo:SetInfo(UIClimbTowerGameInfo.UIPowerTarget, info)
 end
 
+function UIClimbTowerGameInfo:RefreshBuildInfo()
+	local areaInfo = SceneAreaManager.AreaInfoList[SceneAreaManager.CurrentAreaIndex]
+	local buildingProgress = 0
+	
+	local tower = areaInfo.Area.Game:WaitForChild("Tower")
+	if tower then
+		local top = tower:WaitForChild("Top")
+		local root = tower:WaitForChild("Root")
+		local towerLength = top.Position.Y
+		local towerMaxLength = top.Position.Y - root.Position.Y
+		buildingProgress = towerLength / towerMaxLength
+	end
+	
+	local info = {
+		BuildingProgress = buildingProgress
+	}
+	
+	UIInfo:SetInfo(UIClimbTowerGameInfo.BottonRankTrans, info)
+end
+
 function UIClimbTowerGameInfo:RefreshPlayerInfo()
 	if not UIClimbTowerGameInfo.IsInGame then return end
 	
@@ -137,6 +163,7 @@ function UIClimbTowerGameInfo:RefreshPlayerInfo()
 
 	UIInfo:SetInfo(UIClimbTowerGameInfo.PlayerGameFrame, info)
 end
+
 
 ------------------------------------------------------------------------------
 -- Rank

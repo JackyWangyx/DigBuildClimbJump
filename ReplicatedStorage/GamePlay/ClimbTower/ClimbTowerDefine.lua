@@ -20,7 +20,7 @@ ClimbTowerDefine.ClickGameDownParam = {
 
 ClimbTowerDefine.Game = {
 	-- 塔的初始高度
-	TowerHeightDefault = 20,
+	TowerHeightDefault = -1,
 	TowerUpgradeDuration = 3,
 	TowerUpgradeFx = "Fx/Fx_PlayerDrop",
 	AutoClimbStopTopOffset = -1,
@@ -40,12 +40,12 @@ ClimbTowerDefine.Game = {
 	-- 攀爬最大速度
 	MaxClimbSpeed = 1500,
 	-- 坠落动画
-	PlayerFallAnimation = "rbxassetid://126206551463192",
+	PlayerFallAnimation = "rbxassetid://507767968",
 	-- 落地特效延迟
 	DropEffectDelay = 0.35,
 	-- 落地相机震动参数
 	DropCameraShakeParam = {
-		Poweer = Vector3.new(0, 3, 0),
+		Poweer = Vector3.new(1, 0.5, 1),
 		Duration = 1,
 		Count = 6
 	},

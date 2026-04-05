@@ -221,29 +221,7 @@ end
 function ClimbTower:GetDigAreaReward(player, param)
 	local id = param.ID
 	local data = ConfigManager:GetData("DigAreaReward", id)
-	if not data then
-		return {
-			Success = false,
-			Message = Define.Message.RedeemNotExist,
-		}
-	end
-
-	local rewardType = data.RewardType
-	local rewardID = data.RewardID
-	local rewardCount = data.RewardCount
-	RewardUtil:GetReward(player, rewardType, rewardID, rewardCount)
-	local rewardList = {}
-	if rewardType == "Package" then
-		rewardList = ConfigManager:SearchAllData("RewardPackage", "PackageID", rewardID)
-	else
-		table.insert(rewardList, data)
-	end
-
-	return {
-		Success = true,
-		Message = "Success",
-		RewardList = rewardList
-	}
+	return RewardUtil:GetRewardRequest(player, data)
 end
 
 return ClimbTower
