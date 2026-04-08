@@ -29,7 +29,7 @@ ID,Name,BuyOrder,Rarity,Icon,ThemeKey,Prefab,MaxExistSpeed1,Speed1,PowerCapacity
 25,Sphere Core,25,4,rbxassetid://127493067549471,World01,Tool/Tool25,0.0,68000,100,68K,48.0,2100000000000000,0,0,Tool,nil,nil,nil
 26,Ace Mech,-1,6,rbxassetid://127493067549471,nil,Tool/ToolRBStore01,1.2,1,100,120%,80.0,0,299,0,Tool,ProductStoreTool26,nil,nil
 27,Cyber Wings,-1,6,rbxassetid://127958630368452,nil,Tool/ToolRBStore02,1.5,1,100,150%,100.0,0,1999,0,Tool,ProductStoreTool27,nil,nil
-28,Dragonfly,-1,6,rbxassetid://131749869143723,nil,Tool/ToolRBLv01,0.0,200000,50,2K,50.0,0,299,0,Tool,ProductStoreTool28,nil,nil
+28,Dragonfly,-1,6,rbxassetid://131749869143723,nil,Tool/ToolRBLv01,0.0,2000,50,2K,50.0,0,299,0,Tool,ProductStoreTool28,nil,nil
 29,Default,-1,6,rbxassetid://127958630368452,nil,Tool/Tool01,0.0,1,1,1,1.0,0,9999999,0,Tool,ProductStoreTool29,nil,nil
 30,Default,-1,6,rbxassetid://88796490670238,nil,Tool/Tool02,0.0,1,1,1,1.0,0,9999999,0,Tool,ProductStoreTool30,nil,nil
 31,Default,-1,6,rbxassetid://91735701899201,nil,Tool/Tool03,0.0,1,1,1,1.0,0,9999999,0,Tool,ProductStoreTool31,nil,nil

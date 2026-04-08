@@ -8,6 +8,7 @@ local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local UTween = require(game.ReplicatedStorage.ScriptAlias.UTween)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local CameraManager = require(game.ReplicatedStorage.ScriptAlias.CameraManager)
+local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 --local PlayerMove = require(game.ReplicatedStorage.ScriptAlias.PlayerMove)
 
 local ClimbTowerDefine = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerDefine)
@@ -83,9 +84,19 @@ end
 
 function ClimbTowerGameLoop:GetTowerLength()
 	local areaInfo = SceneAreaManager.AreaInfoList[ClimbTowerGameLoop.GameInitParam.TowerIndex]
-	local top = areaInfo.Area.Game.Tower.Top
+	local tower = areaInfo.Area.Game.Tower
+	local top = tower.Top
 	local height = top.Position.Y
 	return height
+end
+
+function ClimbTowerGameLoop:GetTowerMaxLength()
+	local areaInfo = SceneAreaManager.AreaInfoList[ClimbTowerGameLoop.GameInitParam.TowerIndex]
+	local tower = areaInfo.Area.Game.Tower
+	local top = tower.Top
+	local root = tower.Root
+	local length = top.Position.Y - root.Postiton.Y
+	return length
 end
 
 function ClimbTowerGameLoop:GetClimbingPart()
@@ -213,7 +224,11 @@ function ClimbTowerGameLoop:OnStateChanged(player, oldState, newState)
 				--local gameManager = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameManager)
 				--gameManager:ArriveEnd()
 
-				ClimbTowerGameLoop.UpdateInfo.IsClimbComplete = true		
+				ClimbTowerGameLoop.UpdateInfo.IsClimbComplete = true
+
+				local uiGameInfo = require(game.ReplicatedStorage.ScriptAlias.UIClimbTowerGameInfo)
+				uiGameInfo:HideClimbButtons()
+
 				PlayerManager:ClearMove(player)
 				local rootPart = PlayerManager:GetHumanoidRootPart(player)
 				if rootPart then
@@ -272,6 +287,9 @@ function ClimbTowerGameLoop:EnterUp()
 	local gameInitParam = ClimbTowerGameLoop.GameInitParam
 	ClimbTowerGameLoop.IsCompleteGame = false
 
+	local uiGameInfo = require(game.ReplicatedStorage.ScriptAlias.UIClimbTowerGameInfo)
+	uiGameInfo:ShowClimbButtons()
+
 	-- Create Tower
 	ClimbTowerGameLoop.TowerIndex = gameInitParam.TowerIndex
 
@@ -293,16 +311,16 @@ function ClimbTowerGameLoop:EnterUp()
 end
 
 function ClimbTowerGameLoop:EnterTop()
-	ClimbTowerGameLoop.GamePhase = ClimbTowerDefine.GamePhase.ArriveEnd
-	local updateInfo = ClimbTowerGameLoop.UpdateInfo
+	--ClimbTowerGameLoop.GamePhase = ClimbTowerDefine.GamePhase.ArriveEnd
+	--local updateInfo = ClimbTowerGameLoop.UpdateInfo
 
-	if ClimbTowerAutoPlay.Info.IsAutoGame then
-		task.wait(1)
-		local player = game.Players.LocalPlayer
-		local gameManager = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameManager)
-		gameManager:GetWins(player)
-		gameManager:Slide(player)	
-	end
+	--if ClimbTowerAutoPlay.Info.IsAutoGame then
+	--	task.wait(1)
+	--	local player = game.Players.LocalPlayer
+	--	local gameManager = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameManager)
+	--	gameManager:GetWins(player)
+	--	gameManager:Slide(player)	
+	--end
 end
 
 function ClimbTowerGameLoop:EnterDown()

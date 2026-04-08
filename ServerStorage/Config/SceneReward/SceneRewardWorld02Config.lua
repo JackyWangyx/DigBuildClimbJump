@@ -1,10 +1,12 @@
-﻿local DigAreaReward = {}
+﻿local SceneRewardConfig = {}
 
-DigAreaReward.Data = [[
+SceneRewardConfig.Data = [[
 ID,RewardType,RewardID,RewardCount,Weight,Icon,Description
-1,LuckyWheel,2,1,100,rbxassetid://127022518238132,Reward
-2,LuckyWheel,1,20,10,rbxassetid://127022518238132,Reward
-3,Coin,1,1000,10,rbxassetid://127022518238132,Reward
+1,Coin,1,100,10,rbxassetid://116553325006982,Reward
+2,Prop,3,1,10,rbxassetid://132711430976506,Reward
+3,Prop,2,1,10,rbxassetid://84959116887125,Reward
+4,Pet,106,1,10,rbxassetid://100020820025175,Reward
+5,Coin,1,10000,10,rbxassetid://118633366327896,Reward
 ]]
 
-return DigAreaReward
+return SceneRewardConfig

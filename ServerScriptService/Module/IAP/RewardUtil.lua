@@ -1,6 +1,7 @@
 ﻿local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 
+local PlayerProperty = require(game.ServerScriptService.ScriptAlias.PlayerProperty)
 local NetServer = require(game.ServerScriptService.ScriptAlias.NetServer)
 
 local Define = require(game.ReplicatedStorage.Define)
@@ -125,19 +126,25 @@ function RewardUtil:GetReward(player, rewardType, rewardID, rewardCount)
 
 	if rewardType == "Coin" then
 		local request = require(game.ServerScriptService.ScriptAlias.Account)
-		request:AddCoin(player, { Value = rewardCount })
+		local getCoinFactor = PlayerProperty:GetGamePropertyValue(player, PlayerProperty.Define.GET_COIN_FACTOR)
+		local value = math.round(rewardCount * getCoinFactor)
+		request:AddCoin(player, { Value = value })
 		return true
 	end
 	
 	if rewardType == "Wins" then
 		local request = require(game.ServerScriptService.ScriptAlias.Account)
-		request:AddWins(player, { Value = rewardCount })
+		local getWinsFactor = PlayerProperty:GetGamePropertyValue(player, PlayerProperty.Define.GET_WINS_FACTOR)
+		local value = math.round(rewardCount * getWinsFactor)
+		request:AddWins(player, { Value = value })
 		return true
 	end
 
 	if rewardType == "Power" then
 		local request =require(game.ServerScriptService.ScriptAlias.Training)
-		request:AddPower(player, { Value = rewardCount })
+		local getPowerFactor = PlayerProperty:GetGamePropertyValue(player, PlayerProperty.Define.GET_POWER_FACTOR)
+		local value = math.round(rewardCount * getPowerFactor)
+		request:AddPower(player, { Value = value })
 		return true
 	end
 	

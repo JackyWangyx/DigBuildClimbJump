@@ -1,5 +1,6 @@
 ﻿local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 
+local PlayerProperty = require(game.ServerScriptService.ScriptAlias.PlayerProperty)
 local PlayerPrefs = require(game.ServerScriptService.ScriptAlias.PlayerPrefs)
 local PlayerCache = require(game.ServerScriptService.ScriptAlias.PlayerCache)
 local NetServer = require(game.ServerScriptService.ScriptAlias.NetServer)
@@ -49,9 +50,12 @@ function OfflineReward:GetInfo(player)
 	
 	local rebirthLevel = NetServer:RequireModule("Rebirth"):GetInfo(player).ID - 1
 	local rewardCoin = GetRewardCoin(rebirthLevel, totalTime)
+	local getCoinFactor = PlayerProperty:GetGamePropertyValue(player, PlayerProperty.Define.GET_COIN_FACTOR)
+	local value = math.round(rewardCoin * getCoinFactor)
+	
 	local info = {
 		Time = totalTime,
-		RewardCoin = rewardCoin
+		RewardCoin = value
 	}
 	
 	return info

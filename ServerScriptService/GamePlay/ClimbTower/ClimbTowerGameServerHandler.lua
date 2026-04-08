@@ -149,8 +149,9 @@ function ClimbTowerGameServerHandler:Enter(player, param)
 	--gameInitParam.TowerLength = towerData.Length
 	
 	local getCoinFactor = PlayerProperty:GetGamePropertyValue(player, PlayerProperty.Define.GET_COIN_FACTOR)
-	local rewardCoinPerMeter = getCoinFactor * themeData.RewardCoin
+	local rewardCoinPerMeter = themeData.RewardCoin
 	gameInitParam.RewardCoinPerMeter = rewardCoinPerMeter
+	gameInitParam.GetCoinFactor = getCoinFactor
 	
 	local toolRequest = require(game.ServerScriptService.ScriptAlias.Tool)
 	local toolInfo = toolRequest:GetEquip(player)
@@ -165,6 +166,7 @@ function ClimbTowerGameServerHandler:Enter(player, param)
 		Player = player,
 		TowerIndex = param.Index,
 		ThemeKey = themeKey,
+		GetCoinFactor = getCoinFactor,
 		--TowerLevel = gameThemeInfo.TowerLevel,
 		TowerInfo = towerInfo,
 		Length = themeData.Length,
@@ -252,6 +254,9 @@ function ClimbTowerGameServerHandler:GetCoin(player)
 	local getCoinFactor = PlayerProperty:GetGamePropertyValue(player, PlayerProperty.Define.GET_COIN_FACTOR)
 	local value = math.round(playerInfo.RewardCoinPerMeter * playerInfo.ArriveDistance * getCoinFactor)
 	local accountRequest = require(game.ServerScriptService.ScriptAlias.Account)
+	
+	warn(playerInfo.RewardCoinPerMeter, playerInfo.ArriveDistance, value, getCoinFactor)
+	
 	accountRequest:AddCoin(player, { Value = value })
 	return true
 end

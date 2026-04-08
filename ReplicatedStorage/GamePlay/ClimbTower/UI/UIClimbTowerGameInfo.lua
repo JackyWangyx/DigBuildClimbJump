@@ -89,6 +89,14 @@ function UIClimbTowerGameInfo:Init(root)
 	end)
 end
 
+function UIClimbTowerGameInfo:ShowClimbButtons()
+	UIClimbTowerGameInfo.PlayerGameFrame.Botton.Visible = true
+end
+
+function UIClimbTowerGameInfo:HideClimbButtons()
+	UIClimbTowerGameInfo.PlayerGameFrame.Botton.Visible = false
+end
+
 function UIClimbTowerGameInfo:Refresh()	
 	UIClimbTowerGameInfo:RefreshPlayerInfo()
 	
@@ -157,7 +165,7 @@ function UIClimbTowerGameInfo:RefreshPlayerInfo()
 	if not updateInfo or not gameInitParam then return end
 
 	local info = {
-		GetCoin = math.round(updateInfo.ArriveDistance * gameInitParam.RewardCoinPerMeter),
+		GetCoin = math.round(updateInfo.ArriveDistance * gameInitParam.RewardCoinPerMeter * gameInitParam.GetCoinFactor),
 		MoveDistance = math.round(updateInfo.ArriveDistance),
 	}
 

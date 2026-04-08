@@ -2,6 +2,21 @@
 
 local TriggerStateCache = {}
 
+local function isCharacterStillTouching(triggerArea, character)
+	if not triggerArea or not character then
+		return false
+	end
+
+	for _, part in ipairs(triggerArea:GetTouchingParts()) do
+		if TriggerArea:CheckCanHit(part) and part.Parent == character then
+			return true
+		end
+	end
+
+	return false
+end
+
+
 function TriggerArea:Handle(triggerArea, enterFunc, exitFunc, onlyLocalPlayer)
 	if not triggerArea then return end
 	-- 防止重复绑定
@@ -29,14 +44,21 @@ function TriggerArea:Handle(triggerArea, enterFunc, exitFunc, onlyLocalPlayer)
 			return
 		end
 		
-		local player = TriggerArea:GetPlayerByHitPart(hitPart)
-		if not player then return end
-		if not state[player] then
-			state[player] = 0
+		--local player = TriggerArea:GetPlayerByHitPart(hitPart)
+		--if not player then return end
+		--if not state[player] then
+		--	state[player] = 0
+		
+		local character = TriggerArea:GetCharacterByHitPart(hitPart)
+		if not character then return end
+		if not state[character] then
+			state[character] = 0
 		end
-		state[player] += 1
+		--state[player] += 1
+		state[character] += 1
 
-		if state[player] == 1 and enterFunc then
+		--if state[player] == 1 and enterFunc then
+		if state[character] == 1 and enterFunc then
 			enterFunc()
 		end
 	end)
@@ -50,17 +72,30 @@ function TriggerArea:Handle(triggerArea, enterFunc, exitFunc, onlyLocalPlayer)
 			return
 		end
 		
-		local player = TriggerArea:GetPlayerByHitPart(hitPart)
-		if not player then return end
+		--local player = TriggerArea:GetPlayerByHitPart(hitPart)
+		--if not player then return end
+		local character = TriggerArea:GetCharacterByHitPart(hitPart)
+		if not character then return end
 		
 		-- 延迟 0.1 秒检查
 		task.delay(0.1, function()
-			if state[player] then
-				state[player] -= 1
-				if state[player] == 0 then
-					state[player] = nil
+			--if state[player] then
+				--state[player] -= 1
+				--if state[player] == 0 then
+					--state[player] = nil
+			if state[character] then
+				state[character] -= 1
+				if state[character] <= 0 then
+					if isCharacterStillTouching(triggerArea, character) then
+						state[character] = 1
+						return
+					end
+
+					state[character] = nil
+					
 					if exitFunc then
-						exitFunc(player)
+						--exitFunc(player)
+						exitFunc(character)
 					end
 				end
 			end
@@ -79,10 +114,12 @@ function TriggerArea:GetTriggerPartCache(part)
 end
 
 function TriggerArea:CheckCanHit(hitPart)
-	return typeof(hitPart) == "Instance" and hitPart.Name == "UpperTorso"
+	--return typeof(hitPart) == "Instance" and hitPart.Name == "UpperTorso"
+	return typeof(hitPart) == "Instance" and hitPart.Name == "HumanoidRootPart"
 end
 
-function TriggerArea:GetPlayerByHitPart(hitPart)
+--function TriggerArea:GetPlayerByHitPart(hitPart)
+function TriggerArea:GetCharacterByHitPart(hitPart)
 	local model = hitPart:FindFirstAncestorOfClass("Model")
 	if model then
 		local humanoid = model:FindFirstChildOfClass("Humanoid")

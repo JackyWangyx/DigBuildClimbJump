@@ -56,37 +56,39 @@ function PartnerServerHandler:Equip(player)
 	if not partnerPrefab then return end
 	
 	local partnerPoint = Util:GetChildByName(car, "PartnerPoint")
-	local partner = partnerPrefab:Clone()
-	partner.Parent = folder
-	partner:SetPrimaryPartCFrame(partnerPoint.CFrame) 
-	
-	local humanoid = partner:WaitForChild("Humanoid")
-	if partnerPoint:IsA("Seat") or partnerPoint:IsA("VehicleSeat") then
-		PartnerServerHandler:InitAnimationSeat(player, partner)
-		task.delay(0.1, function()
-			if humanoid and partnerPoint.Occupant == nil then
-				partnerPoint:Sit(humanoid)
-			end
-		end)
+	if partnerPoint then
+		local partner = partnerPrefab:Clone()
+		partner.Parent = folder
+		partner:SetPrimaryPartCFrame(partnerPoint.CFrame) 
 
-		PartnerCache[player] = {
-			Data = data,
-			Partner = partner,
-			Seat = partnerPoint,
-		}
-	else
-		PartnerServerHandler:InitAnimation(player, partner)
-		
-		local weld = Instance.new("WeldConstraint")
-		weld.Part0 = partnerPoint
-		weld.Part1 = partner.PrimaryPart
-		weld.Parent = partner
+		local humanoid = partner:WaitForChild("Humanoid")
+		if partnerPoint:IsA("Seat") or partnerPoint:IsA("VehicleSeat") then
+			PartnerServerHandler:InitAnimationSeat(player, partner)
+			task.delay(0.1, function()
+				if humanoid and partnerPoint.Occupant == nil then
+					partnerPoint:Sit(humanoid)
+				end
+			end)
 
-		PartnerCache[player] = {
-			Data = data,
-			Partner = partner,
-			Constraint = weld,
-		}
+			PartnerCache[player] = {
+				Data = data,
+				Partner = partner,
+				Seat = partnerPoint,
+			}
+		else
+			PartnerServerHandler:InitAnimation(player, partner)
+
+			local weld = Instance.new("WeldConstraint")
+			weld.Part0 = partnerPoint
+			weld.Part1 = partner.PrimaryPart
+			weld.Parent = partner
+
+			PartnerCache[player] = {
+				Data = data,
+				Partner = partner,
+				Constraint = weld,
+			}
+		end
 	end
 	
 	--PartnerServerHandler:InitPartnerState(player, partner)
