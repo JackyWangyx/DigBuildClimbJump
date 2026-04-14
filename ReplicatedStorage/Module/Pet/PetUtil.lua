@@ -20,7 +20,7 @@ function PetUtil:CheckPackage(count)
 	end
 end
 
-function PetUtil:ProcessPetInfo(info)
+function PetUtil:ProcessInfo(info)
 	local data = ConfigManager:GetData("Pet", info.ID)
 	local upgradeData = ConfigManager:SearchData("PetUpgrade", "PetID", info.ID, "Level", info.UpgradeLevel)
 	info.Icon = data.Icon
@@ -52,7 +52,7 @@ function PetUtil:GetSorttedPackageList(callback)
 		end
 		
 		for _, info in ipairs(infoList) do
-			PetUtil:ProcessPetInfo(info)
+			PetUtil:ProcessInfo(info)
 		end
 
 		-- 按稀有度，速度降序排序
@@ -76,7 +76,7 @@ function PetUtil:GetEquipList()
 	local result = nil
 	local infoList = NetClient:RequestWait("Pet", "GetEquipList")
 	for _, info in pairs(infoList) do
-		PetUtil:ProcessPetInfo(info)
+		PetUtil:ProcessInfo(info)
 	end
 
 	result = infoList
@@ -86,7 +86,7 @@ end
 function PetUtil:GetUpgradableList(petInstanceID, callback)
 	PetUtil:GetSorttedPackageList(function(infoList)
 		for _, info in pairs(infoList) do
-			PetUtil:ProcessPetInfo(info)
+			PetUtil:ProcessInfo(info)
 		end
 
 		local petInfo = Util:ListFind(infoList, function(info)

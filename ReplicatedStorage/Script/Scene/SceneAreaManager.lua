@@ -81,6 +81,10 @@ function SceneAreaManager:GetCurrentAreaInfo()
 end
 
 function SceneAreaManager:GetCurrentThemeKey()
+	while SceneAreaManager.CurrentThemeKey == nil do
+		task.wait()
+	end
+
 	return SceneAreaManager.CurrentThemeKey
 end
 

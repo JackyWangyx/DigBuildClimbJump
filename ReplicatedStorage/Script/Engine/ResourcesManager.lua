@@ -46,10 +46,14 @@ function ResourcesManager:ClearCache()
 end
 
 function ResourcesManager:Load(path)
+	if not path or path == "" then return nil end
 	local cacheResources = PreLoadPrefabCache[path]
 	if cacheResources then return cacheResources end	
 	local result = ResourcesManager:LoadImpl(path)
-	PreLoadPrefabCache[path] = result
+	if not result then
+		PreLoadPrefabCache[path] = result
+	end
+	
 	return result
 end
 

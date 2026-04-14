@@ -4,7 +4,7 @@ local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 local AnalyticsManager = require(game.ReplicatedStorage.ScriptAlias.AnalyticsManager)
 
 local PlayerPrefs = require(game.ServerScriptService.ScriptAlias.PlayerPrefs)
-local RewardUtil = require(game.ServerScriptService.ScriptAlias.RewardUtil)
+local RewardHandler = require(game.ServerScriptService.ScriptAlias.RewardHandler)
 local NetServer = require(game.ServerScriptService.ScriptAlias.NetServer)
 
 local Define = require(game.ReplicatedStorage.Define)
@@ -95,7 +95,7 @@ function LuckyWheel:GetReward(player, param)
 	end
 
 	local rewardData = ConfigManager:GetData("LuckyWheel", rewardIndex)
-	RewardUtil:GetReward(player, rewardData.RewardType, rewardData.RewardID, rewardData.RewardCount)
+	RewardHandler:GetReward(player, rewardData.RewardType, rewardData.RewardID, rewardData.RewardCount)
 	
 	AnalyticsManager:Event(player, AnalyticsManager.Define.LuckyWheel)
 	AnalyticsManager:SpendCurrency(player, AnalyticsManager.CurrencyType.LuckyWheel, 1)

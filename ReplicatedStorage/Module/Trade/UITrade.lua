@@ -108,7 +108,7 @@ function UITrade:RefreshTradeInfo()
 	local selfPetInfoList = TradeClient.SelfInfo.PetInfoList
 	local selfList = {}
 	for _, info in ipairs(selfPetInfoList) do
-		info = PetUtil:ProcessPetInfo(info)
+		info = PetUtil:ProcessInfo(info)
 		if info.IsLock or info.IsEquip then continue end
 		local isSelected = Util:ListContainsWithCondition(selfTradeList, function(selectInfo)
 			return selectInfo.InstanceID == info.InstanceID
@@ -130,7 +130,7 @@ function UITrade:RefreshTradeInfo()
 			return petInfo.InstanceID == selectInfo.InstanceID
 		end)
 		if not info then continue end
-		info = PetUtil:ProcessPetInfo(info)
+		info = PetUtil:ProcessInfo(info)
 		table.insert(otherList, info)
 	end
 	

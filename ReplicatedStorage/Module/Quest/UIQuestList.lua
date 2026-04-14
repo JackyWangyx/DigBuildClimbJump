@@ -9,6 +9,7 @@ local UIInfo = require(game.ReplicatedStorage.ScriptAlias.UIInfo)
 local UIConfirm = require(game.ReplicatedStorage.ScriptAlias.UIConfirm)
 local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
+local RewardUtil = require(game.ReplicatedStorage.ScriptAlias.RewardUtil)
 
 local QuestDeifne = require(game.ReplicatedStorage.ScriptAlias.QuestDefine)
 
@@ -16,6 +17,7 @@ local UIQuestList = {}
 
 function UIQuestList:Refresh(root, listScript, questType, prefabName, itemScriptName)
 	local infoList = NetClient:RequestWait("Quest", "GetInfoList", { Type = questType })
+	RewardUtil:ProcessInfoList(infoList)
 	
 	local count = #infoList
 	if questType == QuestDeifne.Type.Season then

@@ -1,4 +1,4 @@
-﻿-- game.ReplicatedStorage.Module.Guide.StepBak.GuideStep_14_CloseToolStore
+﻿-- game.ReplicatedStorage.Module.Guide.Step_NotUse.GuideStep_14_CloseToolStore
 -- game.ReplicatedStorage.ScriptAlias.GuideStep_14_CloseToolStore
-local GuideStep_14_CloseToolStore = require(game.ReplicatedStorage.Module.Guide.StepBak.GuideStep_14_CloseToolStore)
+local GuideStep_14_CloseToolStore = require(game.ReplicatedStorage.Module.Guide.Step_NotUse.GuideStep_14_CloseToolStore)
 return GuideStep_14_CloseToolStore

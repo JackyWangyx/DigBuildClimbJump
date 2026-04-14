@@ -17,6 +17,15 @@ function LoadInfo(player)
 	return saveInfo
 end
 
+function Theme:Init()
+	EventManager:Listen(EventManager.Define.GetWins, function(param)
+		local player = param.Player
+		if Theme:CheckCanUnlockNext(player) then
+			EventManager:DispatchToClient(player, EventManager.Define.RefreshUnlockThemeTip)
+		end
+	end)
+end
+
 function Theme:GetAreaInfoList(player, param)
 	local sceneAreaServerHandler = require(game.ServerScriptService.ScriptAlias.SceneAreaServerHandler)
 	local result = sceneAreaServerHandler:CreateBroadcastInfoList()
@@ -89,6 +98,22 @@ function Theme:SwitchTheme(player, param)
 	else
 		return false
 	end
+end
+
+function Theme:CheckCanUnlockNext(player)
+	local infoList = Theme:GetInfoList(player)
+	for index, info in ipairs(infoList) do
+		if not info.IsUnlock then
+			local data = ConfigManager:GetData("Theme", info.ID)
+			local accountRequest = require(game.ServerScriptService.ScriptAlias.Account)
+			local remainWins = accountRequest:GetWins(player)
+			if remainWins >= data.CostWins  then
+				return true
+			end
+		end
+	end
+	
+	return false
 end
 
 function Theme:UnlockTheme(player, param)

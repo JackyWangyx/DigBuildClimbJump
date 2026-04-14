@@ -81,31 +81,15 @@ function PetServerHandler:Create(player)
 		local worldCFrame = rootPart.CFrame * relativeCFrame
 		pet:SetPrimaryPartCFrame(worldCFrame)
 
-		-- 使用 WeldConstraint 刚性跟随
-		local attachmentPart = Instance.new("Part")
-		attachmentPart.Size = Vector3.new(1,1,1)
-		attachmentPart.Transparency = 1
-		attachmentPart.Anchored = false
-		attachmentPart.CanCollide = false
-		attachmentPart.CFrame = worldCFrame
-		attachmentPart.Parent = rootPart
-		attachmentPart:SetNetworkOwner(player)
-
-		local weld = Instance.new("WeldConstraint")
-		weld.Part0 = rootPart
-		weld.Part1 = attachmentPart
-		weld.Parent = attachmentPart
-
-		local petWeld = Instance.new("WeldConstraint")
-		petWeld.Part0 = attachmentPart
-		petWeld.Part1 = pet.PrimaryPart
-		petWeld.Parent = pet.PrimaryPart
+		local attachmentPart = Instance.new("WeldConstraint")
+		attachmentPart.Name = "Weld_Pet_Player"
+		attachmentPart.Part0 = rootPart
+		attachmentPart.Part1 = pet.PrimaryPart
+		attachmentPart.Parent = pet.PrimaryPart
 
 		pet:PivotTo(rootPart.CFrame * relativeCFrame)
 
 		table.insert(attachmentList, attachmentPart)
-		
-		--pet:SetNetworkOwner(player)
 	end
 end
 

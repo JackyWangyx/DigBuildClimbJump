@@ -292,7 +292,7 @@ function ClimbTowerGameLoop:EnterDown()
 			local awayDir = Vector3.new(awayDir2D.X, 0, awayDir2D.Y)
 
 			-- 2. 计算 10 Studs 外的目标点
-			local dropOffset = 10 
+			local dropOffset = 5 
 			local targetDropPos = rootPart.Position + (awayDir * dropOffset)
 
 			-- 3. 【核心新增】：计算“面朝外”的旋转

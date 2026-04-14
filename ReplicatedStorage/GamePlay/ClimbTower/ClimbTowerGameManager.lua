@@ -269,6 +269,17 @@ function ClimbTowerGameManager:OnDigFail()
 end
 
 function ClimbTowerGameManager:DigUpdate(deltaTime)
+	-- 自动刷新地形
+	ClimbTowerGameManager.DigAreaResetTimer += deltaTime
+	if ClimbTowerGameManager.DigAreaResetTimer >= ClimbTowerDefine.Game.DigAreaResetTime then
+		ClimbTowerGameManager.DigAreaResetTimer = 0
+		if ClimbTowerGameManager.IsDigPhase then
+			ClimbTowerGameManager:ResetToDigArea()
+		end
+		
+		ClimbTowerGameManager:ResetDigArea()
+	end
+	
 	if not ClimbTowerGameManager.IsDigPhase then return end
 	
 	ClimbTowerGameManager.DigIntervalTimer += deltaTime
@@ -284,14 +295,6 @@ function ClimbTowerGameManager:DigUpdate(deltaTime)
 				ClimbTowerGameManager:OnDigFail()
 			end)
 		end
-	end
-	
-	-- 自动刷新地形
-	ClimbTowerGameManager.DigAreaResetTimer += deltaTime
-	if ClimbTowerGameManager.DigAreaResetTimer >= ClimbTowerDefine.Game.DigAreaResetTime then
-		ClimbTowerGameManager.DigAreaResetTimer = 0
-		ClimbTowerGameManager:ResetToDigArea()
-		ClimbTowerGameManager:ResetDigArea()
 	end
 end
 

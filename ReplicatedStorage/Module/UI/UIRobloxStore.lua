@@ -1,16 +1,51 @@
-﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient) -- [新增] 引入 NetClient
+﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local UIInfo = require(game.ReplicatedStorage.ScriptAlias.UIInfo)
 local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIPropList = require(game.ReplicatedStorage.ScriptAlias.UIPropList)
 local PetUtil = require(game.ReplicatedStorage.ScriptAlias.PetUtil)
+local BigNumber = require(game.ReplicatedStorage.ScriptAlias.BigNumber)
+
+local Define = require(game.ReplicatedStorage.Define)
 
 local UIRobloxStore = {}
 
 UIRobloxStore.UIRoot = nil
 UIRobloxStore.UIPropFrame = nil
 UIRobloxStore.TextInput = nil -- [新增] 存储输入框引用
+UIRobloxStore.UICoinsFrame = nil
+
+UIRobloxStore.IAPCoinList = {
+	[1] = {
+		Text = "Text_IAP_Coin_1",
+		Value = 300000,
+	},
+	[2] = {
+		Text = "Text_IAP_Coin_2",
+		Value = 2000000,
+	},
+	[3] = {
+		Text = "Text_IAP_Coin_3",
+		Value = 10000000,
+	},
+	[4] = {
+		Text = "Text_IAP_Coin_4",
+		Value = 25000000,
+	},
+	[5] = {
+		Text = "Text_IAP_Coin_5",
+		Value = 45000000,
+	},
+	[6] = {
+		Text = "Text_IAP_Coin_6",
+		Value = 100000000,
+	},
+	[7] = {
+		Text = "Text_IAP_Coin_7",
+		Value = 500000000,
+	},
+}
 
 function UIRobloxStore:Init(root)
 	UIRobloxStore.UIRoot = root
@@ -20,6 +55,8 @@ function UIRobloxStore:Init(root)
 	-- [新增] 初始化兑换码输入框
 	UIRobloxStore.TextInput = Util:GetChildByName(root, "TextInput_RedeemCode")
 	UIRobloxStore:ClearInput()
+	
+	UIRobloxStore.UICoinsFrame = Util:GetChildByName(root, "CoinsFrame")
 end
 
 function UIRobloxStore:OnShow(param)
@@ -33,6 +70,19 @@ end
 
 function UIRobloxStore:Refresh()
 	UIPropList:Refresh()
+	UIRobloxStore:RefreshCoinList()
+end
+
+function UIRobloxStore:RefreshCoinList()
+	local getCoinFactor = NetClient:RequestWait("Player", "GetGamePropertyValue", { Property = Define.PlayerProperty.GET_COIN_FACTOR })
+	for index, data in ipairs(UIRobloxStore.IAPCoinList) do
+		local textPart = Util:GetChildByName(UIRobloxStore.UICoinsFrame, data.Text)
+		if textPart then
+			local value = math.round(data.Value * getCoinFactor)
+			local text = BigNumber:Format(value)
+			textPart.Text = "$" .. text
+		end
+	end
 end
 
 -- [新增] 兑换码功能区域 ----------------------------------------------------
@@ -92,6 +142,22 @@ function UIRobloxStore:Button_LimitedTime_Pet3()
 	IAPClient:Purchase("ProductStorePet256", function(result)
 	end)
 end
+
+
+-- LimitedTime Tool
+
+function UIRobloxStore:Button_LimitedTime_Tool1()
+
+	IAPClient:Purchase("ProductStoreTool26", function(result)
+	end)
+end
+
+function UIRobloxStore:Button_LimitedTime_Tool2()
+
+	IAPClient:Purchase("ProductStoreTool27", function(result)
+	end)
+end
+
 
 -- PetLoot Smile
 

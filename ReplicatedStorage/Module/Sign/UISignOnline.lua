@@ -13,6 +13,7 @@ local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 local TimerManager = require(game.ReplicatedStorage.ScriptAlias.TimerManager)
 local TimeUtil = require(game.ReplicatedStorage.ScriptAlias.TimeUtil)
 local UpdatorManager = require(game.ReplicatedStorage.ScriptAlias.UpdatorManager)
+local RewardUtil = require(game.ReplicatedStorage.ScriptAlias.RewardUtil)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -90,6 +91,7 @@ end
 
 function UISignOnline:RefreshList()
 	UISignOnline:ProcessInfoList(UISignOnline.InfoList)
+	RewardUtil:ProcessInfoList(UISignOnline.InfoList)
 	UISignOnline.ItemList = UIList:LoadWithInfo(UISignOnline.UIRoot, "UISignOnlineItem", UISignOnline.InfoList)
 	UIList:HandleItemList(UISignOnline.ItemList, UISignOnline, "UISignItem")
 end

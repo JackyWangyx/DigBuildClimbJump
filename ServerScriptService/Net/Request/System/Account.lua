@@ -82,9 +82,19 @@ function Account:Modify(player, currencyName, delta, source)
 	EventManager:DispatchToClient(player, config.EventRefresh, current)
 
 	if isAdd then
-		if config.EventGet    then EventManager:DispatchToClient(player, config.EventGet, absDelta) end
-		if config.RecordKey   then PlayerRecord:AddValue(player, config.RecordKey, absDelta) end
-		if config.QuestEvent  then EventManager:Dispatch(config.QuestEvent, {Player = player, Value = absDelta}) end
+		if config.EventGet then 
+			EventManager:DispatchToClient(player, config.EventGet, absDelta) 
+			EventManager:Dispatch(config.EventGet, { Player = player, Value = absDelta }) 
+		end
+		
+		if config.RecordKey then 
+			PlayerRecord:AddValue(player, config.RecordKey, absDelta) 
+		end
+		
+		if config.QuestEvent then 
+			EventManager:Dispatch(config.QuestEvent, { Player = player, Value = absDelta }) 
+		end
+		
 		AnalyticsManager:EarnCurrency(player, config.Type, absDelta, source)
 	else
 		AnalyticsManager:SpendCurrency(player, config.Type, absDelta, source)

@@ -16,10 +16,7 @@ function EventManager:Listen(event, func)
 		Event = event,
 		Func = func,
 		Disconnect = function()
-			Util:ListRemove(eventList, function(info) 
-				return info.Func == func 
-			end)
-			
+			EventManager:Remove(event, func)
 			connection = nil
 		end,
 	}
@@ -30,9 +27,11 @@ end
 
 function EventManager:Remove(event, func)
 	local eventList = EventManager:GetEventList(event)
-	Util:ListRemove(eventList, function(eventInfo)
+	local result = Util:ListRemoveWithCondition(eventList, function(eventInfo)
 		return eventInfo.Func == func
 	end)
+	
+	return result
 end
 
 function EventManager:Dispatch(event, param)

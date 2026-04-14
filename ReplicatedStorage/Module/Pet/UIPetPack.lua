@@ -355,4 +355,10 @@ function UIPetPack:Button_CraftAll()
 	end)
 end
 
+-- Other Page
+
+function UIPetPack:Button_PropPack()
+	UIManager:ShowAndHideOther("PropPack")
+end
+
 return UIPetPack

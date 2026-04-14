@@ -4,6 +4,7 @@ local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
+local RewardUtil = require(game.ReplicatedStorage.ScriptAlias.RewardUtil)
 
 local UIQuitGame = {}
 
@@ -34,6 +35,7 @@ function UIQuitGame:Refresh()
 		local dataList1 = result[1]
 		local dataList2 = result[2]
 		local infoList = Util:TableMerge(dataList1, dataList2)
+		RewardUtil:ProcessInfoList(infoList)
 		UIQuitGame.ItemList = UIList:LoadWithInfo(UIQuitGame.UIRoot, "UINextDailyRewardItem", infoList)
 	end)
 end

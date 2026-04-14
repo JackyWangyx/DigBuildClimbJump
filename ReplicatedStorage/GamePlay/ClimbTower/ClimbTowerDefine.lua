@@ -19,6 +19,9 @@ ClimbTowerDefine.ClickGameDownParam = {
 }
 
 ClimbTowerDefine.Game = {
+	-- 伙伴位置
+	PartnerIdleOffset = Vector3.new(5, -0.01, 3),
+	PartnerGameOffset = Vector3.new(3, -6, 0),
 	-- 塔的初始高度
 	TowerHeightDefault = -1,
 	TowerUpgradeDuration = 3,

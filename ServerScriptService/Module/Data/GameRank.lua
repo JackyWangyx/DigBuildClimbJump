@@ -22,6 +22,9 @@ local UpdateRankCache = {}			-- 当前服务器修改过的记录
 local LastUpdateTime = 0
 local UpdateInterval = Define.Data.GameRankSaveInterval
 
+-------------------------------------------------------------------------
+-- Internal
+
 local function NearlyEqual(a, b, eps)
 	eps = eps or 1e-6
 	return math.abs(a - b) < eps
@@ -88,6 +91,9 @@ local function MergeRankLists(rankKey, serverList, localList)
 	return combined
 end
 
+-------------------------------------------------------------------------
+-- Init
+
 function GameRank:Init()
 	PlayerManager:HandlePlayerAddRemove(function(player)
 		
@@ -112,12 +118,12 @@ function GameRank:Init()
 		end
 	end)
 
-	game:BindToClose(function()
-		--if RunService:IsStudio() then return end
-		task.spawn(function()
-			GameRank:ForceUpdateRank(false)
-		end)
-	end)
+	--game:BindToClose(function()
+	--	-- if RunService:IsStudio() then return end
+	--	task.spawn(function()
+	--		GameRank:ForceUpdateRank(false)
+	--	end)
+	--end)
 end
 
 function GameRank:GetDataStoreKey(rankKey)
@@ -130,8 +136,11 @@ function GameRank:GetDataModuleKey(rankKey)
 	return dataStoreName
 end
 
+-------------------------------------------------------------------------
+-- Update
+
 function GameRank:ForceUpdateRank(waitNext)
-	for _, rankKey in pairs(Define.RankList) do		
+	for _, rankKey in pairs(Define.RankList) do
 		local requireSave = false
 		local dataStoreName = GameRank:GetDataStoreKey(rankKey)
 		local dataModuleKey = GameRank:GetDataModuleKey(rankKey)
@@ -167,8 +176,6 @@ function GameRank:ForceUpdateRank(waitNext)
 		else
 			task.wait(1)
 		end
-		
-		
 	end	
 	
 	return true
@@ -195,6 +202,7 @@ function GameRank:SetRank(player, rankKey, value)
 	if not player then return end
 	local userID = player.UserId
 	local userName = player.Name
+	
 	task.spawn(function()
 		local rankList = GameRank:GetRankList(rankKey)
 

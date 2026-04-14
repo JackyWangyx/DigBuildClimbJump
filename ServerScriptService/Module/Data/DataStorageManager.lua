@@ -1,4 +1,5 @@
-﻿local DataStoreService = game:GetService("DataStoreService")
+﻿local RunService = game:GetService("RunService")
+local DataStoreService = game:GetService("DataStoreService")
 
 local TaskThrottleScheduler = require(game.ReplicatedStorage.ScriptAlias.TaskThrottleScheduler)
 local LogUtil = require(game.ReplicatedStorage.ScriptAlias.LogUtil)
@@ -31,20 +32,46 @@ local SetTask = TaskThrottleScheduler.new(15, 0.75, 5, 1.1)
 local UpdateTask = TaskThrottleScheduler.new(15, 1, 5, 1.1)
 
 function DataStorageManager:Init()
+
+	game:BindToClose(function()
+		-- 强制延长关闭时间
+		task.wait(3)
+	end)
+	
 	-- 队列未完成时延迟关闭服务器，最多半分钟
 	game:BindToClose(function()
-		local timeout = 30
-		local start = tick()
-		
-		local remainTaskCount = DataStorageManager:GetRequestQueueCount()
-		if remainTaskCount > 0 then
-			LogUtil:Log("[DataStorage] Remain Request ", tostring(remainTaskCount))
-			while (DataStorageManager:GetRequestQueueCount() > 0) and (tick() - start < timeout) do
-				task.wait(0.5)
-			end
+		task.defer(function()
+			local timeout = 30
+			local start = tick()
 
-			LogUtil:Log("[DataStorage] Remain Request Complete")
-		end	
+			local remainTaskCount = DataStorageManager:GetRequestQueueCount()
+			if remainTaskCount > 0 then
+				
+				LogUtil:Log("[DataStorage] Remain Task Start ", tostring(remainTaskCount))
+				--if GetTask:GetCount() > 0 then print("[DataStorage]", "Get", GetTask.Queue) end
+				--if SetTask:GetCount() > 0 then print("[DataStorage]", "Set", SetTask.Queue) end
+				--if UpdateTask:GetCount() > 0 then print("[DataStorage]", "Update", UpdateTask.Queue) end
+				
+				while true do
+					local isTimeout = tick() - start > timeout
+					local currentRemainTaskCount = DataStorageManager:GetRequestQueueCount()
+					if currentRemainTaskCount ~= remainTaskCount then
+						--LogUtil:Log("[DataStorage] Remain Task ", currentRemainTaskCount)
+						remainTaskCount = currentRemainTaskCount
+					end
+					
+					if isTimeout or currentRemainTaskCount == 0 then
+						break
+					end
+					
+					task.wait(0.1)
+				end
+				
+				LogUtil:Log("[DataStorage] Remain Task Complete",  DataStorageManager:GetRequestQueueCount())
+			end	
+			
+			task.wait()
+		end)
 	end)
 end
 

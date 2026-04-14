@@ -13,6 +13,7 @@ local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
+local RewardUtil = require(game.ReplicatedStorage.ScriptAlias.RewardUtil)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -45,7 +46,9 @@ end
 
 function UILuckyWheel:RefreshItemList()
 	NetClient:Request("LuckyWheel", "GetList", function(result)
-		UILuckyWheel.ItemList = UIList:LoadWithInfo(UILuckyWheel.UIRoot, nil, result.RewardList)
+		local infoList = result.RewardList
+		RewardUtil:ProcessInfoList(infoList)
+		UILuckyWheel.ItemList = UIList:LoadWithInfo(UILuckyWheel.UIRoot, nil, infoList)
 		local uiInfo = {
 			RemainCount = "x"..tostring(result.RemainCount),
 		}
@@ -90,7 +93,7 @@ function UILuckyWheel:Spin()
 				NetClient:Request("LuckyWheel", "GetReward", { RewardIndex = spinIndex }, function(success)
 					if success then
 						local data = result.RewardData
-						UIManager:ShowMessageWithIcon(data.Icon, "Got "..data.Description2)
+						UIManager:ShowMessageWithIcon(data.Icon, "Got "..data.Description)
 						UILuckyWheel:Refresh()
 						EventManager:Dispatch(EventManager.Define.RefreshLuckyWheel)
 					end

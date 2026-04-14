@@ -44,8 +44,8 @@ function IAPHandler:HandleProductStore(player, param)
 	
 	if storeName == "Package" then
 		local rewardList = ConfigManager:SearchAllData("RewardPackage", "PackageID", id)
-		local rewardUtil = require(game.ServerScriptService.ScriptAlias.RewardUtil)
-		rewardUtil:GetRewardList(player, rewardList)
+		local RewardHandler = require(game.ServerScriptService.ScriptAlias.RewardHandler)
+		RewardHandler:GetRewardList(player, rewardList)
 
 		local iapRequest =  NetServer:RequireModule("IAP")
 		iapRequest:BuyPackage(player, { ID = id } )

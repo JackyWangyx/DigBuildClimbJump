@@ -9,7 +9,7 @@ local PlayerRecord = require(game.ServerScriptService.ScriptAlias.PlayerRecord)
 local IAPServer = require(game.ServerScriptService.ScriptAlias.IAPServer)
 local PlayerPrefs = require(game.ServerScriptService.ScriptAlias.PlayerPrefs)
 
-local RewardUtil = require(game.ServerScriptService.ScriptAlias.RewardUtil)
+local RewardHandler = require(game.ServerScriptService.ScriptAlias.RewardHandler)
 local ThemeRequest = require(game.ServerScriptService.ScriptAlias.Theme)
 local AccountRequest = require(game.ServerScriptService.ScriptAlias.Account)
 local ToolRequest = require(game.ServerScriptService.ScriptAlias.Tool)
@@ -221,7 +221,7 @@ end
 function ClimbTower:GetDigAreaReward(player, param)
 	local id = param.ID
 	local data = ConfigManager:GetData("DigAreaReward", id)
-	return RewardUtil:GetRewardRequest(player, data)
+	return RewardHandler:GetRewardRequest(player, data)
 end
 
 return ClimbTower

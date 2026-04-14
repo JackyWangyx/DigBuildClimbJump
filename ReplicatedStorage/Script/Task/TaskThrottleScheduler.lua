@@ -37,8 +37,8 @@ function TaskThrottleScheduler:AddTask(key, taskFunc, priority, timeout)
 		Timeout = timeout or 0,
 		Key = key
 	}
+	
 	table.insert(self.Queue, taskItem)
-
 	table.sort(self.Queue, function(a, b)
 		if a.Priority ~= b.Priority then
 			return a.Priority > b.Priority

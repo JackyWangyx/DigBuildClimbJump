@@ -10,19 +10,19 @@ Define.Test = {
 	-- 测试签到首次登陆日期
 	EnableSignLoginDate = false,
 	LoginDate = {
-		SignYear = 2025,
-		SignMonth = 12, 
-		SignDay = 1,
+		SignYear = 2026,
+		SignMonth = 4, 
+		SignDay = 14,
 		SignHour = 0,
 		SignMin = 0,
 		SignSec = 0,
 	},
 	-- 测试签到当前日期
-	EnableSignCurrentDate = false,
+	EnableSignCurrentDate = true,
 	CurrentDate = {
 		SignYear = 2026,
-		SignMonth = 1,
-		SignDay = 16,
+		SignMonth = 4,
+		SignDay = 17,
 		SignHour = 0,
 		SignMin = 0,
 		SignSec = 0,
@@ -142,7 +142,7 @@ Define.Camera = {
 }
 
 Define.Data = {
-	GameRankSaveInterval = 300,
+	GameRankSaveInterval = 600,
 	PlayerAutoSaveInterval = 300,
 }
 
@@ -198,8 +198,8 @@ Define.Message = {
 	MaxLevel = "Reach the maximum level",
 	CoinNotEnough = "Coin not enough!",
 	WinsNotEnough = "Wins not enough!",
-	PowerNotEnough = "Power not enough!",
-	PowerFull = "Power Full!",
+	PowerNotEnough = "Bricks not enough!",
+	PowerFull = "Package Full!",
 	PackageFull = "Pacakge Full!",
 	Baught = "Purchase completed",
 	Locked = "Locked",
@@ -312,6 +312,9 @@ Define.Event = {
 	RefreshTrail = "RefreshTrail",
 	RefreshAnimal = "RefreshAnimal",
 	RefreshPartner = "RefreshPartner",
+	
+	-- Theme
+	RefreshUnlockThemeTip = "RefreshUnlockThemeTip",	-- 可解锁主题提示
 	
 	-- Tool
 	GetTool = "GetTool",

@@ -124,6 +124,8 @@ function PlayerProperty:Init()
 	
 	EventManager:Listen(EventManager.Define.RefreshPlayerProperty, function(player)
 		PlayerProperty:ClearCache(player)
+		--local propertyList = PlayerProperty:GetGameProperty(player)
+		--EventManager:DispatchToClient(player, EventManager.Define.RefreshPlayerProperty, propertyList)
 	end)
 end
 

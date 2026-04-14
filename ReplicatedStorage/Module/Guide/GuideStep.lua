@@ -91,6 +91,7 @@ function GuideStep:Enable()
 			end		
 		end
 
+		--warn("Listen", self.Config.TriggerEvent, self.Config.TriggerEventParam)
 		EventManager:Listen(self.Config.TriggerEvent, self.TriggerFunc)
 	end
 

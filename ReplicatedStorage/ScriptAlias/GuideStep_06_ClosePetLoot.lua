@@ -1,4 +1,4 @@
-﻿-- game.ReplicatedStorage.Module.Guide.StepBak.GuideStep_06_ClosePetLoot
+﻿-- game.ReplicatedStorage.Module.Guide.Step_NotUse.GuideStep_06_ClosePetLoot
 -- game.ReplicatedStorage.ScriptAlias.GuideStep_06_ClosePetLoot
-local GuideStep_06_ClosePetLoot = require(game.ReplicatedStorage.Module.Guide.StepBak.GuideStep_06_ClosePetLoot)
+local GuideStep_06_ClosePetLoot = require(game.ReplicatedStorage.Module.Guide.Step_NotUse.GuideStep_06_ClosePetLoot)
 return GuideStep_06_ClosePetLoot

@@ -2,8 +2,11 @@
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
+local SceneManager = require(game.ReplicatedStorage.ScriptAlias.SceneManager)
 
 local NetServer = require(game.ServerScriptService.ScriptAlias.NetServer)
+
+local ClimbTowerDefine = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerDefine)
 
 local PartnerServerHandler = {}
 
@@ -32,19 +35,6 @@ function PartnerServerHandler:Equip(player)
 		PartnerServerHandler:UnEquip(player)
 	end
 	
-	local toopServerHandler = require(game.ServerScriptService.ScriptAlias.ToolServerHandler)
-	local car = toopServerHandler:GetTool(player)
-	if not car then
-		return
-	end
-	
-	local folder = car:FindFirstChild("Partner")
-	if not folder then
-		folder = Instance.new("Folder")
-		folder.Name = "Partner"
-		folder.Parent = car
-	end
-	
 	local info = NetServer:RequireModule("Partner"):GetEquip(player)
 	if not info then
 		return
@@ -52,60 +42,66 @@ function PartnerServerHandler:Equip(player)
 
 	local data = ConfigManager:GetData("Partner", info.ID)
 	local character = player.Character
+	local rootPart = PlayerManager:GetHumanoidRootPart(player)
+	local humanoid = PlayerManager:GetHumanoid(player)
 	local partnerPrefab = Util:LoadPrefab(data.Prefab)
 	if not partnerPrefab then return end
 	
-	local partnerPoint = Util:GetChildByName(car, "PartnerPoint")
-	if partnerPoint then
-		local partner = partnerPrefab:Clone()
-		partner.Parent = folder
-		partner:SetPrimaryPartCFrame(partnerPoint.CFrame) 
-
-		local humanoid = partner:WaitForChild("Humanoid")
-		if partnerPoint:IsA("Seat") or partnerPoint:IsA("VehicleSeat") then
-			PartnerServerHandler:InitAnimationSeat(player, partner)
-			task.delay(0.1, function()
-				if humanoid and partnerPoint.Occupant == nil then
-					partnerPoint:Sit(humanoid)
-				end
-			end)
-
-			PartnerCache[player] = {
-				Data = data,
-				Partner = partner,
-				Seat = partnerPoint,
-			}
-		else
-			PartnerServerHandler:InitAnimation(player, partner)
-
-			local weld = Instance.new("WeldConstraint")
-			weld.Part0 = partnerPoint
-			weld.Part1 = partner.PrimaryPart
-			weld.Parent = partner
-
-			PartnerCache[player] = {
-				Data = data,
-				Partner = partner,
-				Constraint = weld,
-			}
-		end
+	local partner = partnerPrefab:Clone()
+	partner.Parent = character
+	
+	local partnerAnimation = game.ReplicatedStorage.LocalScript.PartnerAnimation:Clone()
+	partnerAnimation.Parent = partner
+	
+	-- 初始化动画（保持你原来的逻辑）
+	local humanoid = partner:WaitForChild("Humanoid", 5)
+	if humanoid then
+		--PartnerServerHandler:InitAnimation(player, partner)
 	end
 	
+	local weld = Instance.new("Weld")
+	weld.Name = "Weld_Partner_Player"
+	weld.Part0 = rootPart
+	weld.Part1 = partner.PrimaryPart
+	weld.C0 = CFrame.new(0, 0, 0)
+	weld.Parent = partner.PrimaryPart
+
+	-- 更新缓存
+	PartnerCache[player] = {
+		Data = data,
+		Partner = partner,
+		Weld = weld,
+	}
+	
+	PartnerServerHandler:SetOffset(player, ClimbTowerDefine.Game.PartnerIdleOffset)
 	--PartnerServerHandler:InitPartnerState(player, partner)
 end
 
+function PartnerServerHandler:SetOffset(player, offset)
+	local info = PartnerCache[player]
+	if not info then return end
+	
+	local rootPart = PlayerManager:GetHumanoidRootPart(player)
+	local offsetCFrame = CFrame.new(offset)
+	
+	info.Weld.C1 = offsetCFrame:Inverse()
+	--info.Partner:PivotTo(rootPart.CFrame * offsetCFrame)
+end
+
 function PartnerServerHandler:UnEquip(player)
-	local data = PartnerCache[player]
-	if data then
-		if data.Constraint then
-			data.Constraint:Destroy()
+	local info = PartnerCache[player]
+	if info then
+		if info.Weld then
+			info.Weld:Destroy()
 		end
 		
-		if data.Seat then
-			PartnerServerHandler:LeaveSeat(player)
+		if info.AttachmentList then
+			for _, attachment in ipairs(info.AttachmentList) do
+				attachment:Destroy()
+			end
 		end
 		
-		local partner = data.Partner
+		local partner = info.Partner
 		partner:Destroy()
 		--task.defer(function()			
 		--end)
@@ -115,68 +111,16 @@ function PartnerServerHandler:UnEquip(player)
 end
 
 function PartnerServerHandler:LeaveSeat(player)
-	local data = PartnerCache[player]
-	if not data then return end
+	local info = PartnerCache[player]
+	if not info then return end
 
-	local partner = data.Partner
+	local partner = info.Partner
 	if not partner then return end
 
 	local humanoid = partner:FindFirstChild("Humanoid")
 	if humanoid then
-		humanoid.Sit = false
-		task.wait()
-	end
-end
-
-function PartnerServerHandler:InitAnimation(player, partner)
-	local carInfo = NetServer:RequireModule("Tool"):GetEquip(player)
-	local carData = ConfigManager:GetData("Tool", carInfo.ID)
-	
-	local humanoid = partner:WaitForChild("Humanoid")
-	local animator = humanoid:FindFirstChildOfClass("Animator")
-	if not animator then
-		animator = Instance.new("Animator")
-		animator.Parent = humanoid
-	end
-	
-	if carData.PartnerAnimation then
-		local animation = PlayerManager:GetAnimation(carData.PartnerAnimation)
-		local track = animator:LoadAnimation(animation)
-		track:Play()
-		
-		if animator:FindFirstChild("sit") and animator.sit:FindFirstChild("Sit") then
-			local animId = "rbxassetid://" .. carData.PartnerAnimation
-			animator.sit.Sit.AnimationId = animId
-		end
-	else
-		warn("Tool - Partner Animation NULL", carInfo.ID)
-	end
-end
-
-function PartnerServerHandler:InitAnimationSeat(player, partner)
-	local carInfo = NetServer:RequireModule("Tool"):GetEquip(player)
-	local carData = ConfigManager:GetData("Tool", carInfo.ID)
-
-	local humanoid = partner:WaitForChild("Humanoid")
-	local animator = humanoid:FindFirstChildOfClass("Animator")
-	if not animator then
-		animator = Instance.new("Animator")
-		animator.Parent = humanoid
-	end
-
-	if carData.PartnerAnimation then
-		local animate = partner:FindFirstChild("Animate")
-		local animId = carData.PartnerAnimation
-		local sitAnim = animate:FindFirstChild("sit")
-		if sitAnim then
-			if sitAnim:FindFirstChild("SitAnim") then
-				sitAnim.SitAnim.AnimationId = animId
-			elseif sitAnim:FindFirstChild("Sit") then
-				sitAnim.Sit.AnimationId = animId
-			end
-		end
-	else
-		warn("Tool - Partner Animation NULL", carInfo.ID)
+		--humanoid.Sit = false
+		--task.wait()
 	end
 end
 

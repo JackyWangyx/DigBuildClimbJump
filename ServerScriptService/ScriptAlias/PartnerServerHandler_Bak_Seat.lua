@@ -1,0 +1,4 @@
+﻿-- game.ServerScriptService.Module.Game.PartnerServerHandler_Bak_Seat
+-- game.ServerScriptService.ScriptAlias.PartnerServerHandler_Bak_Seat
+local PartnerServerHandler_Bak_Seat = require(game.ServerScriptService.Module.Game.PartnerServerHandler_Bak_Seat)
+return PartnerServerHandler_Bak_Seat

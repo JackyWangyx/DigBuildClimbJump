@@ -25,7 +25,7 @@ function DigAreaRewardManager:Reset()
 		local data = Util:ListRandomWeight(DataList, 1)
 		
 		local prefab = ResourcesManager:Load(data.Prefab)
-		local box = prefab:Clone()
+ 		local box = prefab:Clone()
 		box.Parent = root
 		box:PivotTo(point.CFrame)
 		box.Name = "Box" .. #BoxList

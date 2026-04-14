@@ -10,6 +10,7 @@ local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
+local RewardUtil = require(game.ReplicatedStorage.ScriptAlias.RewardUtil)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -32,6 +33,7 @@ end
 
 function UISignDaily15:Refresh()
 	NetClient:Request("Sign", "GetDailyList", { Key = "SignDaily15" }, function(infoList)
+		RewardUtil:ProcessInfoList(infoList)
 		UISignDaily15.ItemList = UIList:LoadWithInfo(UISignDaily15.UIRoot, "UISignDaily15Item", infoList)
 		UIList:HandleItemList(UISignDaily15.ItemList, UISignDaily15, "UISignItem")
 	end)

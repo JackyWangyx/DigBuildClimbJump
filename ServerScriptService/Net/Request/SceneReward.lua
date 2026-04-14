@@ -9,7 +9,7 @@ local PlayerRecord = require(game.ServerScriptService.ScriptAlias.PlayerRecord)
 local IAPServer = require(game.ServerScriptService.ScriptAlias.IAPServer)
 local PlayerPrefs = require(game.ServerScriptService.ScriptAlias.PlayerPrefs)
 
-local RewardUtil = require(game.ServerScriptService.ScriptAlias.RewardUtil)
+local RewardHandler = require(game.ServerScriptService.ScriptAlias.RewardHandler)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -43,7 +43,7 @@ function SceneReward:GetReward(player, param)
 	if rewardState == nil or not rewardState then
 		themeInfo[key] = true	
 		local data = ConfigManager:GetData("SceneReward" .. themeKey, id)
-		return RewardUtil:GetRewardRequest(player, data)
+		return RewardHandler:GetRewardRequest(player, data)
 	else
 		return {
 			Success = false,

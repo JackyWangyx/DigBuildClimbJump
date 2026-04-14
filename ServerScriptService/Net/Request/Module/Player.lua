@@ -1,5 +1,6 @@
 ﻿local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local PathManager = require(game.ReplicatedStorage.ScriptAlias.PathManager)
+local RewardUtil = require(game.ReplicatedStorage.ScriptAlias.RewardUtil)
 
 local PlayerProperty = require(game.ServerScriptService.ScriptAlias.PlayerProperty)
 local PlayerRecord = require(game.ServerScriptService.ScriptAlias.PlayerRecord)

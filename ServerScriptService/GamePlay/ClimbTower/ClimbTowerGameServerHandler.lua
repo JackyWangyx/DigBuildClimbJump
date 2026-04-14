@@ -9,6 +9,7 @@ local SceneAreaServerHandler = require(game.ServerScriptService.ScriptAlias.Scen
 local NetServer = require(game.ServerScriptService.ScriptAlias.NetServer)
 local ClimbTowerRequest = require(game.ServerScriptService.ScriptAlias.ClimbTower)
 local PlayerProperty = require(game.ServerScriptService.ScriptAlias.PlayerProperty)
+local PartnerServerHandler = require(game.ServerScriptService.ScriptAlias.PartnerServerHandler)
 
 local ClimbTowerServerHandler = require(game.ServerScriptService.ScriptAlias.ClimbTowerServerHandler)
 local ClimbTowerDefine = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerDefine)
@@ -188,6 +189,9 @@ function ClimbTowerGameServerHandler:Enter(player, param)
 	end
 
 	PlayerCache[player] = playerInfo
+	
+	PartnerServerHandler:SetOffset(player, ClimbTowerDefine.Game.PartnerGameOffset)
+	
 	EventManager:DispatchToClient(player, ClimbTowerDefine.Event.Enter, gameInitParam)
 	return true
 end
@@ -228,6 +232,8 @@ function ClimbTowerGameServerHandler:Exit(player)
 	local humanoid = PlayerManager:GetHumanoid(player)
 	humanoid.WalkSpeed = Define.Game.WalkSpeed
 
+	PartnerServerHandler:SetOffset(player, ClimbTowerDefine.Game.PartnerIdleOffset)
+
 	EventManager:DispatchToClient(player, ClimbTowerDefine.Event.Exit)
 	return true
 end
@@ -255,7 +261,7 @@ function ClimbTowerGameServerHandler:GetCoin(player)
 	local value = math.round(playerInfo.RewardCoinPerMeter * playerInfo.ArriveDistance * getCoinFactor)
 	local accountRequest = require(game.ServerScriptService.ScriptAlias.Account)
 	
-	warn(playerInfo.RewardCoinPerMeter, playerInfo.ArriveDistance, value, getCoinFactor)
+	--warn(playerInfo.RewardCoinPerMeter, playerInfo.ArriveDistance, value, getCoinFactor)
 	
 	accountRequest:AddCoin(player, { Value = value })
 	return true

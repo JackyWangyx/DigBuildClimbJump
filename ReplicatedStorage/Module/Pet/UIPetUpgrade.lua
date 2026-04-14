@@ -153,7 +153,7 @@ function UIPetUpgrade:RefreshUpgradeSpin()
 			if result.Result then
 				UIPetUpgrade.SuccessFrame.Visible = true
 				local info = result.PetInfo
-				info = PetUtil:ProcessPetInfo(info)
+				info = PetUtil:ProcessInfo(info)
 				local data = ConfigManager:GetData("Pet", info.ID)
 				UIInfo:SetInfo(UIPetUpgrade.SuccessFrame, data)
 				UIInfo:SetInfo(UIPetUpgrade.SuccessFrame, info)

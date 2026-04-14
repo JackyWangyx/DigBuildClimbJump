@@ -395,22 +395,30 @@ function Util:ListCount(array, condition)
 end
 
 function Util:ListRemoveWithCondition(array, checker)
-	if not array then return end
+	if not array then return false end
+	local result = false
 	for i = #array, 1, -1 do
 		local item = array[i]
 		if checker(item) then
 			table.remove(array, i)
+			result = true
 		end
 	end
+	
+	return result
 end
 
 function Util:ListRemove(array, value)
-	if not array then return end
+	if not array then return false end
+	local result = false
 	for i = #array, 1, -1 do
 		if array[i] == value then
 			table.remove(array, i)
+			result = true
 		end
 	end
+	
+	return result
 end
 
 function Util:ListRandom(array, count)
@@ -1008,6 +1016,7 @@ function Util:SpawnFx(fxPrefab, pos, destroyTime)
 	if not destroyTime then
 		destroyTime = 1
 	end
+	
 	task.delay(destroyTime, function()
 		fx:Destroy()
 	end)	
@@ -1026,23 +1035,32 @@ function Util:SpawnFxEmit(fxPrefab, pos, rate, destroyTime)
 	if not destroyTime then
 		destroyTime = 1
 	end
+	
 	task.delay(destroyTime, function()
 		fx:Destroy()
-	end)	
+	end)
+	
+	return fx
 end
 
 function Util:SpawnScreenFx(fxPrefab, destroyTime)
 	local fx = fxPrefab:Clone()
+	
 	fx.Parent = game.Players.LocalPlayer.PlayerGui
 	fx.Enabled = false
 	task.wait()
 	fx.Enabled = true
-	if not destroyTime then
+	if destroyTime == nil then
 		destroyTime = 1
 	end
-	task.delay(destroyTime, function()
-		fx:Destroy()
-	end)	
+	
+	if destroyTime > 0 then
+		task.delay(destroyTime, function()
+			fx:Destroy()
+		end)	
+	end	
+	
+	return fx
 end
 
 return Util

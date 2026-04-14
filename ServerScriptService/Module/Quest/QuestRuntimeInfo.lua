@@ -5,7 +5,7 @@ local AnalyticsManager = require(game.ReplicatedStorage.ScriptAlias.AnalyticsMan
 
 local QuestDefine = require(game.ReplicatedStorage.ScriptAlias.QuestDefine)
 
-local RewardUtil = require(game.ServerScriptService.ScriptAlias.RewardUtil)
+local RewardHandler = require(game.ServerScriptService.ScriptAlias.RewardHandler)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -61,7 +61,7 @@ function QuestRuntimeInfo:GetReward()
 		local rewardType = self.Data.RewardType
 		local rewardID = self.Data.RewardID
 		local rewardCount = self.Data.RewardCount
-		RewardUtil:GetReward(player, rewardType, rewardID, rewardCount)	
+		RewardHandler:GetReward(player, rewardType, rewardID, rewardCount)	
 		self.Info.State = QuestDefine.State.GetReward
 		return true
 	else
@@ -79,7 +79,7 @@ function QuestRuntimeInfo:GetExtraReward()
 		local rewardType = data.PremiumRewardType
 		local rewardID = data.PremiumRewardID
 		local rewardCount =data.PremiumRewardCount
-		RewardUtil:GetReward(player, rewardType, rewardID, rewardCount)	
+		RewardHandler:GetReward(player, rewardType, rewardID, rewardCount)	
 		self.Info.GetExtraReward = true
 		return true
 	else

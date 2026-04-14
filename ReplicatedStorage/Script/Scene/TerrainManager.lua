@@ -1,5 +1,7 @@
 ﻿local UserInputService = game:GetService("UserInputService")
 
+local InputManager = require(game.ReplicatedStorage.ScriptAlias.InputManager)
+
 local Terrain = workspace.Terrain
 
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
@@ -172,9 +174,8 @@ TerrainManager.DigRayAngle = -75
 TerrainManager.DigCheckDistance = 10
 
 function TerrainManager:InitDig(checkFunc, onSuccess, onFail)
-	UserInputService.InputBegan:Connect(function(input, gameProcessed)
-		if gameProcessed then return end
-		TerrainManager:DigForward(input, TerrainManager.DigRadius, checkFunc, onSuccess, onFail)
+	InputManager:HandleAction(function()
+		TerrainManager:DigForward(TerrainManager.DigRadius, checkFunc, onSuccess, onFail)
 	end)
 end
 
@@ -183,9 +184,7 @@ function TerrainManager:SetDigRadius(radius)
 end
 
 -- 向面前挖掘
-function TerrainManager:DigForward(input, radius, checkFunc, onSuccess, onFail)
-	if input.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
-	
+function TerrainManager:DigForward(radius, checkFunc, onSuccess, onFail)
 	local check = checkFunc()
 	if not check then return end
 	

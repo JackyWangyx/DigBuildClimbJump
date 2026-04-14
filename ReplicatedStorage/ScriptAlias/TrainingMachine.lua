@@ -1,4 +1,4 @@
-﻿-- game.ReplicatedStorage.Module.Game.TrainingMachine
+﻿-- game.ReplicatedStorage.Module.Training.TrainingMachine
 -- game.ReplicatedStorage.ScriptAlias.TrainingMachine
-local TrainingMachine = require(game.ReplicatedStorage.Module.Game.TrainingMachine)
+local TrainingMachine = require(game.ReplicatedStorage.Module.Training.TrainingMachine)
 return TrainingMachine

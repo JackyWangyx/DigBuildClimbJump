@@ -4,7 +4,7 @@ local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 local TimeUtil = require(game.ReplicatedStorage.ScriptAlias.TimeUtil)
 local AnalyticsManager = require(game.ReplicatedStorage.ScriptAlias.AnalyticsManager)
 
-local RewardUtil = require(game.ServerScriptService.ScriptAlias.RewardUtil)
+local RewardHandler = require(game.ServerScriptService.ScriptAlias.RewardHandler)
 local PlayerPrefs = require(game.ServerScriptService.ScriptAlias.PlayerPrefs)
 
 local Define = require(game.ReplicatedStorage.Define)
@@ -64,7 +64,7 @@ function Redeem:GetReward(player, param)
 	local rewardType = data.RewardType
 	local rewardID = data.RewardID
 	local rewardCount = data.RewardCount
-	RewardUtil:GetReward(player, rewardType, rewardID, rewardCount)
+	RewardHandler:GetReward(player, rewardType, rewardID, rewardCount)
 	local rewardList = {}
 	if rewardType == "Package" then
 		rewardList = ConfigManager:SearchAllData("RewardPackage", "PackageID", rewardID)

@@ -14,6 +14,7 @@ local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local TimeUtil = require(game.ReplicatedStorage.ScriptAlias.TimeUtil)
 local TimerManager = require(game.ReplicatedStorage.ScriptAlias.TimerManager)
+local RewardUtil = require(game.ReplicatedStorage.ScriptAlias.RewardUtil)
 
 local UIQuestList = require(game.ReplicatedStorage.ScriptAlias.UIQuestList)
 local QuestDefine = require(game.ReplicatedStorage.ScriptAlias.QuestDefine)

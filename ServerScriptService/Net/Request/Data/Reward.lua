@@ -1,6 +1,6 @@
 ﻿local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
 
-local RewardUtil = require(game.ServerScriptService.ScriptAlias.RewardUtil)
+local RewardHandler = require(game.ServerScriptService.ScriptAlias.RewardHandler)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -32,7 +32,7 @@ function Reward:GetReward(player, param)
 		local rewardType = param.RewardType
 		local rewardID = param.RewardID
 		local rewardCount = param.RewardCount
-		RewardUtil:GetReward(player, rewardType, rewardID, rewardCount)
+		RewardHandler:GetReward(player, rewardType, rewardID, rewardCount)
 		return nil
 	end)
 	
@@ -55,7 +55,7 @@ function Reward:GetRewardPackage(player, param)
 	local success, result = pcall(function()
 		local packageID = param.PackageID
 		local rewardDataList = ConfigManager:SearchAllData("RewardPackage", "PackageID", packageID)
-		RewardUtil:GetRewardList(player, rewardDataList)
+		RewardHandler:GetRewardList(player, rewardDataList)
 		return rewardDataList
 	end)
 	

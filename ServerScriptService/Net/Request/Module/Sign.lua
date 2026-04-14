@@ -4,7 +4,7 @@ local TimeUtil = require(game.ReplicatedStorage.ScriptAlias.TimeUtil)
 local ActivityUtil = require(game.ReplicatedStorage.ScriptAlias.ActivityUtil)
 
 local PlayerPrefs = require(game.ServerScriptService.ScriptAlias.PlayerPrefs)
-local RewardUtil = require(game.ServerScriptService.ScriptAlias.RewardUtil)
+local RewardHandler = require(game.ServerScriptService.ScriptAlias.RewardHandler)
 local PlayerCache = require(game.ServerScriptService.ScriptAlias.PlayerCache)
 
 local Define = require(game.ReplicatedStorage.Define)
@@ -127,7 +127,7 @@ function Sign:GetDailyReward(player, param)
 			local rewardType = data.RewardType
 			local rewardID = data.RewardID
 			local rewardCount = data.RewardCount
-			RewardUtil:GetReward(player, rewardType, rewardID, rewardCount)
+			RewardHandler:GetReward(player, rewardType, rewardID, rewardCount)
 			table.insert(rewardList, data)
 		end
 	end
@@ -208,7 +208,7 @@ function Sign:GetAllDailyReward(player, param)
 			local rewardType = data.RewardType
 			local rewardID = data.RewardID
 			local rewardCount = data.RewardCount
-			RewardUtil:GetReward(player, rewardType, rewardID, rewardCount)
+			RewardHandler:GetReward(player, rewardType, rewardID, rewardCount)
 			table.insert(rewardList, data)
 		end
 	end
@@ -265,7 +265,7 @@ function Sign:GetOnlineReward(player, param)
 			local rewardType = data.RewardType
 			local rewardID = data.RewardID
 			local rewardCount = data.RewardCount
-			RewardUtil:GetReward(player, rewardType, rewardID, rewardCount)
+			RewardHandler:GetReward(player, rewardType, rewardID, rewardCount)
 			table.insert(rewardList, data)
 		end
 	end
@@ -284,7 +284,7 @@ function Sign:GetAllOnlineReward(player, param)
 		local rewardType = data.RewardType
 		local rewardID = data.RewardID
 		local rewardCount = data.RewardCount
-		RewardUtil:GetReward(player, rewardType, rewardID, rewardCount)
+		RewardHandler:GetReward(player, rewardType, rewardID, rewardCount)
 		table.insert(rewardList, data)
 	end
 

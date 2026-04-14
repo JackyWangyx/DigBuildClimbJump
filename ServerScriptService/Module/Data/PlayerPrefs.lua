@@ -26,18 +26,14 @@ function PlayerPrefs:Init()
 		local playerId = player.UserId
 		
 		task.defer(function()
-			PlayerPrefs:SaveToDataStore(player, function()
-				if not PlayerManager:IsPlayerInServerById(playerId) then
-					PlayerPrefs:ClearPlayerCacheByKey(playerKey)
-				end
-
-				PlayerPrefs:SetPlayerSaveInfoState(player, nil)
-			end)
-		end)		
+			PlayerPrefs:SaveToDataStore(player)
+		end)
 	end, false)
 	
 	game:BindToClose(function()
-		for _, player in ipairs(game.Players:GetPlayers()) do
+		local playerList = game.Players:GetPlayers()
+		LogUtil:Log("[PlayerPrefs]", "Remain Players ", #playerList)
+		for _, player in ipairs(playerList) do
 			PlayerPrefs:SaveToDataStore(player)
 		end
 	end)
@@ -176,6 +172,7 @@ end
 function PlayerPrefs:SaveToDataStore(player, onDone)
 	-- 忽略未加载成功存档的玩家保存请求，防止空档覆盖
 	if not PlayerPrefs:GetPlayerSaveInfoState(player) then 
+		--warn("Save Cancel", player.Name)
 		return 
 	end
 	
@@ -184,11 +181,20 @@ function PlayerPrefs:SaveToDataStore(player, onDone)
 	if saveInfo then
 		saveInfo.LastSaveTime = os.time()
 	end
-	
+
+	--warn("Save Start", player.Name)	
+	local playerId = player.UserId
 	DataStorageManager:SetAsync(DATA_STORE_NAME, playerKey, function(success)
+		--warn("Save Complete", player.Name, success)
 		if success then
 			--LogUtil:Log("[PlayerPrefs] Save ", player.UserId, success)
 			if onDone then
+				if not PlayerManager:IsPlayerInServerById(playerId) then
+					PlayerPrefs:ClearPlayerCacheByKey(playerKey)
+				end
+
+				PlayerPrefs:SetPlayerSaveInfoState(player, nil)
+				
 				onDone()
 			end
 		end
