@@ -16,7 +16,7 @@ local CurrentBGM = nil
 function SoundManager:Init()
 	if IsInit then return end
 	IsInit = true
-	self:PlayBGM(self.Define.BGM, true, 0.3)
+	self:PlayBGM(self.Define.BGM, true, 0.03)
 end
 
 function SoundManager:Load(name)

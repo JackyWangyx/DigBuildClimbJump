@@ -8,6 +8,7 @@ local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
 local SceneAreaManager = require(game.ReplicatedStorage.ScriptAlias.SceneAreaManager)
 
+local UISceneReward = require(game.ReplicatedStorage.ScriptAlias.UISceneReward)
 local ClimbTowerGameManager = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameManager)
 local ClimbTowerGameLoop = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameLoop)
 local ClimbTowerDefine = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerDefine)
@@ -32,11 +33,13 @@ UIClimbTowerGameInfo.IdleFrame = nil
 function UIClimbTowerGameInfo:Init(root)
 	UIClimbTowerGameInfo.UIRoot = root
 	UIInfo:HandleAllButton(root, UIClimbTowerGameInfo)
-
+	
 	UIClimbTowerGameInfo.GameFrame = Util:GetChildByName(root, "GameFrame")
 	UIClimbTowerGameInfo.PlayerGameFrame = Util:GetChildByName(root, "PlayerGameFrame")
 	UIClimbTowerGameInfo.BottonRankTrans = Util:GetChildByName(UIClimbTowerGameInfo.GameFrame, "BottonRankTrans", true)
 	UIClimbTowerGameInfo.RankBar = Util:GetChildByName(UIClimbTowerGameInfo.GameFrame, "RankBar", true)
+	
+	UISceneReward:Init(UIClimbTowerGameInfo.GameFrame)
 	
 	UIClimbTowerGameInfo.UIPowerTarget = Util:GetChildByName(root, "UIPowerTarget", true)
 	

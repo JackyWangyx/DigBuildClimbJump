@@ -2,7 +2,7 @@
 
 ToolConfig.Data = [[
 ID,Name,BuyOrder,Rarity,Icon,ThemeKey,Prefab,MaxExistSpeed1,Speed1,PowerCapacity,DisplaySpeed,DisplayPowerCapacity,CostCoin,CostRobux,CostWins,Type,ProductKey,ActivityKey,Sfx
-1,Default,1,1,rbxassetid://121070571897831,World01,Tool/Tool01,0.0,15,20,15,nil,10,0,0,Tool,nil,nil,nil
+1,Default,1,1,rbxassetid://103377265693739,World01,Tool/Tool01,0.0,15,20,15,nil,10,0,0,Tool,nil,nil,nil
 2,Twin Tank,2,2,rbxassetid://97605235549621,World01,Tool/Tool02,0.0,23,22,23,2.0,50,0,0,Tool,nil,nil,nil
 3,Emerald Blade,3,2,rbxassetid://93466644741979,World01,Tool/Tool03,0.0,39,24,39,4.0,90,0,0,Tool,nil,nil,nil
 4,Red Core,4,2,rbxassetid://76538671963537,World01,Tool/Tool04,0.0,51,26,51,6.0,360,0,0,Tool,nil,nil,nil

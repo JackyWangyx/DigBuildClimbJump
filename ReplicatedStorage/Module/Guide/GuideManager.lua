@@ -12,9 +12,9 @@ function GuideManager:Init()
 		SaveInfoList = infoList
 
 		local guideStepFolder = script.Parent:FindFirstChild("Step")
-		for index, guideConfig in ipairs(GuideDefine.GuideList) do
-			local key = guideConfig.Key
-			local guideInfo = infoList[key]
+		for index, config in ipairs(GuideDefine.GuideList) do
+			local key = config.Key
+			local info = infoList[key]
 
 			-- 查找同名
 			local guideScriptFile = nil
@@ -28,7 +28,7 @@ function GuideManager:Init()
 			end
 
 			local guideScript = require(guideScriptFile)
-			local guide = guideScript.new(key, guideConfig, guideInfo)
+			local guide = guideScript.new(key, config, info)
 			table.insert(RunGuideList, guide)
 		end
 
@@ -37,9 +37,9 @@ function GuideManager:Init()
 end
 
 function GuideManager:GetConfig(key)
-	for index, guideConfig in ipairs(GuideDefine.GuideList) do
-		if guideConfig.Key == key then
-			return guideConfig
+	for index, config in ipairs(GuideDefine.GuideList) do
+		if config.Key == key then
+			return config
 		end
 	end
 

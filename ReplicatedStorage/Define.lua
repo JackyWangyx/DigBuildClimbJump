@@ -18,7 +18,7 @@ Define.Test = {
 		SignSec = 0,
 	},
 	-- 测试签到当前日期
-	EnableSignCurrentDate = true,
+	EnableSignCurrentDate = false,
 	CurrentDate = {
 		SignYear = 2026,
 		SignMonth = 4,
@@ -281,8 +281,13 @@ Define.Event = {
 	RefreshAutoPlay = "RefreshAutoPlay",
 	RefreshGameInfo = "RefreshGameInfo",
 	RefreshOfficalGroup = "RefreshOfficalGroup",
-	RefreshTower = "RefreshTower",
+
+	-- Scene Area
 	RefreshArea = "RefreshArea",
+	
+	-- Scene Reward
+	RefreshSceneReward = "RefreshSceneReward",
+	GetSceneReward = "GetSceneReward",
 	
 	-- Click Game
 	ClickGameStart = "",
@@ -424,6 +429,9 @@ Define.Analytics = {
 	CompleteQuestWeekly = "CompleteQuestWeekly",
 	CompleteQuestDaily = "CompleteQuestDaily",
 	CompleteQuest = "CompleteQuest",
+	
+	GetSceneReward = "GetSceneReward",
+	UnlockTheme = "UnlockTheme",
 }
 
 -----------------------------------------------------------------------------------
@@ -462,6 +470,7 @@ Define.RankList = {
 
 -----------------------------------------------------------------------------------
 -- 玩家属性
+
 Define.PlayerProperty = {
 	SPEED = "Speed",
 	ACCELERATION = "Acceleration",
@@ -484,6 +493,7 @@ Define.PlayerProperty = {
 
 -----------------------------------------------------------------------------------
 -- 音乐 / 音效
+
 Define.Sound = {
 	PlaySfxInterval = 0.1,
 	BGM = "BackgroundMusic",

@@ -134,8 +134,8 @@ function ClimbTower:UpgradeTower(player, param)
 	themeInfo.TowerHeight = newHeight
 	themeInfo.UpgradeCount += 1
 	
-	EventManager:Dispatch(EventManager.Define.RefreshTower, { Player = player })
-	--EventManager:DispatchToClient(player, EventManager.Define.RefreshTower)
+	EventManager:Dispatch(ClimbTowerDefine.Event.RefreshTower, { Player = player })
+	--EventManager:DispatchToClient(player, ClimbTowerDefine.Event.RefreshTower)
 
 	return {
 		Success = true,
@@ -221,7 +221,13 @@ end
 function ClimbTower:GetDigAreaReward(player, param)
 	local id = param.ID
 	local data = ConfigManager:GetData("DigAreaReward", id)
-	return RewardHandler:GetRewardRequest(player, data)
+	local result = RewardHandler:GetRewardRequest(player, data)
+	
+	if result.Success then
+		AnalyticsManager:Event(player, AnalyticsManager.Define.GetSceneReward .. "_DigReward_" .. id)
+	end
+	
+	return result
 end
 
 return ClimbTower

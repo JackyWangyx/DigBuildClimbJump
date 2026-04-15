@@ -13,6 +13,8 @@ local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 
+local ClimbTowerDefine = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerDefine)
+
 local UITowerUpdate = {}
 
 UITowerUpdate.UIRoot = nil
@@ -42,7 +44,7 @@ function UITowerUpdate:Button_Buy()
 	NetClient:Request("ClimbTower", "UpgradeTower", { Type = "Power" }, function(result)
 		if result.Success then
 			UITowerUpdate:Refresh()
-			EventManager:Dispatch(EventManager.Define.RefreshTower)
+			EventManager:Dispatch(ClimbTowerDefine.Event.RefreshTower)
 		else
 			UIManager:ShowMessage(result.Message)
 		end
@@ -56,7 +58,7 @@ function UITowerUpdate:Button_BuyRobux()
 			NetClient:Request("ClimbTower", "UpgradeTower", { Type = "Robux" }, function(result)
 				if result.Success then
 					UITowerUpdate:Refresh()
-					EventManager:Dispatch(EventManager.Define.RefreshTower)
+					EventManager:Dispatch(ClimbTowerDefine.Event.RefreshTower)
 				else
 					UIManager:ShowMessage(result.Message)
 				end

@@ -204,24 +204,6 @@ end
 
 function UIPetPack:Button_EquipBest()
 	if not UIPetPack.ItemList or #UIPetPack.ItemList == 0 then return end
-	--local infoList = UIPetPack.InfoList
-	--if not infoList then return end
-	--for _, info in pairs(infoList) do
-	--	local data = ConfigManager:GetData("Pet", info.ID)
-	--	local upgradehData = ConfigManager:SearchData("PetUpgrade", "PetID", info.ID, "Level", info.UpgradeLevel)
-	--	info.GetCoinFactor1 = data.GetCoinFactor1 * upgradehData.Factor
-	--end
-
-	--infoList = Util:ListSort(infoList, {
-	--	function(info) return -info.GetCoinFactor1 end
-	--})
-
-	--local equipInfoList = Util:ListFindMany(infoList, UIPetPack.EquipMax)
-	--local param = { InstanceIDList = {}}
-	--for _, info in pairs(equipInfoList) do
-	--	table.insert(param.InstanceIDList, info.InstanceID)
-	--end
-
 	NetClient:Request("Pet", "EquipBest", function(result)
 		if result  then
 			UIPetPack:Refresh()

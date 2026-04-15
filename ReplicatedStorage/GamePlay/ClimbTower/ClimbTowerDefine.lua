@@ -20,8 +20,8 @@ ClimbTowerDefine.ClickGameDownParam = {
 
 ClimbTowerDefine.Game = {
 	-- 伙伴位置
-	PartnerIdleOffset = Vector3.new(5, -0.01, 3),
-	PartnerGameOffset = Vector3.new(3, -6, 0),
+	PartnerIdleOffset = Vector3.new(5, 0, 3),
+	PartnerGameOffset = Vector3.new(3, 0, 0.1),
 	-- 塔的初始高度
 	TowerHeightDefault = -1,
 	TowerUpgradeDuration = 3,
@@ -65,6 +65,8 @@ ClimbTowerDefine.GamePhase = {
 }
 
 ClimbTowerDefine.Event = {
+	RefreshTower = "RefreshTower",
+	
 	EnterDig = "EnterDig",
 	ExitDig = "ExitDig",
 	Dig = "Dig",

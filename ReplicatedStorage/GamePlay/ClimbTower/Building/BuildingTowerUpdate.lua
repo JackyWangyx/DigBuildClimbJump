@@ -30,9 +30,6 @@ function BuildingTowerUpdate:Init(buildingPart, opts)
 			if result.Success then
 				--local areaInfo = SceneAreaManager.AreaInfoList[opts.AreaIndex]
 				--local root = areaInfo.Area.Game.Tower.Root
-				
-				
-				
 			else
 				
 			end

@@ -55,7 +55,6 @@ function PetLoot:Open(player, param)
 	local deleteIDList = param.DeleteIDList or {}
 	local lootDataList = PetLoot:GetLootList(player, param)
 
-	
 	-- 检查余额
 	local costCoin = lootDataList[1].CostCoin * count
 	if costCoin > 0 then

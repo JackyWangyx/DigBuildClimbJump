@@ -10,7 +10,7 @@ local Define = require(game.ReplicatedStorage.Define)
 local BuildingAnimalIAP = {}
 
 function BuildingAnimalIAP:Handle(buildingPart, opts, animalID)
-	local building = Building.Proximity(buildingPart, opts, Define.Message.BuyAnimalTip, function()
+	local building = Building.Trigger(buildingPart, opts, function() -- , Define.Message.BuyAnimalTip
 		local animalData = ConfigManager:GetData("Animal", animalID)
 		local productKey = animalData.ProductKey
 		NetClient:Request("Animal", "CheckPackage", function(result)

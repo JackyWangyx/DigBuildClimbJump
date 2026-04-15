@@ -14,14 +14,14 @@ local EquipmentCache = {}
 function EquipmentServerHandler:Init()
 	PlayerManager:HandleCharacterAddRemove(function(player, character)
 		task.wait(0.5)
-		PlayerManager:SetHeight(player, 10)
+		--PlayerManager:SetHeight(player, 10)
 		EquipmentServerHandler:Equip(player)
 	end, function(player, character)
 		EquipmentServerHandler:UnEquip(player)
 	end)
 
 	EventManager:Listen(EventManager.Define.RefreshEquipment, function(player)
-		PlayerManager:SetHeight(player, 10)
+		--PlayerManager:SetHeight(player, 10)
 		EquipmentServerHandler:Equip(player)
 	end)
 end
@@ -56,6 +56,7 @@ function EquipmentServerHandler:Equip(player)
 	}
 	
 	--AnimalServerHandler:Refresh(player)
+	EquipmentServerHandler:ShowEquipment(player)
 	PartnerServerHandler:Refresh(player)
 end
 

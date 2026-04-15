@@ -105,6 +105,12 @@ function RewardHandler:GetReward(player, rewardType, rewardID, rewardCount)
 		request:Get(player, { ID = rewardID })
 		return true
 	end
+	
+	if rewardType == "Equipment" then
+		local request = require(game.ServerScriptService.ScriptAlias.Equipment)
+		request:Get(player, { ID = rewardID })
+		return true
+	end
 
 	if rewardType == "Trail" then
 		local request = require(game.ServerScriptService.ScriptAlias.Trail)

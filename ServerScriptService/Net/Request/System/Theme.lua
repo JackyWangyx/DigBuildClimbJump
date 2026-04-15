@@ -138,6 +138,9 @@ function Theme:UnlockTheme(player, param)
 
 	accountRequest:SpendWins(player, { Value = data.CostWins })
 	info.IsUnlock = true
+	
+	AnalyticsManager:Event(player, AnalyticsManager.Define.UnlockTheme .. "_" .. themeKey)
+	
 	return {
 		Success = true,
 		Message = "",

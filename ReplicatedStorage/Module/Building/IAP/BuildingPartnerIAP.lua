@@ -14,7 +14,7 @@ local RotationSpeed = 30
 local BuildingPartnerIAP = {}
 
 function BuildingPartnerIAP:Handle(buildingPart, opts, partnerID)
-	local building = Building.Proximity(buildingPart, opts, Define.Message.BuyPartnerTip, function()
+	local building = Building.Trigger(buildingPart, opts, function() -- , Define.Message.BuyPartnerTip
 		local data = ConfigManager:GetData("Partner", partnerID)
 		local productKey = data.ProductKey
 		NetClient:Request("Partner", "CheckExist", { ID = partnerID }, function(isExist)

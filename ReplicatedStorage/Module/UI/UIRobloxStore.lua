@@ -19,31 +19,31 @@ UIRobloxStore.UICoinsFrame = nil
 UIRobloxStore.IAPCoinList = {
 	[1] = {
 		Text = "Text_IAP_Coin_1",
-		Value = 300000,
+		Value = 500,
 	},
 	[2] = {
 		Text = "Text_IAP_Coin_2",
-		Value = 2000000,
+		Value = 10000,
 	},
 	[3] = {
 		Text = "Text_IAP_Coin_3",
-		Value = 10000000,
+		Value = 100000,
 	},
 	[4] = {
 		Text = "Text_IAP_Coin_4",
-		Value = 25000000,
+		Value = 1,
 	},
 	[5] = {
 		Text = "Text_IAP_Coin_5",
-		Value = 45000000,
+		Value = 1,
 	},
 	[6] = {
 		Text = "Text_IAP_Coin_6",
-		Value = 100000000,
+		Value = 1,
 	},
 	[7] = {
 		Text = "Text_IAP_Coin_7",
-		Value = 500000000,
+		Value = 1,
 	},
 }
 

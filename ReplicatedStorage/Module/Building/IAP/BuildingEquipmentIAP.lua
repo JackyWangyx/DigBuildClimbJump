@@ -14,7 +14,7 @@ local RotationSpeed = 0
 local BuildingEquipmentIAP = {}
 
 function BuildingEquipmentIAP:Handle(buildingPart, opts, toolID)
-	local building = Building.Proximity(buildingPart, opts, Define.Message.BuyEquipmentTip, function()
+	local building = Building.Trigger(buildingPart, opts, function() -- , Define.Message.BuyEquipmentTip
 		local toolData = ConfigManager:GetData("Equipment", toolID)
 		local productKey = toolData.ProductKey
 		NetClient:Request("Equipment", "CheckExist", { ID = toolID }, function(isExist)

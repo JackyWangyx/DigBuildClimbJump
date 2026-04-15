@@ -33,7 +33,7 @@ function ClimbTowerTowerServerHandler:Init()
 		ClimbTowerTowerServerHandler:OnPlayerRemoved(player, areaInfo)
 	end)
 	
-	EventManager:Listen(EventManager.Define.RefreshTower, function(param)
+	EventManager:Listen(ClimbTowerDefine.Event.RefreshTower, function(param)
 		local player = param.Player
 		task.spawn(function()
 			ClimbTowerTowerServerHandler:RefreshTower(player)

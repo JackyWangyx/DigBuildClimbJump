@@ -14,7 +14,7 @@ local RotationSpeed = 0
 local BuildingToolIAP = {}
 
 function BuildingToolIAP:Handle(buildingPart, opts, toolID)
-	local building = Building.Proximity(buildingPart, opts, Define.Message.BuyToolTip, function()
+	local building = Building.Trigger(buildingPart, opts, function() -- , Define.Message.BuyToolTip
 		local toolData = ConfigManager:GetData("Tool", toolID)
 		local productKey = toolData.ProductKey
 		NetClient:Request("Tool", "CheckExist", { ID = toolID }, function(isExist)

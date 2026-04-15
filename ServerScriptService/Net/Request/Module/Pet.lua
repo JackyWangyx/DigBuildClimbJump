@@ -33,7 +33,9 @@ function LoadInfo(player)
 	return saveInfo
 end
 
+----------------------------------------------------------------------------------------------------
 -- Get Info
+
 function Pet:GetPackageList(player)
 	local saveInfo = LoadInfo(player)
 	local packageList = saveInfo.PackageList
@@ -114,7 +116,8 @@ function Pet:GetSamePetList(player, param)
 	return result
 end
 
--- Add / Remove
+----------------------------------------------------------------------------------------------------
+-- Add / Delete
 
 function Pet:Add(player, param)
 	-- 检查背包容量
@@ -187,7 +190,8 @@ function Pet:DeleteAll(player, param)
 	return true
 end
 
--- Package Max
+----------------------------------------------------------------------------------------------------
+-- Package
 
 function Pet:GetPackageMax(player)
 	local saveInfo = LoadInfo(player)
@@ -241,7 +245,9 @@ function Pet:AddPackageAdditional(player, param)
 	return true
 end
 
+----------------------------------------------------------------------------------------------------
 -- Craft
+
 function Pet:Craft(player, param)
 	local canCraft = Pet:CheckCanCraft(player, param)
 	if not canCraft then return false end
@@ -341,7 +347,9 @@ function Pet:CheckCraftMaxLevel(player, param)
 	return false
 end
 
+----------------------------------------------------------------------------------------------------
 -- Lock
+
 function Pet:Lock(player, param)
 	local instanceID = param.InstanceID
 	local petInfo = Pet:GetPetInfo(player, param)
@@ -360,7 +368,9 @@ function Pet:UnLock(player, param)
 	return true
 end
 
+----------------------------------------------------------------------------------------------------
 -- Equip
+
 function Pet:Equip(player, param)
 	if not Pet:CheckCanEquip(player) then return false end
 	local instanceID = param.InstanceID
@@ -470,10 +480,22 @@ function Pet:EquipBest(player)
 	local equipMax = Pet:GetEquipMax(player)
 	
 	local infoList = Pet:GetPackageList(player)
+	
+	local maxGetCoinFactor1 = 0
 	for _, info in pairs(infoList) do
 		local data = ConfigManager:GetData("Pet", info.ID)
 		local upgradehData = ConfigManager:SearchData("PetUpgrade", "PetID", info.ID, "Level", info.UpgradeLevel)
 		info.GetCoinFactor1 = data.GetCoinFactor1 * upgradehData.Factor
+		if info.GetCoinFactor1 > maxGetCoinFactor1 then
+			maxGetCoinFactor1 = info.GetCoinFactor1
+		end
+	end
+	
+	for _, info in pairs(infoList) do
+		local data = ConfigManager:GetData("Pet", info.ID)
+		if data.MaxExistGetCoinFactor1 > 0 then
+			info.GetCoinFactor1 = maxGetCoinFactor1 * data.MaxExistGetCoinFactor1
+		end
 	end
 
 	infoList = Util:ListSort(infoList, {
@@ -506,7 +528,9 @@ function Pet:EquipBest(player)
 	return true
 end
 
+----------------------------------------------------------------------------------------------------
 -- Upgrade
+
 function Pet:CheckCanUpgrade(player, param)
 	local instanceID = param.InstanceID
 	local info = Pet:GetPetInfo(player, param)

@@ -8,7 +8,7 @@ ID,Icon,Name,Description,Rarity,RewardType,RewardID,RewardCount,RequireDay
 4,rbxassetid://117031831080269,Day4,X1,3,Prop,4,1,4
 5,rbxassetid://90284897936400,Day5,20K Coins,3,Coin,1,20000,5
 6,rbxassetid://84661843866012,Day6,X1,3,Prop,5,1,6
-7,rbxassetid://95979472459104,Day7,160%,5,Pet,356,1,7
+7,rbxassetid://95979472459104,Day7,145%,5,Pet,356,1,7
 ]]
 
 return SignDaily7Config

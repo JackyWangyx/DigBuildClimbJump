@@ -357,31 +357,31 @@ ID,Name,Rarity,Icon,Prefab,Size,Indexable,World,MaxExistGetCoinFactor1,GetCoinFa
 353,ForRBPets,1,rbxassetid://87419362750249,PetNew/RB,Large,false,3,0,931500000000000,x931.5T,nil
 354,ForRBPets,1,rbxassetid://87419362750249,PetNew/RB,nil,false,3,0,1,x1,nil
 355,ForRBPets,1,rbxassetid://87419362750249,PetNew/RB,nil,false,3,0,1,x1,nil
-356,Hipopotamo,5,rbxassetid://95979472459104,PetNew/PetsRoblox/Brainrot01,Tiny,true,4,1.6,1,160%,nil
-357,Hipopotamo,5,rbxassetid://95979472459104,PetNew/PetsRoblox/Brainrot01_Mid,Normal,false,4,1.92,1,192%,nil
-358,Hipopotamo,5,rbxassetid://95979472459104,PetNew/PetsRoblox/Brainrot01_Large,Large,false,4,2.4,1,240%,nil
-359,Hipopotamo,5,rbxassetid://95979472459104,PetNew/PetsRoblox/Brainrot01,nil,false,4,0,1,1X,nil
-360,Hipopotamo,5,rbxassetid://95979472459104,PetNew/PetsRoblox/Brainrot01,nil,false,4,0,1,1X,nil
-361,Teapot,5,rbxassetid://93031478294312,PetNew/PetsRoblox/Brainrot02,Tiny,true,4,2,1,200%,nil
-362,Teapot,5,rbxassetid://93031478294312,PetNew/PetsRoblox/Brainrot02_Mid,Normal,false,4,2.4,1,240%,nil
-363,Teapot,5,rbxassetid://93031478294312,PetNew/PetsRoblox/Brainrot02_Large,Large,false,4,3,1,300%,nil
-364,Teapot,5,rbxassetid://93031478294312,PetNew/PetsRoblox/Brainrot02,nil,false,4,0,1,1X,nil
-365,Teapot,5,rbxassetid://93031478294312,PetNew/PetsRoblox/Brainrot02,nil,false,4,0,1,1X,nil
-366,Odin DinDin Dun,5,rbxassetid://94959290083015,PetNew/PetsRoblox/Brainrot03,Tiny,true,4,2.4,1,240%,nil
-367,Odin DinDin Dun,5,rbxassetid://94959290083015,PetNew/PetsRoblox/Brainrot03_Mid,Normal,false,4,2.88,1,288%,nil
-368,Odin DinDin Dun,5,rbxassetid://94959290083015,PetNew/PetsRoblox/Brainrot03_Large,Large,false,4,3.6,1,360%,nil
-369,Odin DinDin Dun,5,rbxassetid://94959290083015,PetNew/PetsRoblox/Brainrot03,nil,false,4,0,1,1X,nil
-370,Odin DinDin Dun,5,rbxassetid://94959290083015,PetNew/PetsRoblox/Brainrot03,nil,false,4,0,1,1X,nil
-371,Chimpanzini Bananini,6,rbxassetid://100896048702275,PetNew/PetsRoblox/Brainrot04,Tiny,true,4,2.7,1,270%,nil
-372,Chimpanzini Bananini,6,rbxassetid://100896048702275,PetNew/PetsRoblox/Brainrot04_Mid,Normal,false,4,3.24,1,324%,nil
-373,Chimpanzini Bananini,6,rbxassetid://100896048702275,PetNew/PetsRoblox/Brainrot04_Large,Large,false,4,4.05,1,405%,nil
-374,Chimpanzini Bananini,6,rbxassetid://100896048702275,PetNew/PetsRoblox/Brainrot04,nil,false,4,0,1,1X,nil
-375,Chimpanzini Bananini,6,rbxassetid://100896048702275,PetNew/PetsRoblox/Brainrot04,nil,false,4,0,1,1X,nil
-376,Tralalero Tralala,6,rbxassetid://130142716335793,PetNew/PetsRoblox/Brainrot05,Tiny,true,4,3.6,1,360%,nil
-377,Tralalero Tralala,6,rbxassetid://130142716335793,PetNew/PetsRoblox/Brainrot05_Mid,Normal,false,4,4.32,1,432%,nil
-378,Tralalero Tralala,6,rbxassetid://130142716335793,PetNew/PetsRoblox/Brainrot05_Large,Large,false,4,5.4,1,540%,nil
-379,Tralalero Tralala,6,rbxassetid://130142716335793,PetNew/PetsRoblox/Brainrot05,nil,false,4,0,1,1X,nil
-380,Tralalero Tralala,6,rbxassetid://130142716335793,PetNew/PetsRoblox/Brainrot05,nil,false,4,0,1,1X,nil
+356,Hipopotamo,2,rbxassetid://95979472459104,PetNew/PetsRoblox/Brainrot01,Tiny,true,4,1.45,1,145%,nil
+357,Hipopotamo,2,rbxassetid://95979472459104,PetNew/PetsRoblox/Brainrot01_Mid,Normal,false,4,1.74,1,174%,nil
+358,Hipopotamo,2,rbxassetid://95979472459104,PetNew/PetsRoblox/Brainrot01_Large,Large,false,4,2.175,1,217%,nil
+359,Hipopotamo,2,rbxassetid://95979472459104,PetNew/PetsRoblox/Brainrot01,nil,false,4,0,1,1X,nil
+360,Hipopotamo,2,rbxassetid://95979472459104,PetNew/PetsRoblox/Brainrot01,nil,false,4,0,1,1X,nil
+361,Teapot,2,rbxassetid://93031478294312,PetNew/PetsRoblox/Brainrot02,Tiny,true,4,1.75,1,175%,nil
+362,Teapot,2,rbxassetid://93031478294312,PetNew/PetsRoblox/Brainrot02_Mid,Normal,false,4,2.1,1,210%,nil
+363,Teapot,2,rbxassetid://93031478294312,PetNew/PetsRoblox/Brainrot02_Large,Large,false,4,2.625,1,262%,nil
+364,Teapot,2,rbxassetid://93031478294312,PetNew/PetsRoblox/Brainrot02,nil,false,4,0,1,1X,nil
+365,Teapot,2,rbxassetid://93031478294312,PetNew/PetsRoblox/Brainrot02,nil,false,4,0,1,1X,nil
+366,Odin DinDin Dun,3,rbxassetid://94959290083015,PetNew/PetsRoblox/Brainrot03,Tiny,true,4,2.1,1,210%,nil
+367,Odin DinDin Dun,3,rbxassetid://94959290083015,PetNew/PetsRoblox/Brainrot03_Mid,Normal,false,4,2.52,1,252%,nil
+368,Odin DinDin Dun,3,rbxassetid://94959290083015,PetNew/PetsRoblox/Brainrot03_Large,Large,false,4,3.15,1,315%,nil
+369,Odin DinDin Dun,3,rbxassetid://94959290083015,PetNew/PetsRoblox/Brainrot03,nil,false,4,0,1,1X,nil
+370,Odin DinDin Dun,3,rbxassetid://94959290083015,PetNew/PetsRoblox/Brainrot03,nil,false,4,0,1,1X,nil
+371,Chimpanzini Bananini,4,rbxassetid://100896048702275,PetNew/PetsRoblox/Brainrot04,Tiny,true,4,2.7,1,270%,nil
+372,Chimpanzini Bananini,4,rbxassetid://100896048702275,PetNew/PetsRoblox/Brainrot04_Mid,Normal,false,4,3.24,1,324%,nil
+373,Chimpanzini Bananini,4,rbxassetid://100896048702275,PetNew/PetsRoblox/Brainrot04_Large,Large,false,4,4.05,1,405%,nil
+374,Chimpanzini Bananini,4,rbxassetid://100896048702275,PetNew/PetsRoblox/Brainrot04,nil,false,4,0,1,1X,nil
+375,Chimpanzini Bananini,4,rbxassetid://100896048702275,PetNew/PetsRoblox/Brainrot04,nil,false,4,0,1,1X,nil
+376,Tralalero Tralala,5,rbxassetid://130142716335793,PetNew/PetsRoblox/Brainrot05,Tiny,true,4,3.6,1,360%,nil
+377,Tralalero Tralala,5,rbxassetid://130142716335793,PetNew/PetsRoblox/Brainrot05_Mid,Normal,false,4,4.32,1,432%,nil
+378,Tralalero Tralala,5,rbxassetid://130142716335793,PetNew/PetsRoblox/Brainrot05_Large,Large,false,4,5.4,1,540%,nil
+379,Tralalero Tralala,5,rbxassetid://130142716335793,PetNew/PetsRoblox/Brainrot05,nil,false,4,0,1,1X,nil
+380,Tralalero Tralala,5,rbxassetid://130142716335793,PetNew/PetsRoblox/Brainrot05,nil,false,4,0,1,1X,nil
 381,Ragekin,2,rbxassetid://107457012377726,PetNew/Season/Season01Pet01,Tiny,true,5,1,1,100%,nil
 382,Ragekin,2,rbxassetid://107457012377726,PetNew/Season/Season01Pet01_Mid,Normal,false,5,1.2,1,120%,nil
 383,Ragekin,2,rbxassetid://107457012377726,PetNew/Season/Season01Pet01_Large,Large,false,5,1.5,1,150%,nil

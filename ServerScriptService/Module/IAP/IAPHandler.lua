@@ -19,6 +19,11 @@ function IAPHandler:HandleProductStore(player, param)
 		local toolRequest = NetServer:RequireModule("Tool")
 		result = toolRequest:Buy(player, {ID = id})
 	end
+	
+	if storeName == "Equipment" then
+		local equipmentRequest = NetServer:RequireModule("Equipment")
+		result = equipmentRequest:Buy(player, {ID = id})
+	end
 
 	if storeName == "Trail" then
 		local trailRequest = NetServer:RequireModule("Trail")
@@ -213,21 +218,21 @@ end
 ----------------------------------------------------------------------------
 -- Account Coin
 
-function IAPHandler:Coin300K(player, param)
+function IAPHandler:Coin500(player, param)
 	local accountRequest = NetServer:RequireModule("Account")
-	accountRequest:AddCoin(player, { Value = 300000 })
+	accountRequest:AddCoin(player, { Value = 500 })
 	return true
 end
 
-function IAPHandler:Coin2M(player, param)
+function IAPHandler:Coin10K(player, param)
 	local accountRequest = NetServer:RequireModule("Account")
-	accountRequest:AddCoin(player, { Value = 2000000 })
+	accountRequest:AddCoin(player, { Value = 10000 })
 	return true
 end
 
-function IAPHandler:Coin10M(player, param)
+function IAPHandler:Coin100K(player, param)
 	local accountRequest = NetServer:RequireModule("Account")
-	accountRequest:AddCoin(player, { Value = 10000000 })
+	accountRequest:AddCoin(player, { Value = 100000 })
 	return true
 end
 
