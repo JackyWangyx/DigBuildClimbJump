@@ -9,6 +9,7 @@ local UTween = require(game.ReplicatedStorage.ScriptAlias.UTween)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local CameraManager = require(game.ReplicatedStorage.ScriptAlias.CameraManager)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
+local SoundManager = require(game.ReplicatedStorage.ScriptAlias.SoundManager)
 --local PlayerMove = require(game.ReplicatedStorage.ScriptAlias.PlayerMove)
 
 local ClimbTowerDefine = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerDefine)
@@ -69,6 +70,21 @@ function ClimbTowerGameLoop:Init()
 	EventManager:Listen(ClimbTowerDefine.Event.LogGameProperty, function()
 		ClimbTowerGameLoop:LogGameProperty()
 	end)
+	
+	-- 永远向上爬，不跟随镜头向下
+	--game:GetService("RunService").RenderStepped:Connect(function()
+	--	local humanoid = PlayerManager:GetHumanoid(player)
+	--	local character = PlayerManager:GetCharacter(player)
+	--	local rootPart = PlayerManager:GetHumanoidRootPart(player)
+	--	if humanoid:GetState() == Enum.HumanoidStateType.Climbing then
+	--		local speed = humanoid.MoveDirection.Magnitude
+	--		rootPart.Velocity = Vector3.new(
+	--			rootPart.Velocity.X,
+	--			math.max(10 * speed, 0),
+	--			rootPart.Velocity.Z
+	--		)
+	--	end
+	--end)
 end
 
 function ClimbTowerGameLoop:LogGameProperty()
@@ -363,10 +379,18 @@ end
 -- Update
 
 function ClimbTowerGameLoop:Update(deltaTime)
-	if ClimbTowerGameLoop.GamePhase == ClimbTowerDefine.GamePhase.Up then
-		ClimbTowerGameLoop:UpdateUp(deltaTime)
-	elseif ClimbTowerGameLoop.GamePhase == ClimbTowerDefine.GamePhase.Down then
-		ClimbTowerGameLoop:UpdateDown(deltaTime)
+	local success, result = pcall(function()
+		if ClimbTowerGameLoop.GamePhase == ClimbTowerDefine.GamePhase.Up then
+			ClimbTowerGameLoop:UpdateUp(deltaTime)
+		elseif ClimbTowerGameLoop.GamePhase == ClimbTowerDefine.GamePhase.Down then
+			ClimbTowerGameLoop:UpdateDown(deltaTime)
+		end
+	end)
+	
+	if not success then
+		-- 防被踢出后卡死
+		ClimbTowerGameLoop:EnterFinish()
+		ClimbTowerAutoPlay:EndAll()
 	end
 end
 
@@ -455,7 +479,7 @@ function ClimbTowerGameLoop:UpdateDown(deltaTime)
 		local fallDistanceNextFrame = math.abs(currentVelocityY) * deltaTime
 
 		-- 如果下一帧会穿模，或者距离地面已经极近
-		if distance <= fallDistanceNextFrame or distance < 2 then
+		if distance <= fallDistanceNextFrame or distance < 5 then
 			-- 核心修复：直接把角色传送到贴地的绝对位置！
 			-- 消除所有悬空感，让角色瞬间精确踩在地面上
 			local targetY = rootPart.Position.Y - distance
@@ -502,7 +526,8 @@ function ClimbTowerGameLoop:DropEffect()
 
 	rootPart.AssemblyLinearVelocity = Vector3.zero
 	rootPart.AssemblyAngularVelocity = Vector3.zero
-
+	
+	SoundManager:PlaySFX(SoundManager.Define.Celebrate)
 	CameraManager:ShakeCamera()
 end
 

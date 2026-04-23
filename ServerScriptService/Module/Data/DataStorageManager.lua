@@ -32,15 +32,9 @@ local SetTask = TaskThrottleScheduler.new(15, 0.75, 5, 1.1)
 local UpdateTask = TaskThrottleScheduler.new(15, 1, 5, 1.1)
 
 function DataStorageManager:Init()
-
-	game:BindToClose(function()
-		-- 强制延长关闭时间
-		task.wait(3)
-	end)
-	
 	-- 队列未完成时延迟关闭服务器，最多半分钟
 	game:BindToClose(function()
-		task.defer(function()
+		task.spawn(function()
 			local timeout = 30
 			local start = tick()
 
@@ -72,6 +66,15 @@ function DataStorageManager:Init()
 			
 			task.wait()
 		end)
+	end)
+	
+	game:BindToClose(function()
+		-- 强制延长关闭时间
+		if RunService:IsStudio() then
+			task.wait(10)
+		else
+			task.wait(60)
+		end
 	end)
 end
 
@@ -262,6 +265,7 @@ function DataStorageManager:GetSync(dataStoreKey, key, priority)
 		result.Success = success
 		result.Data = data
 	end, priority)
+	
 	while isWorking do
 		task.wait()
 	end

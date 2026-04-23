@@ -109,7 +109,8 @@ function UIManager:InitImpl()
 		for _, uiPrefab in ipairs(folder:GetChildren()) do
 			if uiPrefab:IsA("ScreenGui") then
 				local success, msg = pcall(function()
-					UIManager:InitPage(uiPrefab)
+					local pageInstance = uiPrefab:Clone()
+					UIManager:InitPage(pageInstance)
 				end)
 
 				if not success then
@@ -130,15 +131,18 @@ function UIManager:InitImpl()
 	UIManager:Cover("UIMessage")
 end
 
-function UIManager:InitPage(pagePrefab)
-	local pageInstance = pagePrefab:Clone()
-	pageInstance.Parent = UIManager.PlayerGUI
-	pageInstance.Enabled = false
+function UIManager:InitPage(page)
+	local isScreenGui = page:IsA("ScreenGui")
+	local isSurfaceGui = page:IsA("SurfaceGui")
+	if isScreenGui then
+		page.Parent = UIManager.PlayerGUI
+		page.Enabled = false
+	end
 	
 	local uiInfo = {
-		Name = pageInstance.Name,
-		UI = pageInstance,
-		MainFrame = pageInstance:FindFirstChild("MainFrame"),
+		Name = page.Name,
+		UI = page,
+		MainFrame = page:FindFirstChild("MainFrame"),
 		EnableAnimation = true,
 	}
 
@@ -152,15 +156,19 @@ function UIManager:InitPage(pagePrefab)
 	if uiScriptFile then
 		local uiScript = require(uiScriptFile)
 		uiInfo.Script = uiScript
+		uiInfo.IsScreenGui = isScreenGui
+		uiInfo.IsSurfaceGui = isSurfaceGui
 		uiInfo.InitFunc = uiScript.Init
 		uiInfo.ShowFunc = uiScript.OnShow
 		uiInfo.HideFunc = uiScript.OnHide
 		uiInfo.RefreshFunc = uiScript.Refresh
 		uiInfo.CheckExclusiveFunc = uiScript.CheckExclusive		-- 排除显示控制
 		
-		UIAnimation:HandlePageShow(uiInfo, uiScript.ShowAnimationType)
-		UIAnimation:HandlePageHide(uiInfo, uiScript.HideAnimationType)
-		
+		if isScreenGui then
+			UIAnimation:HandlePageShow(uiInfo, uiScript.ShowAnimationType)
+			UIAnimation:HandlePageHide(uiInfo, uiScript.HideAnimationType)
+		end
+			
 		local childList = uiInfo.UI:GetDescendants()
 		UIPage:Handle(uiInfo.UI, uiScript, childList)
 
@@ -442,6 +450,7 @@ function UIManager:HideAll()
 	local uiGroup = UIManager:GetGroup(UIManager.GroupType.Page)
 	local uiStack = uiGroup.Stack
 	for _, uiInfo in pairs(UIInfoList) do
+		if uiInfo.IsSurfaceGui then continue end
 		uiInfo.UI.Enabled = false
 		uiInfo.UI.Parent = uiGroup.HideFolder
 	end

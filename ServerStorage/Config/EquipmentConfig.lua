@@ -12,8 +12,8 @@ ID,Name,BuyOrder,Rarity,Icon,ThemeKey,Prefab,DigRadius,DigGetPower,DigInterval,D
 8,Phoenix Wing ,8,5,rbxassetid://74206072320809,World01,Equipment/Equipment08,36,4,0.3,1300,80,0,0,1000,nil,nil,rbxassetid://84083040337876,2
 9,Ice Crusher,9,5,rbxassetid://81763365764176,World01,Equipment/Equipment09,40,4,0.2,1300,96,0,0,5000,nil,nil,rbxassetid://84083040337876,2
 10,Twin Dragon,10,5,rbxassetid://93610512652273,World01,Equipment/Equipment10,44,4,0.1,1300,108,0,0,10000,nil,nil,rbxassetid://84083040337876,2
-11,Blood Crow,11,6,rbxassetid://95603611714647,World01,Equipment/Equipment11,25,3,0.5,600,50,0,99,0,ProductStoreEquipment11,nil,rbxassetid://84083040337876,2
-12,Dragon Claw,12,6,rbxassetid://129321191898454,World01,Equipment/Equipment12,52,7,0.0,4000,180,0,1299,0,ProductStoreEquipment12,nil,rbxassetid://84083040337876,2
+11,Blood Crow,-1,6,rbxassetid://95603611714647,World01,Equipment/Equipment11,25,3,0.5,600,50,0,99,0,ProductStoreEquipment11,nil,rbxassetid://84083040337876,2
+12,Dragon Claw,-1,6,rbxassetid://129321191898454,World01,Equipment/Equipment12,50,7,0.05,4000,180,0,1299,0,ProductStoreEquipment12,nil,rbxassetid://84083040337876,2
 ]]
 
 return EquipmentConfig

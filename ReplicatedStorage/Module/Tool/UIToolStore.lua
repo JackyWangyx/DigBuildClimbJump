@@ -47,10 +47,11 @@ end
 function UIToolStore:RefreshItemList()
 	NetClient:Request("Tool", "GetPackageList", function(infoList)
 		local showInfoList = {}
-		for _, info in ipairs(infoList) do
+		for index, info in ipairs(infoList) do
 			local data = ConfigManager:GetData("Tool", info.ID)
 			local isRobuxTool = not Util:IsStrEmpty(data.ProductKey)
 			--print(isRobuxTool, data)
+
 			if not info.IsBuy and isRobuxTool then
 				continue
 			end
@@ -81,6 +82,14 @@ function UIToolStore:RefreshItemList()
 		end, function(info)
 			return info.CostRobux > 0
 		end)
+		
+		-- 选中下一个可购买的
+		for index, info in ipairs(showInfoList) do
+			if not info.IsLock and not info.IsBuy then
+				UIToolStore.SelectIndex = index
+				break
+			end
+		end
 		
 		UIToolStore.ItemList = UIList:LoadWithInfoData(UIToolStore.UIRoot, "UIToolItem", showInfoList, "Tool")
 		UIList:HandleItemList(UIToolStore.ItemList, UIToolStore, "UIToolItem")

@@ -38,7 +38,7 @@ function RewardHandler:GetRewardRequest(player, rewardData)
 end
 
 ------------------------------------------------------------------------------------
--- Internal Impl
+-- Reward
 
 function RewardHandler:GetRewardList(player, rewardList)
 	for _, data in ipairs(rewardList) do
@@ -52,171 +52,206 @@ function RewardHandler:GetRewardList(player, rewardList)
 end
 
 function RewardHandler:GetReward(player, rewardType, rewardID, rewardCount)
-	--print(player.UserId, rewardType, rewardID, rewardCount)
-	
-	if rewardType == "Package" then
-		local rewardList = ConfigManager:SearchAllData("RewardPackage", "PackageID", rewardID)
-		local result = RewardHandler:GetRewardList(player, rewardList)
-		return result
-	end
-	
-	if rewardType == "Pet" then
-		for i = 1, rewardCount do
-			local request = require(game.ServerScriptService.ScriptAlias.Pet)
-			request:Add(player, { ID = rewardID })
-		end
-		return true
-	end
-	
-	if rewardType == "Animal" then
-		for i = 1, rewardCount do
-			local request = require(game.ServerScriptService.ScriptAlias.Animal)
-			request:Add(player, { ID = rewardID })
-		end
-		return true
-	end
-	
-	if rewardType == "PetPackage" then
-		local request = require(game.ServerScriptService.ScriptAlias.Pet)
-		request:AddPackageAdditional(player, { Value = rewardCount })
-		return true
-	end
-	
-	if rewardType == "PetEquip" then
-		local request = require(game.ServerScriptService.ScriptAlias.Pet)
-		request:AddEquipAdditional(player, { Value = rewardCount })
-		return true
-	end
-	
-	if rewardType == "AnimalPackage" then
-		local request = require(game.ServerScriptService.ScriptAlias.Animal)
-		request:AddPackageAdditional(player, { Value = rewardCount })
-		return true
-	end
-
-	if rewardType == "AnimalEquip" then
-		local request = require(game.ServerScriptService.ScriptAlias.Animal)
-		request:AddEquipAdditional(player, { Value = rewardCount })
-		return true
-	end
-
-	if rewardType == "Tool" then
-		local request = require(game.ServerScriptService.ScriptAlias.Tool)
-		request:Get(player, { ID = rewardID })
-		return true
-	end
-	
-	if rewardType == "Equipment" then
-		local request = require(game.ServerScriptService.ScriptAlias.Equipment)
-		request:Get(player, { ID = rewardID })
-		return true
-	end
-
-	if rewardType == "Trail" then
-		local request = require(game.ServerScriptService.ScriptAlias.Trail)
-		request:Get(player, { ID = rewardID })
-		return true
-	end
-	
-	if rewardType == "Partner" then
-		local request = require(game.ServerScriptService.ScriptAlias.Partner)
-		request:Get(player, { ID = rewardID })
-		return true
-	end
-	
-	if rewardType == "Prop" then
-		local request = require(game.ServerScriptService.ScriptAlias.Prop)
-		request:Buy(player, { ID = rewardID, Count = rewardCount })
-		return true
-	end
-
-	if rewardType == "Coin" then
-		local request = require(game.ServerScriptService.ScriptAlias.Account)
-		local getCoinFactor = PlayerProperty:GetGamePropertyValue(player, PlayerProperty.Define.GET_COIN_FACTOR)
-		local value = math.round(rewardCount * getCoinFactor)
-		request:AddCoin(player, { Value = value })
-		return true
-	end
-	
-	if rewardType == "Wins" then
-		local request = require(game.ServerScriptService.ScriptAlias.Account)
-		local getWinsFactor = PlayerProperty:GetGamePropertyValue(player, PlayerProperty.Define.GET_WINS_FACTOR)
-		local value = math.round(rewardCount * getWinsFactor)
-		request:AddWins(player, { Value = value })
-		return true
-	end
-
-	if rewardType == "Power" then
-		local request =require(game.ServerScriptService.ScriptAlias.Training)
-		local getPowerFactor = PlayerProperty:GetGamePropertyValue(player, PlayerProperty.Define.GET_POWER_FACTOR)
-		local value = math.round(rewardCount * getPowerFactor)
-		request:AddPower(player, { Value = value })
-		return true
-	end
-	
-	if rewardType == "PassPoint" then
-		local request = require(game.ServerScriptService.ScriptAlias.Quest)
-		request:AddPassPoint(player, { Value = rewardCount })
-		return true
-	end
-	
-	if rewardType == "LuckyWheel" then
-		local request = require(game.ServerScriptService.ScriptAlias.LuckyWheel)
-		request:Buy(player, { Value = rewardCount })
-		return true
-	end
-	
-	if rewardType == "PetLoot" then
-		local petLootKey = rewardID
-		local lootCount = rewardCount
-		local times = 1
-		if lootCount == 9 then
-			lootCount = 3
-			times = 3
-		end
+	local getFunction = RewardHandler["Get".. rewardType]
+	if getFunction then
+		local success, message = pcall(function()
+			local result = getFunction(self, player, rewardID, rewardCount)
+			return result
+		end)
 		
-		local lootData = ConfigManager:SearchData("PetLoot", "LootKey", petLootKey)
-		local param = {}
-		param.LootKey = petLootKey
-		param.EggPrefab = lootData.EggPrefab
-		param.LootCount = lootCount
-		param.OpenAuto = true
-		param.IsRobuxLoot = lootData.IsRobuxLoot
-		param.DeleteIDList = {}
-		param.IsRewardLoot = true
-		param.Times = times
-	
-		EventManager:DispatchToClient(player, "OpenPetLoot", param)
-		return true
+		if success then
+			local result = message
+			return result
+		else
+			warn("[Reward] Get fail : ", player, rewardType, rewardID, rewardCount, message)
+		end
+	else
+		warn("[Reward] Get func not found : ", player, rewardType, rewardID, rewardCount)
+		return false
+	end
+end
+
+----------------------------------------------------------------------------------------
+-- Impl
+
+-- Package
+
+function RewardHandler:GetPackage(player, rewardID, rewardCount)
+	local rewardList = ConfigManager:SearchAllData("RewardPackage", "PackageID", rewardID)
+	local result = RewardHandler:GetRewardList(player, rewardList)
+	return result
+end
+
+-- Account
+
+function RewardHandler:GetCoin(player, rewardID, rewardCount)
+	local request = require(game.ServerScriptService.ScriptAlias.Account)
+	local getCoinFactor = PlayerProperty:GetGamePropertyValue(player, PlayerProperty.Define.GET_COIN_FACTOR)
+	local value = math.round(rewardCount * getCoinFactor)
+	request:AddCoin(player, { Value = value })
+	return true
+end
+
+function RewardHandler:GetWins(player, rewardID, rewardCount)
+	local request = require(game.ServerScriptService.ScriptAlias.Account)
+	local getWinsFactor = PlayerProperty:GetGamePropertyValue(player, PlayerProperty.Define.GET_WINS_FACTOR)
+	local value = math.round(rewardCount * getWinsFactor)
+	request:AddWins(player, { Value = value })
+	return true
+end
+
+function RewardHandler:GetPower(player,rewardID, rewardCount)
+	local request =require(game.ServerScriptService.ScriptAlias.Training)
+	local getPowerFactor = PlayerProperty:GetGamePropertyValue(player, PlayerProperty.Define.GET_POWER_FACTOR)
+	local value = math.round(rewardCount * getPowerFactor)
+	request:AddPower(player, { Value = value })
+	return true
+end
+
+function RewardHandler:GetPassPoint(player, rewardID, rewardCount)
+	local request = require(game.ServerScriptService.ScriptAlias.Quest)
+	request:AddPassPoint(player, { Value = rewardCount })
+	return true
+end
+
+-- Pet / Animal / Partner / Trail / Tool / Equipment / Prop
+
+function RewardHandler:GetPet(player, rewardID, rewardCount)
+	local request = require(game.ServerScriptService.ScriptAlias.Pet)
+	for i = 1, rewardCount do
+		request:Add(player, { ID = rewardID })
 	end
 	
-	if rewardType == "Property1" then
-		local request = require(game.ServerScriptService.ScriptAlias.PlayerProperty)
-		local propertyPrefix = 1
-		local propertyKey = rewardID
-		local propertyValue = rewardCount
-		request:AddPlayerProperty(player, propertyPrefix, propertyKey, propertyValue)
-		return true
+	request:EquipBest(player)
+	
+	return true
+end
+
+function RewardHandler:GetAnimal(player, rewardID, rewardCount)
+	local request = require(game.ServerScriptService.ScriptAlias.Animal)
+	for i = 1, rewardCount do
+		request:Add(player, { ID = rewardID })
 	end
 	
-	if rewardType == "Property2" then
-		local request = require(game.ServerScriptService.ScriptAlias.PlayerProperty)
-		local propertyPrefix = 2
-		local propertyKey = rewardID
-		local propertyValue = rewardCount
-		request:AddPlayerProperty(player, propertyPrefix, propertyKey, propertyValue)
-		return true
+	return true
+end
+
+function RewardHandler:GetPartner(player, rewardID, rewardCount)
+	local request = require(game.ServerScriptService.ScriptAlias.Partner)
+	request:Get(player, { ID = rewardID })
+	return true
+end
+
+function RewardHandler:GetTrail(player, rewardID, rewardCount)
+	local request = require(game.ServerScriptService.ScriptAlias.Trail)
+	request:Get(player, { ID = rewardID })
+	return true
+end
+
+function RewardHandler:GetTool(player, rewardID, rewardCount)
+	local request = require(game.ServerScriptService.ScriptAlias.Tool)
+	request:Get(player, { ID = rewardID })
+	return true
+end
+
+function RewardHandler:GetEquipment(player, rewardID, rewardCount)
+	local request = require(game.ServerScriptService.ScriptAlias.Equipment)
+	request:Get(player, { ID = rewardID })
+	return true
+end
+
+function RewardHandler:GetProp(player, rewardID, rewardCount)
+	local request = require(game.ServerScriptService.ScriptAlias.Prop)
+	request:Buy(player, { ID = rewardID, Count = rewardCount })
+	return true
+end
+
+-- Pet Loot
+
+function RewardHandler:GetPetLoot(player, rewardID, rewardCount)
+	local petLootKey = rewardID
+	local lootCount = rewardCount
+	local times = 1
+	if lootCount == 9 then
+		lootCount = 3
+		times = 3
 	end
-	
-	if rewardType == "Property3" then
-		local request = require(game.ServerScriptService.ScriptAlias.PlayerProperty)
-		local propertyPrefix = 3
-		local propertyKey = rewardID
-		local propertyValue = rewardCount
-		request:AddPlayerProperty(player, propertyPrefix, propertyKey, propertyValue)
-		return true
-	end
-	
+
+	local lootData = ConfigManager:SearchData("PetLoot", "LootKey", petLootKey)
+	local param = {}
+	param.LootKey = petLootKey
+	param.EggPrefab = lootData.EggPrefab
+	param.LootCount = lootCount
+	param.OpenAuto = true
+	param.IsRobuxLoot = lootData.IsRobuxLoot
+	param.DeleteIDList = {}
+	param.IsRewardLoot = true
+	param.Times = times
+
+	EventManager:DispatchToClient(player, "OpenPetLoot", param)
+	return true
+end
+
+-- LuckyWheel
+
+function RewardHandler:GetLuckyWheel(player, rewardID, rewardCount)
+	local request = require(game.ServerScriptService.ScriptAlias.LuckyWheel)
+	request:Buy(player, { Value = rewardCount })
+	return true
+end
+
+-- Pacakge / Equip
+
+function RewardHandler:GetPetPackage(player, rewardID, rewardCount)
+	local request = require(game.ServerScriptService.ScriptAlias.Pet)
+	request:AddPackageAdditional(player, { Value = rewardCount })
+	return true
+end
+
+function RewardHandler:GetPetEquip(player, rewardID, rewardCount)
+	local request = require(game.ServerScriptService.ScriptAlias.Pet)
+	request:AddEquipAdditional(player, { Value = rewardCount })
+	return true
+end
+
+function RewardHandler:GetAniamlPackage(player, rewardID, rewardCount)
+	local request = require(game.ServerScriptService.ScriptAlias.Animal)
+	request:AddPackageAdditional(player, { Value = rewardCount })
+	return true
+end
+
+function RewardHandler:GetAniamlEquip(player, rewardID, rewardCount)
+	local request = require(game.ServerScriptService.ScriptAlias.Animal)
+	request:AddEquipAdditional(player, { Value = rewardCount })
+	return true
+end
+
+-- Porperty
+
+function RewardHandler:GetProperty1(player, rewardID, rewardCount)
+	local request = require(game.ServerScriptService.ScriptAlias.PlayerProperty)
+	local propertyPrefix = 1
+	local propertyKey = rewardID
+	local propertyValue = rewardCount
+	request:AddPlayerProperty(player, propertyPrefix, propertyKey, propertyValue)
+	return true
+end
+
+function RewardHandler:GetProperty2(player, rewardID, rewardCount)
+	local request = require(game.ServerScriptService.ScriptAlias.PlayerProperty)
+	local propertyPrefix = 2
+	local propertyKey = rewardID
+	local propertyValue = rewardCount
+	request:AddPlayerProperty(player, propertyPrefix, propertyKey, propertyValue)
+	return true
+end
+
+function RewardHandler:GetProperty3(player, rewardID, rewardCount)
+	local request = require(game.ServerScriptService.ScriptAlias.PlayerProperty)
+	local propertyPrefix = 3
+	local propertyKey = rewardID
+	local propertyValue = rewardCount
+	request:AddPlayerProperty(player, propertyPrefix, propertyKey, propertyValue)
 	return true
 end
 

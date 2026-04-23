@@ -25,6 +25,8 @@ local InitQuestInfoTemplate = {
 }
 
 function QuestManager:Init()
+	if not Define.Quest.Enable then return end
+	
 	PlayerManager:HandlePlayerAddRemove(function(player)
 		QuestManager:OnPlayerAdd(player)
 	end, function(player)

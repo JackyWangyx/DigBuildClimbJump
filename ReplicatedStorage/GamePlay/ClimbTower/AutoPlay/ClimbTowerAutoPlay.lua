@@ -60,135 +60,147 @@ function ClimbTowerAutoPlay:GetTower()
 	return tower
 end
 
+local lastTime = 0
+
 function ClimbTowerAutoPlay:UpdateAutoPlay()
 	task.wait()
-	local player = game.Players.LocalPlayer
-	local lastTime = tick()
+	lastTime = tick()
 
 	while true do
-		local currentPhase = ClimbTowerGameLoop.GamePhase
-		local currentTime = tick()
-		local deltaTime = currentTime - lastTime
-
-		-- ============================================================
-		-- 【逻辑 1：自动游戏 (Auto Game) - 全自动循环模式】
-		-- ============================================================
-		if ClimbTowerAutoPlay.Info.IsAutoGame then
-			if currentPhase == ClimbTowerDefine.GamePhase.Idle then
-				-- 1. 落地复位阶段
-				task.wait(1)
-
-				local areaInfo = SceneAreaManager.AreaInfoList[ClimbTowerGameLoop.GameInitParam.TowerIndex]
-				local startPosPart = areaInfo.Area.Game.ClimbStartPos
-
-				-- 【关键修复】：手动重置标记，防止逻辑判定已登顶
-				if ClimbTowerGameLoop.UpdateInfo then
-					ClimbTowerGameLoop.UpdateInfo.IsClimbComplete = false
-				end
-
-				-- 传送：直接对齐坐标和朝向
-				local rootPart = PlayerManager:GetHumanoidRootPart(player)
-				if rootPart then
-					rootPart.CFrame = startPosPart.CFrame
-				end
-
-				-- 【关键修复】：手动触发开始，不再等物理碰撞感应
-				local gameManager = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameManager)
-				gameManager:Enter(ClimbTowerGameLoop.GameInitParam.TowerIndex)
-
-				task.wait(0.1)
-
-			elseif currentPhase == ClimbTowerDefine.GamePhase.Up then
-				-- 2. 上升阶段
-				local humanoid = PlayerManager:GetHumanoid(player)
-				local areaInfo = SceneAreaManager.AreaInfoList[ClimbTowerGameLoop.GameInitParam.TowerIndex]
-				local topPart = areaInfo.Area.Game.Tower.Top
-
-				-- 【关键修复】：改用 MoveTo，它能对抗激活窗口时官方控制脚本产生的“零输入”干扰
-				-- 同时移除了对 state == Climbing 的硬性判断，强制执行移动
-				if humanoid and not ClimbTowerGameLoop.UpdateInfo.IsClimbComplete then
-					humanoid:MoveTo(topPart.Position)
-				end
-
-				-- 判定登顶
-				if ClimbTowerGameLoop:CheckClimbComplete() then
-					if ClimbTowerGameLoop:CheckClimbTop() then
-						ClimbTowerGameManager:GetWins()
-					end
-
-					-- 停止移动
-					PlayerManager:ClearMove(player)
-					humanoid:MoveTo(PlayerManager:GetHumanoidRootPart(player).Position)
-
-					-- 触发下落流程
-					ClimbTowerGameLoop:EnterDown()	
-					task.wait(0.5)
-				end
-
-			elseif currentPhase == ClimbTowerDefine.GamePhase.Down then
-				-- 3. 下落阶段：静静等待落地，不执行任何指令
-				task.wait(0.1)
-			end
-
-			-- ============================================================
-			-- 【逻辑 2：自动爬 (Auto Climb) - 辅助攀爬模式】
-			-- ============================================================
-		elseif ClimbTowerAutoPlay.Info.IsAutoClimb and not ClimbTowerAutoPlay.Info.IsAutoGame then
-			if currentPhase == ClimbTowerDefine.GamePhase.Up then
-				local humanoid = PlayerManager:GetHumanoid(player)
-
-				-- 实时动态高度检测
-				local isComplete = ClimbTowerGameLoop.UpdateInfo.IsClimbComplete or ClimbTowerGameLoop:CheckClimbComplete()
-
-				-- 核心逻辑：只要没判定登顶，就持续向上推
-				if not isComplete then
-					-- 辅助模式下保留 Move 即可，让玩家能微调方向
-					humanoid:Move(Vector3.new(0, 0, -1), true)
-				else
-					-- 【新增逻辑：登顶后往 Top 中心安全移动一段距离】
-					local areaInfo = SceneAreaManager.AreaInfoList[ClimbTowerGameLoop.GameInitParam.TowerIndex]
-					local topPart = areaInfo.Area.Game.Tower.Top
-					local rootPart = PlayerManager:GetHumanoidRootPart(player)
-
-					if topPart and rootPart then
-						-- 1. 计算从玩家当前位置指向 Top 中心的水平向量（忽略 Y 轴高度差）
-						local targetPos = Vector3.new(topPart.Position.X, rootPart.Position.Y, topPart.Position.Z)
-						local moveDir = (targetPos - rootPart.Position).Unit
-
-						-- 2. 强制往中心方向走 15 帧（大约 0.3 秒，确保站稳且绝对不会偏离掉下）
-						-- 注意这里的第二个参数改成了 false，代表 moveDir 是世界坐标系下的绝对方向
-						for i = 1, 30 do
-							humanoid:Move(moveDir, false)
-							task.wait()
-						end
-					end
-
-					-- 3. 走完安全距离后，彻底刹车并结束 AutoClimb
-					PlayerManager:ClearMove(player)
-					humanoid:Move(Vector3.new(0, 0, 0), true)
-					ClimbTowerAutoPlay:EndAutoClimb()
-					continue
-				end
-
-			elseif currentPhase == ClimbTowerDefine.GamePhase.Idle or currentPhase == ClimbTowerDefine.GamePhase.Down then
-				-- 如果是因为手动跳下或意外回地，关闭辅助
-				ClimbTowerAutoPlay:EndAutoClimb()
-			end
-
-		elseif ClimbTowerAutoPlay.Info.IsAutoDig then
-			-- 自动挖掘占位
-			task.wait(0.1)
-		else
-			-- 无事可做时的待机
-			task.wait(0.1)
+		local success, result = pcall(function()
+			ClimbTowerAutoPlay:UpdateImpl()
+		end)
+		
+		if not success then
+			ClimbTowerAutoPlay:EndAll()
 		end
-
-		task.wait()
-		lastTime = currentTime
 	end
 end
 
+function ClimbTowerAutoPlay:UpdateImpl()
+	local player = game.Players.LocalPlayer
+	
+	local currentPhase = ClimbTowerGameLoop.GamePhase
+	local currentTime = tick()
+	local deltaTime = currentTime - lastTime
 
+	-- ============================================================
+	-- 【逻辑 1：自动游戏 (Auto Game) - 全自动循环模式】
+	-- ============================================================
+	if ClimbTowerAutoPlay.Info.IsAutoGame then
+		if currentPhase == ClimbTowerDefine.GamePhase.Idle then
+			-- 1. 落地复位阶段
+			task.wait(1)
+
+			local areaInfo = SceneAreaManager.AreaInfoList[ClimbTowerGameLoop.GameInitParam.TowerIndex]
+			local startPosPart = areaInfo.Area.Game.ClimbStartPos
+
+			-- 【关键修复】：手动重置标记，防止逻辑判定已登顶
+			if ClimbTowerGameLoop.UpdateInfo then
+				ClimbTowerGameLoop.UpdateInfo.IsClimbComplete = false
+			end
+
+			-- 传送：直接对齐坐标和朝向
+			local rootPart = PlayerManager:GetHumanoidRootPart(player)
+			if rootPart then
+				rootPart.CFrame = startPosPart.CFrame
+			end
+
+			-- 【关键修复】：手动触发开始，不再等物理碰撞感应
+			local gameManager = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameManager)
+			gameManager:Enter(ClimbTowerGameLoop.GameInitParam.TowerIndex)
+
+			task.wait(0.1)
+
+		elseif currentPhase == ClimbTowerDefine.GamePhase.Up then
+			-- 2. 上升阶段
+			local humanoid = PlayerManager:GetHumanoid(player)
+			local areaInfo = SceneAreaManager.AreaInfoList[ClimbTowerGameLoop.GameInitParam.TowerIndex]
+			local topPart = areaInfo.Area.Game.Tower.Top
+
+			-- 【关键修复】：改用 MoveTo，它能对抗激活窗口时官方控制脚本产生的“零输入”干扰
+			-- 同时移除了对 state == Climbing 的硬性判断，强制执行移动
+			if humanoid and not ClimbTowerGameLoop.UpdateInfo.IsClimbComplete then
+				--humanoid:MoveTo(topPart.Position)
+				humanoid:Move(Vector3.new(0, 0, -1), true)
+			end
+
+			-- 判定登顶
+			if ClimbTowerGameLoop:CheckClimbComplete() then
+				if ClimbTowerGameLoop:CheckClimbTop() then
+					ClimbTowerGameManager:GetWins()
+				end
+
+				-- 停止移动
+				PlayerManager:ClearMove(player)
+				humanoid:MoveTo(PlayerManager:GetHumanoidRootPart(player).Position)
+
+				-- 触发下落流程
+				ClimbTowerGameLoop:EnterDown()	
+				task.wait(0.5)
+			end
+
+		elseif currentPhase == ClimbTowerDefine.GamePhase.Down then
+			-- 3. 下落阶段：静静等待落地，不执行任何指令
+			task.wait(0.1)
+		end
+
+		-- ============================================================
+		-- 【逻辑 2：自动爬 (Auto Climb) - 辅助攀爬模式】
+		-- ============================================================
+	elseif ClimbTowerAutoPlay.Info.IsAutoClimb and not ClimbTowerAutoPlay.Info.IsAutoGame then
+		if currentPhase == ClimbTowerDefine.GamePhase.Up then
+			local humanoid = PlayerManager:GetHumanoid(player)
+
+			-- 实时动态高度检测
+			local isComplete = ClimbTowerGameLoop.UpdateInfo.IsClimbComplete or ClimbTowerGameLoop:CheckClimbComplete()
+
+			-- 核心逻辑：只要没判定登顶，就持续向上推
+			if not isComplete then
+				-- 辅助模式下保留 Move 即可，让玩家能微调方向
+				humanoid:Move(Vector3.new(0, 0, -1), true)
+			else
+				-- 【新增逻辑：登顶后往 Top 中心安全移动一段距离】
+				local areaInfo = SceneAreaManager.AreaInfoList[ClimbTowerGameLoop.GameInitParam.TowerIndex]
+				local topPart = areaInfo.Area.Game.Tower.Top
+				local rootPart = PlayerManager:GetHumanoidRootPart(player)
+
+				if topPart and rootPart then
+					-- 1. 计算从玩家当前位置指向 Top 中心的水平向量（忽略 Y 轴高度差）
+					local targetPos = Vector3.new(topPart.Position.X, rootPart.Position.Y, topPart.Position.Z)
+					local moveDir = (targetPos - rootPart.Position).Unit
+
+					-- 2. 强制往中心方向走 15 帧（大约 0.3 秒，确保站稳且绝对不会偏离掉下）
+					-- 注意这里的第二个参数改成了 false，代表 moveDir 是世界坐标系下的绝对方向
+					for i = 1, 30 do
+						humanoid:Move(moveDir, false)
+						task.wait()
+					end
+				end
+
+				-- 3. 走完安全距离后，彻底刹车并结束 AutoClimb
+				PlayerManager:ClearMove(player)
+				humanoid:Move(Vector3.new(0, 0, 0), true)
+				ClimbTowerAutoPlay:EndAutoClimb()
+				return
+			end
+
+		elseif currentPhase == ClimbTowerDefine.GamePhase.Idle or currentPhase == ClimbTowerDefine.GamePhase.Down then
+			-- 如果是因为手动跳下或意外回地，关闭辅助
+			ClimbTowerAutoPlay:EndAutoClimb()
+		end
+
+	elseif ClimbTowerAutoPlay.Info.IsAutoDig then
+		-- 自动挖掘占位
+		task.wait(0.1)
+	else
+		-- 无事可做时的待机
+		task.wait(0.1)
+	end
+
+	task.wait()
+	lastTime = currentTime
+end
 
 function ClimbTowerAutoPlay:CheckClimbNearTop(deltaTime)
 	local player = game.Players.LocalPlayer
@@ -196,6 +208,13 @@ function ClimbTowerAutoPlay:CheckClimbNearTop(deltaTime)
 	local topHeight = ClimbTowerGameLoop:GetTowerLength() + ClimbTowerDefine.Game.AutoClimbStopTopOffset
 	local playerHeight = PlayerManager:GetHeight(player) + humanoid.WalkSpeed * deltaTime
 	return playerHeight >= topHeight
+end
+
+function ClimbTowerAutoPlay:EndAll()
+	ClimbTowerAutoPlay:EndAutoGame()
+	ClimbTowerAutoPlay:EndAutoClimb()
+	ClimbTowerAutoPlay:EndAutoDig()
+	ClimbTowerAutoPlay:EndAutoClick()
 end
 
 -- Auto Game

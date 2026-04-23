@@ -19,7 +19,7 @@ function Reward:GetNewbiePack(player)
 end
 
 function Reward:GetLikePack(player)
-	return 	Reward:GetRewardPackage(player, {
+	return	Reward:GetRewardPackage(player, {
 		PackageID = Define.Game.LikePackageID
 	})
 end

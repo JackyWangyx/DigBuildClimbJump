@@ -151,6 +151,7 @@ function UIPetLootResult:Open()
 		task.wait(UIPetLootResult.OpenAutoWaitDuration)
 	end
 	
+	PetUtil:EquipBest()
 	UIManager.Enable = true
 end
 
@@ -186,6 +187,7 @@ function UIPetLootResult:OpenOnce(petDataList, skipOpen, onDone)
 		item.PetInfo.Visible = true
 	end
 
+	PetUtil:EquipBest()
 	onDone()
 end
 

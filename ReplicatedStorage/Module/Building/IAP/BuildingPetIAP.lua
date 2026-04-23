@@ -4,6 +4,7 @@ local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
 local Building = require(game.ReplicatedStorage.ScriptAlias.Building)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
+local PetUtil = require(game.ReplicatedStorage.ScriptAlias.PetUtil)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -16,7 +17,6 @@ function BuildingPetIAP:Handle(buildingPart, opts, petID)
 		NetClient:Request("Pet", "CheckPackage", function(result)
 			if result then
 				IAPClient:Purchase(productKey, function(result)
-					--BuildingPetIAP:Refresh(buildingPart, triggerPart, petID)
 				end)
 			else
 				UIManager:ShowMessage(Define.Message.PackageFull)

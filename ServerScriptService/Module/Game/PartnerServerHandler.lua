@@ -50,7 +50,7 @@ function PartnerServerHandler:Equip(player)
 	local partner = partnerPrefab:Clone()
 	partner.Parent = character
 	
-	local partnerAnimation = game.ReplicatedStorage.LocalScript.PartnerAnimation:Clone()
+	local partnerAnimation = game.ReplicatedStorage.Module.Partner.PartnerAnimation:Clone()
 	partnerAnimation.Parent = partner
 	
 	-- 初始化动画（保持你原来的逻辑）

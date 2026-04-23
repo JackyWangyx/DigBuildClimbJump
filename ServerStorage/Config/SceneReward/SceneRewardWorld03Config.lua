@@ -6,7 +6,7 @@ ID,RewardType,RewardID,RewardCount,Weight,Icon,Description
 2,Prop,3,1,10,rbxassetid://132711430976506,Reward
 3,Prop,2,1,10,rbxassetid://84959116887125,Reward
 4,Pet,291,1,10,rbxassetid://89029589362419,Reward
-5,Coin,1,50,10,rbxassetid://118633366327896,Reward
+5,Coin,1,1000,10,rbxassetid://118633366327896,Reward
 ]]
 
 return SceneRewardConfig

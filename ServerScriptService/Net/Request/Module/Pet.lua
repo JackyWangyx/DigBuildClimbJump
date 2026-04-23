@@ -143,7 +143,7 @@ function Pet:Add(player, param)
 	local packageList = Pet:GetPackageList(player)
 	table.insert(packageList, petInfo)
 
-	Pet:EquipBest(player)
+	--Pet:EquipBest(player)
 	
 	PlayerRecord:AddValue(player, PlayerRecord.Define.TotalGetPet, 1)
 	EventManager:Dispatch(EventManager.Define.QuestGetPet, {

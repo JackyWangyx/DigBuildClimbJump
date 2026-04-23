@@ -6,6 +6,7 @@ local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local SceneAreaManager = require(game.ReplicatedStorage.ScriptAlias.SceneAreaManager)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
+local SoundManager = require(game.ReplicatedStorage.ScriptAlias.SoundManager)
 
 local SceneRewardManager = {}
 
@@ -17,11 +18,15 @@ function SceneRewardManager:Init()
 	task.wait()
 	
 	SceneRewardManager:HideOthers()
-	SceneRewardManager:Spawn()
+	task.spawn(function()
+		SceneRewardManager:Spawn()
+	end)
 	
 	EventManager:Listen(EventManager.Define.RefreshArea, function()
 		SceneRewardManager:Clear()
-		SceneRewardManager:Spawn()
+		task.spawn(function()
+			SceneRewardManager:Spawn()
+		end)
 	end)
 end
 
@@ -80,8 +85,13 @@ function SceneRewardManager:Spawn()
 				NetClient:Request("SceneReward", "GetReward", { ID = id, ThemeKey = themeKey }, function(result)
 					if result.Success then
 						info.State = true
-						Util:DeActiveObject(info.Item)				
 						SceneRewardManager.RewardSaveInfo[key] = true
+						
+						SoundManager:PlaySFX(SoundManager.Define.OpenRewardBox)
+						local fxPrefab = ResourcesManager:Load("Fx/Fx_GetWin")
+						Util:SpawnFxEmit(fxPrefab, rewardItem.Trigger.Position, 10, 3)
+						
+						Util:DeActiveObject(info.Item)				
 						EventManager:Dispatch(EventManager.Define.GetSceneReward)
 						
 						--warn(result)
@@ -102,11 +112,13 @@ function SceneRewardManager:Spawn()
 		end	
 	end
 	
-	for key, info in pairs(themeInfoDic) do
-		if info.State then
-			Util:DeActiveObject(info.Item)
-		else
-			Util:ActiveObject(info.Item)
+	if themeInfoDic then
+		for key, info in pairs(themeInfoDic) do
+			if info.State then
+				Util:DeActiveObject(info.Item)
+			else
+				Util:ActiveObject(info.Item)
+			end
 		end
 	end
 	

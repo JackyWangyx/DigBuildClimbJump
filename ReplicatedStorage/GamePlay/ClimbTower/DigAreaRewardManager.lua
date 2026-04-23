@@ -4,6 +4,7 @@ local ResourcesManager = require(game.ReplicatedStorage.ScriptAlias.ResourcesMan
 local TriggerArea = require(game.ReplicatedStorage.ScriptAlias.TriggerArea)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
+local SoundManager = require(game.ReplicatedStorage.ScriptAlias.SoundManager)
 
 local DigAreaRewardManager = {}
 
@@ -41,15 +42,19 @@ function DigAreaRewardManager:Reset()
 end
 
 function DigAreaRewardManager:GetReward(box, data)
-	box:Destroy()
-	
 	NetClient:Request("ClimbTower", "GetDigAreaReward", { ID = data.ID },  function(result)
 		if result.Success then
+			SoundManager:PlaySFX(SoundManager.Define.OpenRewardBox)
+			local fxPrefab = ResourcesManager:Load("Fx/Fx_GetWin")
+			Util:SpawnFxEmit(fxPrefab, box.Trigger.Position, 10, 3)
+			
 			local rewardList = result.RewardList
 			for _, data in ipairs(rewardList) do
 				UIManager:ShowMessageWithIcon(data.Icon, "Got "..data.Description)
 				task.wait()
 			end
+			
+			box:Destroy()
 		else
 			UIManager:ShowMessage(result.Message)
 		end

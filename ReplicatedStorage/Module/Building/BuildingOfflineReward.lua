@@ -4,6 +4,9 @@ local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local Building = require(game.ReplicatedStorage.ScriptAlias.Building)
+local SoundManager = require(game.ReplicatedStorage.ScriptAlias.SoundManager)
+local ResourcesManager = require(game.ReplicatedStorage.ScriptAlias.ResourcesManager)
+local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -28,6 +31,10 @@ function BuildingOfflineReward:Init(buildingPart, opts)
 		if not Info then return end
 		if Info.RewardCoin <= 0 then return end
 		NetClient:Request("OfflineReward", "GetReward", function()
+			SoundManager:PlaySFX(SoundManager.Define.OpenRewardBox)
+			local fxPrefab = ResourcesManager:Load("Fx/Fx_GetWin")
+			Util:SpawnFxEmit(fxPrefab, buildingPart.Trigger.Position, 10, 3)
+			
 			buildingPart:Destroy()
 		end)
 	end)

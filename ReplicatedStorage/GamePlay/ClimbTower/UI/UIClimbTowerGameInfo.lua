@@ -7,6 +7,7 @@ local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
 local SceneAreaManager = require(game.ReplicatedStorage.ScriptAlias.SceneAreaManager)
+local TimeUtil = require(game.ReplicatedStorage.ScriptAlias.TimeUtil)
 
 local UISceneReward = require(game.ReplicatedStorage.ScriptAlias.UISceneReward)
 local ClimbTowerGameManager = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameManager)
@@ -111,9 +112,13 @@ function UIClimbTowerGameInfo:Refresh()
 end
 
 function UIClimbTowerGameInfo:RefreshDigInfo()
+	local refreshTime = ClimbTowerDefine.Game.DigAreaResetTime - ClimbTowerGameManager.DigAreaResetTimer
+	local refreshText = TimeUtil:FormatSeconds(refreshTime)
+	
 	if not ClimbTowerGameManager.IsDigPhase then 
 		local info = {
-			IsDigging = false
+			IsDigging = false,
+			CountDown = refreshText,
 		}
 
 		UIInfo:SetInfo(UIClimbTowerGameInfo.DigFrame, info)
@@ -124,7 +129,8 @@ function UIClimbTowerGameInfo:RefreshDigInfo()
 	local info = {
 		IsDigging = ClimbTowerGameManager.IsDigging,
 		DigProgress = progress,
-		DigProgressValue = math.round(progress * 100) .. "%"
+		DigProgressValue = math.round(progress * 100) .. "%",
+		CountDown = refreshText,
 	}
 	
 	UIInfo:SetInfo(UIClimbTowerGameInfo.DigFrame, info)
@@ -144,7 +150,7 @@ function UIClimbTowerGameInfo:RefreshBuildInfo()
 	local areaInfo = SceneAreaManager.AreaInfoList[SceneAreaManager.CurrentAreaIndex]
 	local buildingProgress = 0
 	
-	local tower = areaInfo.Area.Game:WaitForChild("Tower")
+	local tower = areaInfo.Area.Game:FindFirstChild("Tower")
 	if tower then
 		local top = tower:WaitForChild("Top")
 		local root = tower:WaitForChild("Root")

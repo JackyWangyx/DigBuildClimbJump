@@ -27,7 +27,7 @@ function UILike:Refresh()
 end
 
 function UILike:Button_Claim()
-	local isInGroup = PlayerManager:IsInOfficalGroup(game.Players.LocalPlayer)
+	local isInGroup = RobloxUtil:CheckIsInOfficalGroup(game.Players.LocalPlayer)
 	if not isInGroup then 
 		UIManager:ShowMessage(Define.Message.NotInGroup)
 		return

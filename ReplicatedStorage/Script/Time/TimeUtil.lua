@@ -2,8 +2,16 @@
 
 local TimeUtil = {}
 
+-------------------------------------------------------------------------------
+-- 注意：服务器执行默认就是 UTC 时间，客户端如不做设置，则为本地时间
+-------------------------------------------------------------------------------
+
 function TimeUtil:GetNow(isUTC)
 	local result
+	if isUTC == nil then
+		isUTC = true
+	end
+	
 	if isUTC then
 		result = os.date("!*t") 
 	else
@@ -22,6 +30,19 @@ function TimeUtil:GetNow(isUTC)
 	return result
 	
 	-- {year=2025, month=6, day=13, hour=13, min=22, sec=0, ...}
+end
+
+function TimeUtil:GetCurrentWeeklyKey(isUTC)
+	local weeklyKey = nil
+	if isUTC then
+		local utc = os.date("!*t")
+		local timestamp = os.time(utc) 
+		weeklyKey = os.date("%Y_%W", timestamp)
+	else
+		weeklyKey = os.date("%Y_%W")
+	end
+	
+	return weeklyKey
 end
 
 function TimeUtil:IsBetween(date, startDate, endDate)

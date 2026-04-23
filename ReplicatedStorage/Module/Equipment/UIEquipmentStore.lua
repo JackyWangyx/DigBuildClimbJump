@@ -47,10 +47,11 @@ end
 function UIEquipmentStore:RefreshItemList()
 	NetClient:Request("Equipment", "GetPackageList", function(infoList)
 		local showInfoList = {}
-		for _, info in ipairs(infoList) do
+		for index, info in ipairs(infoList) do
 			local data = ConfigManager:GetData("Equipment", info.ID)
 			local isRobuxEquipment = not Util:IsStrEmpty(data.ProductKey)
 			--print(isRobuxEquipment, data)
+			
 			if not info.IsBuy and isRobuxEquipment then
 				continue
 			end
@@ -81,6 +82,14 @@ function UIEquipmentStore:RefreshItemList()
 		end, function(info)
 			return info.CostRobux > 0
 		end)
+		
+		-- 选中下一个可购买的
+		for index, info in ipairs(showInfoList) do
+			if not info.IsLock and not info.IsBuy then
+				UIEquipmentStore.SelectIndex = index
+				break
+			end
+		end
 		
 		UIEquipmentStore.ItemList = UIList:LoadWithInfoData(UIEquipmentStore.UIRoot, "UIEquipmentItem", showInfoList, "Equipment")
 		UIList:HandleItemList(UIEquipmentStore.ItemList, UIEquipmentStore, "UIEquipmentItem")

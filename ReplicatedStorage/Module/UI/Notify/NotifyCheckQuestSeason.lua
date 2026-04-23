@@ -3,10 +3,13 @@ local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 
 local QuestDefine = require(game.ReplicatedStorage.ScriptAlias.QuestDefine)
+local Define = require(game.ReplicatedStorage.Define)
 
 local NotifyCheckQuestSeason = {}
 
 function NotifyCheckQuestSeason:Handle(rootPart)
+	if not Define.Quest.Enable then return end
+	
 	local notifyPart = rootPart:WaitForChild("Notify")
 	UINotify:Handle(rootPart, function(notifyPart)
 		NetClient:Request("Quest", "CheckNotify", { Type = QuestDefine.Type.Season }, function(result)

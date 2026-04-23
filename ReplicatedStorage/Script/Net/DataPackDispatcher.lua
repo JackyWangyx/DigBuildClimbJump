@@ -34,7 +34,9 @@ function DataPackDispatcher:CacheModule()
 				end)
 				if success then
 					local module = result
-					targetCache[requestScript.Name] = module
+					local moduleName = requestScript.Name
+					moduleName = string.gsub(moduleName, "Request", "")
+					targetCache[moduleName] = module
 					local initFunc = module["Init"]
 					if initFunc and typeof(initFunc) == "function" then
 						initFunc()

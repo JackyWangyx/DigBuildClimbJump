@@ -5,6 +5,7 @@ local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
 
 local IAPServer = require(game.ServerScriptService.ScriptAlias.IAPServer)
+local DonateRank = require(game.ServerScriptService.ScriptAlias.DonateRank)
 local PlayerPrefs = require(game.ServerScriptService.ScriptAlias.PlayerPrefs)
 
 local IAP = {}
@@ -24,6 +25,12 @@ function LoadInfo(player)
 	local saveInfo = PlayerPrefs:GetModule(player, "IAP")
 	return saveInfo
 end
+
+--function IAP:Donate(player, param)
+--	local level = param
+--	local result = DonateRank:Donate(player, param)
+--	return result
+--end
 
 function IAP:BuyPackage(player, param)
 	local packageID = tostring(param.ID)

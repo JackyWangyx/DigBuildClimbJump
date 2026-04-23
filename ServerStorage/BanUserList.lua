@@ -1,7 +1,7 @@
 ﻿local BanUserList = {}
 
 BanUserList.IDList = {
-	["2396802437"] = true,		-- Joaovitor196z6
+	--["2396802437"] = true,		-- Joaovitor196z6
 }
 
 function BanUserList:IsBan(playerID)

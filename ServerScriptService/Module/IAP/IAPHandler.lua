@@ -3,6 +3,8 @@ local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 
 local NetServer = require(game.ServerScriptService.ScriptAlias.NetServer)
+local RewardHandler = require(game.ServerScriptService.ScriptAlias.RewardHandler)
+local PlayerRecord = require(game.ServerScriptService.ScriptAlias.PlayerRecord)
 
 local IAPHandler = {}
 
@@ -219,44 +221,38 @@ end
 -- Account Coin
 
 function IAPHandler:Coin500(player, param)
-	local accountRequest = NetServer:RequireModule("Account")
-	accountRequest:AddCoin(player, { Value = 500 })
+	warn(param)
+	RewardHandler:GetCoin(player, nil, 500)
 	return true
 end
 
 function IAPHandler:Coin10K(player, param)
-	local accountRequest = NetServer:RequireModule("Account")
-	accountRequest:AddCoin(player, { Value = 10000 })
+	RewardHandler:GetCoin(player, nil, 10000)
 	return true
 end
 
 function IAPHandler:Coin100K(player, param)
-	local accountRequest = NetServer:RequireModule("Account")
-	accountRequest:AddCoin(player, { Value = 100000 })
+	RewardHandler:GetCoin(player, nil, 100000)
 	return true
 end
 
 function IAPHandler:Coin25M(player, param)
-	local accountRequest = NetServer:RequireModule("Account")
-	accountRequest:AddCoin(player, { Value = 25000000 })
+	RewardHandler:GetCoin(player, nil, 25000000)
 	return true
 end
 
 function IAPHandler:Coin45M(player, param)
-	local accountRequest = NetServer:RequireModule("Account")
-	accountRequest:AddCoin(player, { Value = 45000000 })
+	RewardHandler:GetCoin(player, nil, 45000000)
 	return true
 end
 
 function IAPHandler:Coin100M(player, param)
-	local accountRequest = NetServer:RequireModule("Account")
-	accountRequest:AddCoin(player, { Value = 100000000 })
+	RewardHandler:GetCoin(player, nil, 100000000)
 	return true
 end
 
 function IAPHandler:Coin500M(player, param)
-	local accountRequest = NetServer:RequireModule("Account")
-	accountRequest:AddCoin(player, { Value = 500000000 })
+	RewardHandler:GetCoin(player, nil, 500000000)
 	return true
 end
 
@@ -264,8 +260,7 @@ end
 -- Account Wins
 
 function IAPHandler:Wins10K(player, param)
-	local accountRequest = NetServer:RequireModule("Account")
-	accountRequest:AddWins(player, { Value = 10000 })
+	RewardHandler:GetWins(player, nil, 10000)
 	return true
 end
 
@@ -414,6 +409,65 @@ end
 
 function IAPHandler:AutoClick(player, param)
 	EventManager:Dispatch(EventManager.Define.RefreshPlayerProperty, player)
+	return true
+end
+
+----------------------------------------------------------------------------
+-- Donate
+
+function IAPHandler:Donate1(player, param)
+	local level = 1
+	local donateRank = require(game.ServerScriptService.ScriptAlias.DonateRank)
+	donateRank:Donate(player, level)
+	return true
+end
+
+function IAPHandler:Donate2(player, param)
+	local level = 2
+	local donateRank = require(game.ServerScriptService.ScriptAlias.DonateRank)
+	donateRank:Donate(player, level)
+	return true
+end
+
+function IAPHandler:Donate3(player, param)
+	local level = 3
+	local donateRank = require(game.ServerScriptService.ScriptAlias.DonateRank)
+	donateRank:Donate(player, level)
+	return true
+end
+
+function IAPHandler:Donate4(player, param)
+	local level = 4
+	local donateRank = require(game.ServerScriptService.ScriptAlias.DonateRank)
+	donateRank:Donate(player, level)
+	return true
+end
+
+function IAPHandler:Donate5(player, param)
+	local level = 5
+	local donateRank = require(game.ServerScriptService.ScriptAlias.DonateRank)
+	donateRank:Donate(player, level)
+	return true
+end
+
+function IAPHandler:Donate6(player, param)
+	local level = 6
+	local donateRank = require(game.ServerScriptService.ScriptAlias.DonateRank)
+	donateRank:Donate(player, level)
+	return true
+end
+
+function IAPHandler:Donate7(player, param)
+	local level = 7
+	local donateRank = require(game.ServerScriptService.ScriptAlias.DonateRank)
+	donateRank:Donate(player, level)
+	return true
+end
+
+function IAPHandler:Donate8(player, param)
+	local level = 8
+	local donateRank = require(game.ServerScriptService.ScriptAlias.DonateRank)
+	donateRank:Donate(player, level)
 	return true
 end
 

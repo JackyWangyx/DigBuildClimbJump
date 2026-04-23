@@ -30,6 +30,7 @@ function BuildingEquipmentIAP:Handle(buildingPart, opts, toolID)
 		end)
 	end)
 	
+	
 	building.RefreshFunc = function()
 		NetClient:Request("Equipment", "CheckExist", { ID = toolID }, function(result)
 			local uiCost = Util:GetChildByName(buildingPart, "UICost")

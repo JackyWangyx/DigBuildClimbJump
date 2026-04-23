@@ -120,4 +120,12 @@ function PetUtil:OpenLoot(lootKey, deleteIDList, count, callback)
 	end)
 end
 
+function PetUtil:EquipBest()
+	NetClient:Request("Pet", "EquipBest", function(result)
+		if result then
+			
+		end
+	end)
+end
+
 return PetUtil

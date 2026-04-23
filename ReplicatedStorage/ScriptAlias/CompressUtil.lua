@@ -1,4 +1,4 @@
-﻿-- game.ReplicatedStorage.Script.Utility.CompressUtil
+﻿-- game.ReplicatedStorage.Script.Data.CompressUtil
 -- game.ReplicatedStorage.ScriptAlias.CompressUtil
-local CompressUtil = require(game.ReplicatedStorage.Script.Utility.CompressUtil)
+local CompressUtil = require(game.ReplicatedStorage.Script.Data.CompressUtil)
 return CompressUtil

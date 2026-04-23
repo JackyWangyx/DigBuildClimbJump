@@ -1,5 +1,6 @@
 ﻿local MarketplaceService = game:GetService("MarketplaceService")
 local RunService = game:GetService("RunService")
+local GroupService = game:GetService("GroupService")
 
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 
@@ -41,6 +42,11 @@ end
 
 -- Group
 
+function RobloxUtil:CheckIsInOfficalGroup(player)
+	if not player then return false end
+	return player:IsInGroup(Define.Game.OfficalGroupID)
+end
+
 function RobloxUtil:CheckCanViewSocialLinks(player)
 	if player.AccountAge and player.AccountAge >= 365 * 13 then
 		return true
@@ -48,14 +54,16 @@ function RobloxUtil:CheckCanViewSocialLinks(player)
 	return false
 end
 
-function RobloxUtil:GetOfficlGroupUrl()
+function RobloxUtil:GetOfficalGroupUrl()
 	local result = "https://www.roblox.com/groups/" .. Define.Game.OfficalGroupID .. "/group"
 	return result
 end
 
 function RobloxUtil:OpenOfficalGroup()
-	local url = RobloxUtil:GetOfficlGroupUrl()
-	game:GetService("GuiService"):OpenBrowserWindow(url)
+	GroupService:PromptJoinAsync(Define.Game.OfficalGroupID)
+	
+	--local url = RobloxUtil:GetOfficalGroupUrl()
+	--game:GetService("GuiService"):OpenBrowserWindow(url)
 end
 
 -- Game Page

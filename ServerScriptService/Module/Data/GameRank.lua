@@ -5,6 +5,7 @@ local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 local LogUtil = require(game.ReplicatedStorage.ScriptAlias.LogUtil)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
+local TimeUtil = require(game.ReplicatedStorage.ScriptAlias.TimeUtil)
 
 local PlayerPrefs = require(game.ServerScriptService.ScriptAlias.PlayerPrefs)
 local ServerPrefs = require(game.ServerScriptService.ScriptAlias.ServerPrefs)
@@ -96,9 +97,7 @@ end
 
 function GameRank:Init()
 	PlayerManager:HandlePlayerAddRemove(function(player)
-		
-	end, function(player)
-		
+	end, function(player)		
 	end)
 	
 	task.spawn(function()
@@ -113,17 +112,16 @@ function GameRank:Init()
 				else
 					UpdateInterval = Define.Data.GameRankSaveInterval * 1.5
 				end
-				
 			end		
 		end
 	end)
 
-	--game:BindToClose(function()
-	--	-- if RunService:IsStudio() then return end
-	--	task.spawn(function()
-	--		GameRank:ForceUpdateRank(false)
-	--	end)
-	--end)
+	game:BindToClose(function()
+		-- if RunService:IsStudio() then return end
+		task.defer(function()
+			GameRank:ForceUpdateRank(false)
+		end)
+	end)
 end
 
 function GameRank:GetDataStoreKey(rankKey)
@@ -140,6 +138,7 @@ end
 -- Update
 
 function GameRank:ForceUpdateRank(waitNext)
+	--print("[RankList] Start close process")
 	for _, rankKey in pairs(Define.RankList) do
 		local requireSave = false
 		local dataStoreName = GameRank:GetDataStoreKey(rankKey)
@@ -147,6 +146,7 @@ function GameRank:ForceUpdateRank(waitNext)
 		ServerPrefs:ClearModuleCache(dataStoreName, dataModuleKey)
 		local result = ServerPrefs:LoadFromDataStore(dataStoreName, dataModuleKey)
 		if not result.Success then 
+			--print("[RankList] Load fail : ", rankKey)
 			return false
 		end
 		
@@ -155,6 +155,7 @@ function GameRank:ForceUpdateRank(waitNext)
 		local localList = GameRank:GetRankList(rankKey)
 		local needMerge = CheckNeedMerge(serverList, localList)
 		if needMerge then
+			--print("[RankList] Merge start ", rankKey)
 			local merged = MergeRankLists(rankKey, serverList, localList)
 			ServerPrefs:SetValue(dataStoreName, dataModuleKey, "RankList", merged)
 			GameRankCache[rankKey] = merged
@@ -162,11 +163,12 @@ function GameRank:ForceUpdateRank(waitNext)
 			requireSave = CheckNeedUpdate(rankKey)
 			if requireSave then
 				ServerPrefs:SaveToDataStore(dataStoreName, dataModuleKey, function(success)
-					LogUtil:Log("[Server] Save RankList : ", rankKey, success)
+					print("[RankList] Save RankList : ", rankKey, success) -- LogUtil:Log
 				end)
 			end
 			
 			EventManager:DispatchToAllClient(EventManager.Define.RefreshRank, { RankKey = rankKey })
+			EventManager:Dispatch(EventManager.Define.RefreshRank, { RankKey = rankKey })
 		end
 		
 		UpdateRankCache[rankKey] = {}
@@ -251,6 +253,7 @@ function GameRank:SetRank(player, rankKey, value)
 		
 		GameRankCache[rankKey] = rankList
 		EventManager:DispatchToAllClient(EventManager.Define.RefreshRank, { RankKey = rankKey })
+		EventManager:Dispatch(EventManager.Define.RefreshRank, { RankKey = rankKey })
 	end)
 end
 

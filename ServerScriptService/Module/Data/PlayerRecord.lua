@@ -8,6 +8,7 @@ local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 local PlayerCache = require(game.ServerScriptService.ScriptAlias.PlayerCache)
 local PlayerPrefs = require(game.ServerScriptService.ScriptAlias.PlayerPrefs)
 local GameRank = require(game.ServerScriptService.ScriptAlias.GameRank)
+local TimeUtil = require(game.ReplicatedStorage.ScriptAlias.TimeUtil)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -64,24 +65,9 @@ function PlayerRecord:AddValue(player, key, value)
 	EventManager:DispatchToClient(player, Define.Event.RefreshRecord, { Key = key, Value = newValue })
 	
 	-- 更新排行榜
-	if key == Define.PlayerRecord.TotalGetCoin then
-		GameRank:SetRank(player, Define.RankList.TotalGetCoin, newValue)
-	end
-	
-	if key == Define.PlayerRecord.TotalGetWins then
-		GameRank:SetRank(player, Define.RankList.TotalGetWins, newValue)
-	end
-	
-	if key == Define.PlayerRecord.TotalGetPower then
-		GameRank:SetRank(player, Define.RankList.TotalGetPower, newValue)
-	end
-	
-	if key == Define.PlayerRecord.TotalRebirth then
-		GameRank:SetRank(player, Define.RankList.TotalRebirth, newValue)
-	end
-	
-	if key == Define.PlayerRecord.TotalClick then
-		GameRank:SetRank(player, Define.RankList.TotalClick, newValue)
+	local gameRankKey = Define.RankList[key]
+	if gameRankKey then
+		GameRank:SetRank(player, gameRankKey, newValue)
 	end
 end
 

@@ -119,7 +119,7 @@ GuideDefine.GuideList = {
 	-- Game
 	[7] = {
 		Key = "GuideStep_07",
-		TipText = "🧗 Reach the top and then jump!",
+		TipText = "🧗 Climb up,then jump!",
 		TriggerMode = GuideDefine.TriggerMode.Event,
 		TriggerEvent = ClimbTowerDefine.Event.Exit,
 		TargetMode = GuideDefine.TargetMode.Custom,
@@ -160,7 +160,7 @@ GuideDefine.GuideList = {
 			[1] = "UIPetLoot/MainFrame/LootFrame/Guide_Close",
 		},
 	},
-	
+
 	--[[
 	-- Pet Equip
 	[12] = {
@@ -207,7 +207,7 @@ GuideDefine.GuideList = {
 		end
 	},
 	]]
-	
+
 	-- Buy Tool
 	[11] = {
 		Key = "GuideStep_11",

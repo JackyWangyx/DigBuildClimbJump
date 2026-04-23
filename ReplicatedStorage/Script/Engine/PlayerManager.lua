@@ -34,6 +34,7 @@ function PlayerManager:Init()
 			RobloxUtil:DisableResetButton()
 
 		end, function(player, character)
+			
 		end)
 	else	
 		game.Players.CharacterAutoLoads = true
@@ -162,10 +163,8 @@ function PlayerManager:IsProjectOwner(player)
 	end
 end
 
-function PlayerManager:IsInOfficalGroup(player)
-	if not player then return false end
-	return player:IsInGroup(Define.Game.OfficalGroupID)
-end
+--------------------------------------------------------------------------------------------------
+-- HeadIcon
 
 function PlayerManager:GetHeadIconAsync(player, callback)
 	if not player then return nil end
@@ -189,6 +188,9 @@ function PlayerManager:GetHeadIconAsync(player, callback)
 	end)
 end
 
+--------------------------------------------------------------------------------------------------
+-- ID
+
 function PlayerManager:GetPlayerById(playerId)
 	if not playerId then return nil end
 	if typeof(playerId) ~= "number" then
@@ -202,6 +204,9 @@ function PlayerManager:IsPlayerInServerById(playerId)
 	local player = PlayerManager:GetPlayerById(playerId)
 	return player ~= nil
 end
+
+--------------------------------------------------------------------------------------------------
+-- Get Part
 
 function PlayerManager:GetPlayer()
 	local player = game.Players.LocalPlayer
@@ -240,6 +245,9 @@ function PlayerManager:GetHumanoidRootPart(player)
 	return rootPart
 end
 
+--------------------------------------------------------------------------------------------------
+-- Move
+
 function PlayerManager:SetMoveHeight(player, height)
 	local humanoid = PlayerManager:GetHumanoid(player)
 	if humanoid then
@@ -257,6 +265,9 @@ function PlayerManager:SetHeight(player, targetHeight)
 	local pos = root.Position
 	root.CFrame = CFrame.new(pos.X, targetHeight, pos.Z)
 end
+
+--------------------------------------------------------------------------------------------------
+-- Spawn
 
 function PlayerManager:SetSpawnLocation(player)
 	if not player then return end

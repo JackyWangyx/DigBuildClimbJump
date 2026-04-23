@@ -4,6 +4,7 @@ local UIInfo = require(game.ReplicatedStorage.ScriptAlias.UIInfo)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local Building = require(game.ReplicatedStorage.ScriptAlias.Building)
+local SoundManager = require(game.ReplicatedStorage.ScriptAlias.SoundManager)
 local ResourcesManager = require(game.ReplicatedStorage.ScriptAlias.ResourcesManager)
 
 local ClimbTowerGameManager = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameManager)
@@ -16,8 +17,10 @@ function BuildingGetWins:Init(buildingPart, opts)
 	opts.Mode = Building.Mode.Global
 	local building = Building.Trigger(buildingPart, opts, function()
 		ClimbTowerGameManager:GetWins(opts.AreaIndex)
+		
+		SoundManager:PlaySFX(SoundManager.Define.OpenRewardBox)
 		local fxPrefab = ResourcesManager:Load("Fx/Fx_GetWin")
-		Util:SpawnFx(fxPrefab, buildingPart.CFrame.Position, 1)
+		Util:SpawnFxEmit(fxPrefab, buildingPart.Trigger.Position, 10, 3)
 	end)
 end
 

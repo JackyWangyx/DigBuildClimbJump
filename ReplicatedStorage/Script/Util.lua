@@ -1012,7 +1012,8 @@ end
 function Util:SpawnFx(fxPrefab, pos, destroyTime)
 	local fx = fxPrefab:Clone()
 	fx.Position = pos
-	fx.Parent = game.Workspace.Game.Fx
+	local sceneMnaager = require(game.ReplicatedStorage.ScriptAlias.SceneManager)
+	fx.Parent = sceneMnaager.LevelRoot.Game.Fx
 	if not destroyTime then
 		destroyTime = 1
 	end

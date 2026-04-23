@@ -25,7 +25,7 @@ ClimbTowerDefine.Game = {
 	-- 塔的初始高度
 	TowerHeightDefault = -1,
 	TowerUpgradeDuration = 3,
-	TowerUpgradeFx = "Fx/Fx_PlayerDrop",
+	--TowerUpgradeFx = "Fx/Fx_PlayerDrop",
 	AutoClimbStopTopOffset = -1,
 	-- 挖掘区域生成参数
 	DigAreaPos = Vector3.new(0, -515, 0),
@@ -46,6 +46,7 @@ ClimbTowerDefine.Game = {
 	PlayerFallAnimation = "rbxassetid://507767968",
 	-- 落地特效延迟
 	DropEffectDelay = 0.35,
+	--DropFx = "Fx/Fx_PlayerDrop", 
 	-- 落地相机震动参数
 	DropCameraShakeParam = {
 		Poweer = Vector3.new(1, 0.5, 1),

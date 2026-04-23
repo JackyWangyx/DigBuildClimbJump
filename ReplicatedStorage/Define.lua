@@ -35,6 +35,7 @@ Define.Test = {
 -----------------------------------------------------------------------------------
 -- 任务 / 赛季 / 活动
 Define.Quest = {
+	Enable = false,
 	SeasonKey = "Season_01",
 	DailyQuestCount = 3,
 	WeeklyQuestCount = 3,
@@ -58,8 +59,8 @@ Define.Activity = {
 -- 游戏参数
 Define.Game = {
 	-- Game
-	GamePlaceID = 90478150465243,
-	OfficalGroupID = 936613609,   ----online
+	GamePlaceID = 130352527564200,
+	OfficalGroupID = 338346637,   ----online
 	--OfficalGroupID = 557943437, ---devtest
 	LevelCount = 1,
 	TrackCount =  5,
@@ -263,6 +264,9 @@ Define.Message = {
 	
 	-- Sign
 	CanGetRewardTip = "Can Get!",
+	
+	-- Donate
+	DonateSuccess = "Dontae Success!",
 }
 
 -----------------------------------------------------------------------------------
@@ -456,6 +460,9 @@ Define.PlayerRecord = {
 	TotalGetPartner = "TotalGetPartner",
 	TotalPetUpgrade = "TotaltPetUpgrade",
 	TotalUnlockLevel = "TotalUnlockLevel",
+	
+	TotalDonate = "TotalDonate",						-- 总捐赠
+	--WeeklyDonate = "WeeklyDonate",					-- 每周捐赠，运行时动态生成
 }
 
 -----------------------------------------------------------------------------------
@@ -466,6 +473,9 @@ Define.RankList = {
 	TotalGetWins = "TotalGetWins",
 	TotalRebirth = "TotalRebirth",
 	TotalClick = "TotalClick",
+	
+	TotalDonate = "TotalDonate",
+	--WeeklyDonate = "WeeklyDonate", 					-- 每周捐赠榜，运行时动态生成
 }
 
 -----------------------------------------------------------------------------------
@@ -508,6 +518,8 @@ Define.Sound = {
 	
 	BuildTower = "Building",
 	Dig = "DigDefault",
+	
+	OpenRewardBox = "OpenBox",
 }
 
 return Define

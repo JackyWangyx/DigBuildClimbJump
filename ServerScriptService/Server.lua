@@ -3,10 +3,12 @@
 local function Init()
 	require(game.ReplicatedStorage.ScriptAlias.LogUtil):Init()
 	require(game.ServerScriptService.ScriptAlias.NetServer):Init()
+	--require(game.ServerScriptService.ScriptAlias.MasterServer):Init()
 	
 	-- Data
 	require(game.ServerScriptService.ScriptAlias.ServerPrefs):Init()
 	require(game.ServerScriptService.ScriptAlias.PlayerPrefs):Init()
+	require(game.ServerScriptService.ScriptAlias.DonateRank):Init()
 	require(game.ServerScriptService.ScriptAlias.PlayerCache):Init()
 	require(game.ServerScriptService.ScriptAlias.PlayerStatus):Init()
 	require(game.ServerScriptService.ScriptAlias.PlayerProperty):Init()
@@ -44,9 +46,10 @@ local function Init()
 	--require(game.ServerScriptService.ScriptAlias.AnimalServerHandler):Init()
 	require(game.ServerScriptService.ScriptAlias.PartnerServerHandler):Init()
 
-	
 	require(game.ServerScriptService.ScriptAlias.SceneAreaServerHandler):Init()
+	require(game.ServerScriptService.ScriptAlias.GameRankServerHandler):Init()
 	
+	-- Current Game
 	require(game.ServerScriptService.ScriptAlias.ClimbTowerServer):Init()
 
 	-- Misc

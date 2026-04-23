@@ -1,0 +1,224 @@
+﻿--!strict
+-- This is a widget for a single key, used for "Open in New Widget"
+
+local plugin = script:FindFirstAncestorOfClass("Plugin")
+
+local HttpService = game:GetService("HttpService")
+
+local Theme = require(script.Parent.Parent.Theme)
+local Session = require(script.Parent.Parent.Parent.Session)
+local Transactor = require(script.Parent.Parent.Parent.Transactor)
+local UIMessages = require(script.Parent.Parent.UIMessages)
+
+local Assets = script.Parent.Parent.Assets
+local StyleState = script.Parent.Parent.StyleState
+
+local EditKeyView = require(script.Parent.Parent.Views.EditKeyView)
+local VersionsView = require(script.Parent.Parent.Views.VersionsView)
+
+local StyleStateHelper = require(StyleState.StyleStateHelper)
+local BackgroundStyleState = require(StyleState.BackgroundStyleState)
+
+local WIDGET_INFO = DockWidgetPluginGuiInfo.new(
+	Enum.InitialDockState.Float, -- Widget will be initialized in floating panel
+	false,
+	false,
+	500,
+	350,
+	350,
+	230
+)
+
+export type SingleKeyParamNewParams = {
+	keyName: string,
+	theme: Theme.Theme,
+	session: Session.Session,
+}
+
+export type SingleKeyWidgetImplementation = {
+	__index: SingleKeyWidgetImplementation,
+
+	new: (SingleKeyParamNewParams) -> (SingleKeyWidget?, string?),
+	destroy: (SingleKeyWidget) -> (),
+
+	_trySwapEditKeyView: (SingleKeyWidget, keyName: string, version: string?, session: Session.Session?) -> (boolean, string?),
+}
+
+export type SingleKeyWidgetFields = {
+	deleted: RBXScriptSignal,
+	_deleted: BindableEvent,
+
+	_theme: Theme.Theme,
+	_session: Session.Session,
+	_transactor: Transactor.Transactor,
+	_uiMessages: UIMessages.UIMessages,
+
+	_id: string,
+	_widget: DockWidgetPluginGui,
+	_frame: typeof(Assets.Widgets.SingleKeyWidget),
+	_styleStates: { StyleStateHelper.StyleState },
+	_editKeyView: EditKeyView.EditKeyView,
+	_editKeyFrame: EditKeyView.EditFrame,
+
+	_connections: { RBXScriptConnection },
+}
+
+export type SingleKeyWidget = typeof(setmetatable({} :: SingleKeyWidgetFields, {} :: SingleKeyWidgetImplementation))
+
+local SingleKeyWidget = {} :: SingleKeyWidgetImplementation
+SingleKeyWidget.__index = SingleKeyWidget
+
+function SingleKeyWidget.new(params)
+	local self = setmetatable({}, SingleKeyWidget)
+	self._session = params.session
+	self._transactor = Transactor.new()
+
+	self._theme = params.theme
+	self._id = HttpService:GenerateGUID()
+	self._widget = plugin:CreateDockWidgetPluginGuiAsync(self._id, WIDGET_INFO)
+	self._widget.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	self._widget.Name = `Single Key Widget {self._id}`
+	self._widget.Enabled = false
+
+	self._frame = Assets.Widgets.SingleKeyWidget:Clone()
+	self._frame.Parent = self._widget
+
+	self._uiMessages = UIMessages.new(self._theme)
+	self._uiMessages:setParent(self._widget)
+
+	self._styleStates = {
+		BackgroundStyleState.from(self._theme, self._frame.Background),
+	}
+
+	self._editKeyFrame = Assets.Views.EditKey:Clone()
+	self._editKeyFrame.Position = UDim2.fromOffset(0, 0)
+	self._editKeyFrame.Size = UDim2.fromScale(1, 1)
+	self._editKeyFrame.Parent = self._widget
+	self._editKeyView = nil :: any
+
+	self._deleted = Instance.new("BindableEvent")
+	self.deleted = self._deleted.Event :: RBXScriptSignal
+
+	local success, err = (self :: any):_trySwapEditKeyView(params.keyName)
+	if not success then
+		return nil, err
+	end
+	self._widget.Enabled = true
+
+	self._connections = {
+		self._widget.Destroying:Connect(function()
+			self:destroy()
+		end),
+
+		self._widget:GetPropertyChangedSignal("Enabled"):Connect(function()
+			if not self._widget.Enabled then
+				self:destroy()
+			end
+		end),
+
+		self._theme.colorsChanged:Connect(function()
+			StyleStateHelper.update(self._styleStates :: any)
+		end),
+	}
+
+	return self
+end
+
+function SingleKeyWidget:_trySwapEditKeyView(keyName: string, version: string?, session: Session.Session?)
+	local success: boolean, err: string?
+	local forkedSession = session or self._session:fork()
+	if version then
+		success, err = forkedSession:tryLoadVersion(keyName, version)
+	else
+		success, err = forkedSession:tryLoadKey(keyName)
+	end
+
+	task.wait()
+
+	if not success then
+		return false, err
+	end
+	
+	local versionsView = nil
+
+	if self._editKeyView then
+		-- preserve the versions view if it is the same session
+		if self._editKeyView.session == session then
+			versionsView = self._editKeyView.versionsView
+			versionsView:hide(true)
+		else
+			self._editKeyView.versionsView:destroy()
+		end
+
+		self._editKeyView:destroy()
+	end
+
+	if not versionsView then
+		versionsView = VersionsView.new({
+			theme = self._theme,
+			uiMessages = self._uiMessages,
+			widget = self._widget,
+			container = self._editKeyFrame,
+			session = forkedSession,
+			loadVersion = function(version: string)
+				local editKeyView = self._editKeyView
+				if not editKeyView then return false end
+
+				return editKeyView:handleLoadVersion(version)
+			end,
+		})
+	end
+
+	local editKeyView = EditKeyView.from({
+		theme = self._theme,
+		uiMessages = self._uiMessages,
+		frame = self._editKeyFrame,
+		inputReceiver = self._frame.HotkeyInputReceiver,
+		session = forkedSession,
+		transactor = self._transactor,
+		versionsView = versionsView,
+		swapCallback = function(keyName, version, session)
+			return self:_trySwapEditKeyView(keyName, version, session)
+		end,
+		isVersionLoaded = not not version,
+		openWithVersionsView = not not session,
+	})
+
+	editKeyView.deleted:Connect(function()
+		self._deleted:Fire()
+		self:destroy()
+	end)
+
+	editKeyView.idLookedUp:Connect(function(id)
+		-- TODO: add this feature
+		self._uiMessages:warn("This feature is not yet implemented for single key widgets.")
+		--self:_tryLookupId(id)
+	end)
+
+	self._editKeyView = editKeyView
+
+	self._widget.Title = if self._session.connection.scope and (self._session.connection.scope ~= "")
+		then `{self._session.connection.name}/{self._session.connection.scope}/{keyName}`
+		else `{self._session.connection.name}/{keyName}`
+
+	return true, nil
+end
+
+function SingleKeyWidget:destroy()
+	StyleStateHelper.destroy(self._styleStates :: any)
+
+	self._uiMessages:destroy()
+	self._editKeyView:destroy(true)
+
+	if self._widget.Parent then
+		self._widget:Destroy()
+	end
+
+	for _, connection in self._connections do
+		connection:Disconnect()
+	end
+
+	table.clear(self :: any)
+end
+
+return SingleKeyWidget
