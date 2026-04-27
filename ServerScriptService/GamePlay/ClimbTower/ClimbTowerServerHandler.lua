@@ -71,6 +71,7 @@ function ClimbTowerTowerServerHandler:InitTower(towerPointList)
 			EndList = towerEndList,
 			Tower = nil,
 			ThemeKey = areaInfo.ThemeKey,
+			IsUpgrade = false,
 		}
 		
 		areaInfo.TowerInfo = towerInfo
@@ -109,9 +110,11 @@ function ClimbTowerTowerServerHandler:GetTowerByPlayer(player)
 end
 
 function ClimbTowerTowerServerHandler:RefreshTower(player)
-	local towerInfo = ClimbTowerTowerServerHandler:GetTowerByPlayer(player)
 	--ClimbTowerTowerServerHandler:ClearTower(towerInfo)
-	ClimbTowerTowerServerHandler:CreateTower(towerInfo)
+	task.spawn(function()
+		local towerInfo = ClimbTowerTowerServerHandler:GetTowerByPlayer(player)
+		ClimbTowerTowerServerHandler:CreateTower(towerInfo)
+	end)
 end
 
 function ClimbTowerTowerServerHandler:CreateTower(towerInfo)
@@ -121,23 +124,42 @@ function ClimbTowerTowerServerHandler:CreateTower(towerInfo)
 	end
 	
 	local themeKey = ThemeRequest:GetCurrentTheme(player)
-	local themeData = ConfigManager:SearchData("Theme", "ThemeKey", themeKey)
 	local themeInfo = ClimbTowerRequest:GetThemeInfo(player, { ThemeKey = themeKey })
-	local towerHeight = themeInfo.TowerHeight
-	local cframe = towerInfo.TowerPos.CFrame
 	
+	local themeData = ConfigManager:SearchData("Theme", "ThemeKey", themeKey)
+	local towerHeight = themeInfo.TowerHeight
+
 	local tower = nil
 	--warn(towerInfo.ThemeKey, themeKey)
 	if towerInfo.ThemeKey == themeKey and towerInfo.Tower then
+		if towerInfo.IsUpgrade then return end
+		
 		-- 已经存在相同的塔，不重新生成，重新计算位置
 		tower = towerInfo.Tower
 		
 		local finalCFrame = towerInfo.TowerPos.CFrame * CFrame.new(0, towerHeight - themeData.Length, 0)
-		local tweener = UTween:ModelPosition(tower, 
-			finalCFrame.Position, 
-			ClimbTowerDefine.Game.TowerUpgradeDuration)
+		local duration = math.abs(tower:GetPivot().Position.Y - finalCFrame.Position.Y) / ClimbTowerDefine.Game.TowerUpgradeSpeed
+		--local tweener = UTween:ModelPosition(tower, 
+		--	finalCFrame.Position, 
+		--	duration)
 		
-		EventManager:DispatchToClient(player, ClimbTowerDefine.Event.BuildTower)
+		--tower.PrimaryPart:SetNetworkOwner(player)
+		EventManager:DispatchToClient(player, ClimbTowerDefine.Event.BuildTower, { 
+			Index = towerInfo.Index,
+			ToPos = finalCFrame.Position,
+			Duration = duration,
+		})
+		
+		EventManager:DispatchToAllClient(ClimbTowerDefine.Event.BuildTowerAnimation, { 
+			Index = towerInfo.Index,
+			ToPos = finalCFrame.Position,
+			Duration = duration,
+		})
+		
+		towerInfo.IsUpgrade = true
+		task.delay(duration, function()
+			towerInfo.IsUpgrade = false
+		end)
 	else
 		-- 主题变化
 		-- 踢出游戏中玩家
@@ -154,6 +176,7 @@ function ClimbTowerTowerServerHandler:CreateTower(towerInfo)
 		tower = towerPrefab:Clone()
 		tower.Name = "Tower"
 		towerInfo.Tower = tower
+		towerInfo.IsUpgrade = false
 		
 		tower.Parent = towerInfo.TowerRoot
 		

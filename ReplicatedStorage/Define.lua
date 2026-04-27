@@ -1,7 +1,7 @@
 ﻿local Define = {}
 
-Define.Version = "2026.02.09.1"
-Define.Project = "RollerCoaster"
+Define.Version = "2026.04.25.1"
+Define.Project = "DigBuildClimbJump"
 
 -----------------------------------------------------------------------------------
 -- 测试

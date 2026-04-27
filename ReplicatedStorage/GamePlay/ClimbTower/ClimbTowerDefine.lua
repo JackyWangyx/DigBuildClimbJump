@@ -24,7 +24,8 @@ ClimbTowerDefine.Game = {
 	PartnerGameOffset = Vector3.new(3, 0, 0.1),
 	-- 塔的初始高度
 	TowerHeightDefault = -1,
-	TowerUpgradeDuration = 3,
+	--TowerUpgradeDuration = 3,
+	TowerUpgradeSpeed = 250,
 	--TowerUpgradeFx = "Fx/Fx_PlayerDrop",
 	AutoClimbStopTopOffset = -1,
 	-- 挖掘区域生成参数
@@ -67,6 +68,8 @@ ClimbTowerDefine.GamePhase = {
 
 ClimbTowerDefine.Event = {
 	RefreshTower = "RefreshTower",
+	BuildTower = "BuildTower",
+	BuildTowerAnimation = "BuildTowerAnimation",
 	
 	EnterDig = "EnterDig",
 	ExitDig = "ExitDig",
@@ -79,8 +82,6 @@ ClimbTowerDefine.Event = {
 	Reset = "Reset",
 	
 	LogGameProperty = "LogGameProperty",
-	
-	BuildTower = "BuildTower",
 }
 
 return ClimbTowerDefine

@@ -125,15 +125,17 @@ function UIClimbTowerGameInfo:RefreshDigInfo()
 		return 
 	end
 	
-	local progress = ClimbTowerGameManager.DigIntervalTimer / ClimbTowerGameManager.EquipmentData.DigInterval
-	local info = {
-		IsDigging = ClimbTowerGameManager.IsDigging,
-		DigProgress = progress,
-		DigProgressValue = math.round(progress * 100) .. "%",
-		CountDown = refreshText,
-	}
-	
-	UIInfo:SetInfo(UIClimbTowerGameInfo.DigFrame, info)
+	if ClimbTowerGameManager.EquipmentData then
+		local progress = ClimbTowerGameManager.DigIntervalTimer / ClimbTowerGameManager.EquipmentData.DigInterval
+		local info = {
+			IsDigging = ClimbTowerGameManager.IsDigging,
+			DigProgress = progress,
+			DigProgressValue = math.round(progress * 100) .. "%",
+			CountDown = refreshText,
+		}
+
+		UIInfo:SetInfo(UIClimbTowerGameInfo.DigFrame, info)
+	end	
 end
 
 function UIClimbTowerGameInfo:RefreshToolInfo()
@@ -152,11 +154,13 @@ function UIClimbTowerGameInfo:RefreshBuildInfo()
 	
 	local tower = areaInfo.Area.Game:FindFirstChild("Tower")
 	if tower then
-		local top = tower:WaitForChild("Top")
-		local root = tower:WaitForChild("Root")
-		local towerLength = top.Position.Y
-		local towerMaxLength = top.Position.Y - root.Position.Y
-		buildingProgress = towerLength / towerMaxLength
+		local top = tower:FindFirstChild("Top")
+		local root = tower:FindFirstChild("Root")
+		if top and root then
+			local towerLength = top.Position.Y
+			local towerMaxLength = top.Position.Y - root.Position.Y
+			buildingProgress = towerLength / towerMaxLength
+		end
 	end
 	
 	local info = {

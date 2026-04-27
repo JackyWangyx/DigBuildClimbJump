@@ -65,7 +65,7 @@ function GuideManager:Refresh()
 	end
 end
 
-function GuideManager:Complete(key)
+function GuideManager:Complete(key, onDone)
 	local guide = GuideManager:GetGuide(key)
 	if not guide then return end
 
@@ -74,8 +74,10 @@ function GuideManager:Complete(key)
 			guide:Disable()
 			guide.Info.IsComplete = true
 			GuideManager:Refresh()
+			onDone(true)
 		else
 			warn("[Guide] ", key, "Failed!")
+			onDone(false)
 		end
 	end)
 end

@@ -15,6 +15,7 @@ local SceneAreaManager = require(game.ReplicatedStorage.ScriptAlias.SceneAreaMan
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local SoundManager = require(game.ReplicatedStorage.ScriptAlias.SoundManager)
 local BuildingManager = require(game.ReplicatedStorage.ScriptAlias.BuildingManager)
+local UTween = require(game.ReplicatedStorage.ScriptAlias.UTween)
 
 local DigAreaRewardManager = require(game.ReplicatedStorage.ScriptAlias.DigAreaRewardManager)
 local ClimbTowerGameLoop = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameLoop)
@@ -61,9 +62,8 @@ function ClimbTowerGameManager:Init()
 	end)
 	
 	local buildEffect = StoneSplashEffect.new()	
-	EventManager:Listen(ClimbTowerDefine.Event.BuildTower, function()
-		
-		CameraManager:ShakeCamera(0.5, ClimbTowerDefine.Game.TowerUpgradeDuration)		
+	EventManager:Listen(ClimbTowerDefine.Event.BuildTower, function(param)
+		CameraManager:ShakeCamera(0.5, param.Duration)		
 		SoundManager:PlaySFX(SoundManager.Define.BuildTower)
 		
 		local areaInfo = SceneAreaManager.AreaInfoList[SceneAreaManager.CurrentAreaIndex]
@@ -71,9 +71,21 @@ function ClimbTowerGameManager:Init()
 		--local fxPrefab = ResourcesManager:Load(ClimbTowerDefine.Game.TowerUpgradeFx)
 		--Util:SpawnFxEmit(fxPrefab, towerPos.Position, 20, 2)
 		
+		--local tweener = UTween:ModelPosition(areaInfo.Area.Game.Tower, 
+		--	param.ToPos, 
+		--	param.Duration)
+		
 		buildEffect:Start(towerPos.Position)
-		task.wait(ClimbTowerDefine.Game.TowerUpgradeDuration)
+		task.wait(param.Duration)
 		buildEffect:Stop()
+	end)
+	
+	EventManager:Listen(ClimbTowerDefine.Event.BuildTowerAnimation, function(param)
+		local areaInfo = SceneAreaManager.AreaInfoList[param.Index]
+		local towerPos = areaInfo.Area.Game.TowerPos
+		local tweener = UTween:ModelPosition(areaInfo.Area.Game.Tower, 
+			param.ToPos, 
+			param.Duration)
 	end)
 	
 	EventManager:Listen(EventManager.Define.RefreshEquipment, function()
@@ -185,19 +197,27 @@ ClimbTowerGameManager.CurrentPower = 0
 
 function ClimbTowerGameManager:RefreshData()
 	NetClient:Request("Equipment", "GetEquip", function(equipmentInfo)
-		local equipmentData = ConfigManager:GetData("Equipment", equipmentInfo.ID)
-		ClimbTowerGameManager.EquipmentData = equipmentData
-		TerrainManager:SetDigRadius(equipmentData.DigRadius)
-		
-		PlayerAnimation:PreloadAnimation(equipmentData.DigAnimation)
+		if equipmentInfo then
+			local equipmentData = ConfigManager:GetData("Equipment", equipmentInfo.ID)
+			ClimbTowerGameManager.EquipmentData = equipmentData
+			TerrainManager:SetDigRadius(equipmentData.DigRadius)
+
+			PlayerAnimation:PreloadAnimation(equipmentData.DigAnimation)
+		else
+			ClimbTowerGameManager.EquipmentData = nil
+		end
 	end)
 
 	NetClient:Request("Tool", "GetEquip", function(toolInfo)
-		local toolData = ConfigManager:GetData("Tool", toolInfo.ID)
-		ClimbTowerGameManager.ToolData = toolData
-		
-		local uiGameInfo = require(game.ReplicatedStorage.ScriptAlias.UIClimbTowerGameInfo)
-		uiGameInfo:RefreshToolInfo()
+		if toolInfo then
+			local toolData = ConfigManager:GetData("Tool", toolInfo.ID)
+			ClimbTowerGameManager.ToolData = toolData
+
+			local uiGameInfo = require(game.ReplicatedStorage.ScriptAlias.UIClimbTowerGameInfo)
+			uiGameInfo:RefreshToolInfo()
+		else
+			ClimbTowerGameManager.ToolData = nil
+		end
 	end)
 end
 
@@ -217,11 +237,13 @@ function ClimbTowerGameManager:ExitDig()
 end
 
 function ClimbTowerGameManager:CheckDigPackageFull()
+	if not ClimbTowerGameManager.ToolData then return true end
 	return ClimbTowerGameManager.CurrentPower >= ClimbTowerGameManager.ToolData.PowerCapacity
 end
 
 function ClimbTowerGameManager:CheckCanDig()
 	if not ClimbTowerGameManager.IsDigPhase then return false end
+	if not ClimbTowerGameManager.EquipmentData then return false end
 	local c1 = ClimbTowerGameManager.DigIntervalTimer >= ClimbTowerGameManager.EquipmentData.DigInterval
 	local c2 = not ClimbTowerGameManager:CheckDigPackageFull()
 	if not c2 then
@@ -251,15 +273,17 @@ function ClimbTowerGameManager:OnDigSuccess(success, hitPos)
 	Util:SpawnFxEmit(fxPrefab, hitPos, 20, 1)
 	
 	local equipmentData = ClimbTowerGameManager.EquipmentData
-	local animationID = equipmentData.DigAnimation
-	PlayerAnimation:PlayAnimation(player, animationID, false, equipmentData.AnimationSpeed)
-	task.delay(equipmentData.DigInterval * 0.8, function()
-		PlayerAnimation:StopAnimation(player, animationID)
-	end)
-	
-	task.delay(equipmentData.DigInterval, function()
-		ClimbTowerGameManager.IsDigging = false
-	end)
+	if equipmentData then
+		local animationID = equipmentData.DigAnimation
+		PlayerAnimation:PlayAnimation(player, animationID, false, equipmentData.AnimationSpeed)
+		task.delay(equipmentData.DigInterval * 0.8, function()
+			PlayerAnimation:StopAnimation(player, animationID)
+		end)
+
+		task.delay(equipmentData.DigInterval, function()
+			ClimbTowerGameManager.IsDigging = false
+		end)
+	end	
 	
 	EventManager:Dispatch(ClimbTowerDefine.Event.Dig)
 end
@@ -285,7 +309,7 @@ function ClimbTowerGameManager:DigUpdate(deltaTime)
 	ClimbTowerGameManager.DigIntervalTimer += deltaTime
 	
 	-- 自动挖掘
-	if ClimbTowerAutoPlay.Info.IsAutoDig then
+	if ClimbTowerAutoPlay.Info.IsAutoDig and ClimbTowerGameManager.EquipmentData then
 		if not ClimbTowerGameManager:CheckDigPackageFull() and
 			ClimbTowerGameManager:CheckCanDig() then
 			TerrainManager:DigDown(ClimbTowerGameManager.EquipmentData.DigRadius, function(success, hitPos)

@@ -14,18 +14,16 @@ local BuildingTowerUpdate = {}
 
 function BuildingTowerUpdate:Init(buildingPart, opts)
 	local lastOperateTime = 0
-	local interval = ClimbTowerDefine.Game.TowerUpgradeDuration
+	--local interval = ClimbTowerDefine.Game.TowerUpgradeDuration
 	
-	
-
 	--local building = Building.ProximityOpenUI(buildingPart, opts, "Build", "TowerUpdate")
 	local building = Building.Proximity(buildingPart, opts, "Build", function()
-		local currentTime = os.time()	
-		if currentTime - lastOperateTime < interval then
-			return
-		end
+		--local currentTime = os.time()	
+		--if currentTime - lastOperateTime < interval then
+		--	return
+		--end
 		
-		lastOperateTime = currentTime
+		--lastOperateTime = currentTime
 		NetClient:Request("ClimbTower", "UpgradeTower", function(result)
 			if result.Success then
 				--local areaInfo = SceneAreaManager.AreaInfoList[opts.AreaIndex]

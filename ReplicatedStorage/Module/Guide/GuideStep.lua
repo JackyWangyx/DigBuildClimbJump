@@ -35,6 +35,7 @@ function GuideStep.new(key, config, info)
 
 	self:Init()
 	self.IsInit = true
+	self.IsInProcess = false
 
 	return self
 end
@@ -194,8 +195,12 @@ function GuideStep:Check()
 end
 
 function GuideStep:Complete()
+	if self.IsInProcess then return end
+	self.IsInProcess = true
 	local guideManager = require(game.ReplicatedStorage.ScriptAlias.GuideManager)
-	guideManager:Complete(self.Key)
+	guideManager:Complete(self.Key, function(success)
+		self.IsInProcess = false
+	end)
 
 	--print("Complete", self.Key)
 end

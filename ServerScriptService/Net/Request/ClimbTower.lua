@@ -103,6 +103,13 @@ function ClimbTower:UpgradeTower(player, param)
 	local themeKey = ThemeRequest:GetCurrentTheme(player)
 	local themeData = ConfigManager:SearchData("Theme", "ThemeKey", themeKey)
 	local themeInfo =  ClimbTower:GetThemeInfo(player, { ThemeKey = themeKey })
+	if themeInfo.IsUpgrade then
+		return {
+			Success = false,
+			Message = "Working !!!",
+		}
+	end
+	
 	local towerHeight = themeInfo.TowerHeight
 	--local towerDataList = ConfigManager:GetDataList("Tower"..themeKey)
 	local isMaxLevel = towerHeight >= themeData.Length
