@@ -1,5 +1,7 @@
 ﻿local TweenPlayerRotation = {}
 
+local CFrame_new = CFrame.new
+
 local function getRootPart(player)
 	if not player then return nil end
 	local character = player.Character
@@ -17,7 +19,7 @@ function TweenPlayerRotation:SetValue(tweener, target, value)
 	local rootPart = getRootPart(target)
 	if not rootPart then return end
 	local pos = rootPart.Position
-	rootPart.CFrame = CFrame.new(pos) * value
+	rootPart.CFrame = CFrame_new(pos) * value
 end
 
 return TweenPlayerRotation

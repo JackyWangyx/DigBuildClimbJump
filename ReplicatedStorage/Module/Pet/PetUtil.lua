@@ -3,6 +3,7 @@ local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
 local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
+local BigNumber = require(game.ReplicatedStorage.ScriptAlias.BigNumber)
 
 local Define =require(game.ReplicatedStorage.Define)
 
@@ -22,7 +23,7 @@ end
 
 function PetUtil:ProcessInfo(info)
 	local data = ConfigManager:GetData("Pet", info.ID)
-	local upgradeData = ConfigManager:SearchData("PetUpgrade", "PetID", info.ID, "Level", info.UpgradeLevel)
+	--local upgradeData = ConfigManager:SearchData("PetUpgrade", "PetID", info.ID, "Level", info.UpgradeLevel)
 	info.Icon = data.Icon
 	info.Rarity = data.Rarity
 
@@ -31,7 +32,10 @@ function PetUtil:ProcessInfo(info)
 		
 	else
 		getCoinFactor = data.GetCoinFactor1 * info.UpgradeFactor
-		info.DisplayGetCoinFactor = ""..string.format("%.2f", getCoinFactor).."X"
+		info.DisplayGetCoinFactor = "x".. BigNumber:Format(getCoinFactor) ..""
+		--if info.UpgradeFactor > 1 then
+		--	warn(info, data, getCoinFactor, info.DisplayGetCoinFactor)
+		--end
 	end
 
 	info.GetCoinFactor1 = getCoinFactor

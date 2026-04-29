@@ -24,11 +24,23 @@ end
 
 function UISceneReward:Refresh()
 	local rewardSaveInfo = SceneRewardManager.RewardSaveInfo
-	if rewardSaveInfo == nil then return end
+	if rewardSaveInfo == nil then 
+		for index = 1, 5 do
+			local partName = "Image_SceneReward_" .. index
+			local part = Util:GetChildByName(UISceneReward.UIRoot, partName)
+			if part then
+				part.Visible = false
+			end
+		end
+		return 
+	end
 	
 	--warn(rewardSaveInfo)
+	
 	local themeKey = SceneAreaManager:GetCurrentThemeKey()
 	local dataList = ConfigManager:GetDataList("SceneReward" .. themeKey)
+	
+	--warn( SceneRewardManager.RewardSaveInfo)
 	
 	local prefix = "SceneReward_"
 	for index, data in ipairs(dataList) do

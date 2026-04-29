@@ -68,7 +68,12 @@ function UIList:ForechItem(uiPart, itemPrefabName, requireCount, func)
 	
 	if itemPrefabName then
 		-- 指定预制，则动态生成列表
-		local listItemPrefab = game.ReplicatedStorage.Prefab.UIItem:WaitForChild(itemPrefabName)
+		local listItemPrefab = game.ReplicatedStorage.Prefab.UIItem:FindFirstChild(itemPrefabName)
+		if not listItemPrefab then
+			warn("[UIList] Item Prefab Not Found!", itemPrefabName)
+			return
+		end
+		
 		local itemList = {}
 		for index = 1, count do
 			if index <= frameCount then
@@ -169,8 +174,9 @@ end
 function UIList:HandleItemList(itemList, uiListScript, uiItemScriptName)
 	if not itemList then return end
 	local uiItemScriptFile = Util:GetChildByTypeAndName(game.ReplicatedStorage, "ModuleScript", uiItemScriptName)
+	local uiItemScript = require(uiItemScriptFile)
 	for index, item in ipairs(itemList) do
-		local uiItem = require(uiItemScriptFile).new()
+		local uiItem = uiItemScript.new()
 		UIInfo:HandleAllButton(item, uiItem, {
 			UIListScript = uiListScript,
 			UIRoot = item,
@@ -180,11 +186,12 @@ function UIList:HandleItemList(itemList, uiListScript, uiItemScriptName)
 end
 
 function UIList:RefreshItem(itemPart)
+	local info = {}
 	for attributeName, attributeValue in pairs(itemPart:GetAttributes()) do
 		if Util:IsStrStartWith(attributeName, "Data_") then
 			local key = string.gsub(attributeName, "Data_", "")
 			local value = attributeValue
-			UIInfo:SetValue(itemPart, key, value)
+			info[key] = value
 		end
 	end
 	
@@ -192,9 +199,11 @@ function UIList:RefreshItem(itemPart)
 		if Util:IsStrStartWith(attributeName, "Info_") then
 			local key = string.gsub(attributeName, "Info_", "")
 			local value = attributeValue
-			UIInfo:SetValue(itemPart, key, value)
+			info[key] = value
 		end
 	end
+	
+	UIInfo:SetInfo(itemPart, info)
 end
 
 function UIList:HadnlePlayerHeadIconAsync(itemList)
@@ -203,7 +212,12 @@ function UIList:HadnlePlayerHeadIconAsync(itemList)
 		local player = PlayerManager:GetPlayerById(playerID)
 		PlayerManager:GetHeadIconAsync(player, function(icon)
 			if not item then return end
-			UIInfo:SetValue(item, "HeadIcon", icon)
+			local info = {
+				HeadIcon = icon
+			}
+			
+			UIInfo:SetInfo(item, info)
+			--UIInfo:SetValue(item, "HeadIcon", icon)
 		end)
 	end
 end

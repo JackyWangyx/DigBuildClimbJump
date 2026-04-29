@@ -17,29 +17,34 @@ end
 
 function DigAreaRewardManager:Reset()
 	DigAreaRewardManager:Clear()
-	local root = game.Workspace.DigAreaReward
-	local layerList = root:GetChildren()
-	for i = 1, #layerList do
-		local layer = layerList[i]
-		local pointList = layer:GetChildren()
-		local point = Util:ListRandom(pointList, 1)
-		local data = Util:ListRandomWeight(DataList, 1)
-		
-		local prefab = ResourcesManager:Load(data.Prefab)
-		if prefab then
-			local box = prefab:Clone()
-			box.Parent = root
-			box:PivotTo(point.CFrame)
-			box.Name = "Box_" .. #BoxList .. "_" .. prefab.Name
+	
+	local root = game.Workspace:FindFirstChild("DigAreaReward")
+	if root then
+		local layerList = root:GetChildren()
+		for i = 1, #layerList do
+			local layer = layerList[i]
+			local pointList = layer:GetChildren()
+			local point = Util:ListRandom(pointList, 1)
+			local data = Util:ListRandomWeight(DataList, 1)
 
-			TriggerArea:Handle(box.Trigger, function()
-				DigAreaRewardManager:GetReward(box, data)
-			end, function()
+			local prefab = ResourcesManager:Load(data.Prefab)
+			if prefab then
+				local box = prefab:Clone()
+				box.Parent = root
+				box:PivotTo(point.CFrame)
+				box.Name = "Box_" .. #BoxList .. "_" .. prefab.Name
 
-			end, true)
+				TriggerArea:Handle(box.Trigger, function()
+					DigAreaRewardManager:GetReward(box, data)
+				end, function()
 
-			table.insert(BoxList, box)
-		end	
+				end, true)
+
+				table.insert(BoxList, box)
+			end	
+		end
+	else
+		warn("DigAreaReward not found")
 	end
 end
 

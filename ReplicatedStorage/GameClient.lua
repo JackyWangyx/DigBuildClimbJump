@@ -76,7 +76,6 @@ function GameClient:Init()
 			--	build:Init()
 			--	build:BuildStart()
 			--end
-			
 		else
 
 		end
@@ -195,7 +194,7 @@ end
 
 function GameClient:Update(deltaTime)
 	if not Info then return end
-	local speed = 6  
+	local speed = 2  
 	CurrentProgress = CurrentProgress + (TargetProgress - CurrentProgress) * math.clamp(deltaTime * speed, 0, 1)
 	Info.Progress = CurrentProgress
 	Info.ProgressText = math.round(CurrentProgress * 100) .. "%"

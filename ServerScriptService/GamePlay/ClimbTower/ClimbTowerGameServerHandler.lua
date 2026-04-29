@@ -249,6 +249,9 @@ function ClimbTowerGameServerHandler:GetWins(player)
 	local accountRequest = require(game.ServerScriptService.ScriptAlias.Account)
 	accountRequest:AddWins(player, { Value = value })
 	playerInfo.IsGetWins = true
+	
+	EventManager:DispatchToClient(player, ClimbTowerDefine.Event.GetWins)
+	
 	return true
 end
 

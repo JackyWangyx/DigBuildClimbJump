@@ -5,64 +5,70 @@ local LerpUtil = require(script.Parent.Util.LerpUtil)
 
 local Tweener = {}
 
-local IDCounter = 0
-local function GenerateID()
-	IDCounter += 1
-	return IDCounter
-end
-
 Tweener.__index = Tweener
 
-local DefaultParam = {
-	ID = nil,
-	TweenType = nil,
-	Target = nil,
-	From = 0,
-	FromGetter = nil,
-	To = 1,
-	ToGetter = nil,
-	Duration = 1,
-	Delay = 0,
-	EaseType = TweenEnum.EaseType.Linear,
-	Strength = 1,
-	LoopType = TweenEnum.LoopType.Onece,
-	LoopCount = 1,
-	AutoDeSpawn = true,
-	
-	TweenFunction = nil,
-	OnSpawn = nil,
-	OnDeSpawn = nil,
-	ValueGetter = nil,
-	ValueSetter = nil,
-	EaseFunction = nil,
+local IDCounter = 0
+
+local function GenerateID()
+	IDCounter += 1
+	local id = tostring(IDCounter)
+	return id
+end
+
+local LerpMap = {
+	number = LerpUtil.LerpUnclampedValue,
+	Vector2 = LerpUtil.LerpUnclampedVector2,
+	Vector3 = LerpUtil.LerpUnclampedVector3,
+	Color3 = LerpUtil.LerpUnclampedColor3,
+	UDim2 = LerpUtil.LerpUnclampedUDim2,
+	CFrame = LerpUtil.LerpUnclampedCFrame,
 }
 
-local DefaultState = {
-	State = TweenEnum.PlayState.Stop,
-	Forward = TweenEnum.ForwardType.Forward,
-	Value = 0,
-	PlayTimer = 0,
-	DelayTimer = 0,
-	NormalizedTime = 0,
-	LoopCounter = 0,
-}
+local TweenFunctionCache = {}
 
-local DefualtCallbcak = {
-	OnPlay = nil,
-	OnUpdate = nil,
-	OnPause = nil,
-	OnResume = nil,
-	OnStop = nil,
-	OnComplete = nil,
-}
+local function GetTweenFunction(tweenType)
+	local cache = TweenFunctionCache[tweenType]
+	if not cache then
+		local scriptName = "Tween" .. tweenType
+		local scriptFile = script.Parent.Tween:FindFirstChild(scriptName)
+		cache = {
+			ScriptName = scriptName,
+			ScriptFile = scriptFile,
+			TweenFunction = require(scriptFile)
+		}
 
-function Tweener.new(tweenType, tweenFunction, target, from, to, duration)
+		TweenFunctionCache[tweenType] = cache
+	end
+
+	return cache.TweenFunction
+end
+
+function Tweener.new()
 	local self = setmetatable({
 	}, Tweener)
+	
 	self:Reset()
+	return self
+end
+
+function Tweener:Init(tweenType, target, from, to, duration)
 	self.ID = GenerateID()
-	self.TweenType = tweenType
+	
+	local tweenFunction = GetTweenFunction(tweenType)
 	self.TweenFunction = tweenFunction
+	
+	if from == nil then
+		from = tweenFunction:GetValue(nil, target)
+	end
+	
+	if from then
+		local typeName = typeof(from)
+		self.LerpFunction = LerpMap[typeName]
+	end
+	
+	self.EaseFunction = EaseUtil:GetEaseFunction(self.EaseType)
+	
+	self.TweenType = tweenType
 	self.OnSpawn = tweenFunction.OnSpawn
 	self.OnDeSpawn = tweenFunction.OnDeSpawn
 	self.ValueGetter = tweenFunction.GetValue
@@ -75,7 +81,8 @@ function Tweener.new(tweenType, tweenFunction, target, from, to, duration)
 	if self.OnSpawn  then
 		self.OnSpawn(self, self)
 	end
-	
+
+	TweenMnaager:AddTweener(self)
 	return self
 end
 
@@ -84,8 +91,13 @@ local function DeSpawnInternal(tweener)
 		tweener.OnDeSpawn(tweener, tweener)
 	end
 	
-	tweener.Target = nil
+	TweenMnaager:DeActiveTweener(tweener)
 	TweenMnaager:RemoveTweener(tweener)
+	
+	tweener:Reset()
+	if tweener.RecycleToPool then
+		tweener.RecycleToPool()
+	end	
 end
 
 function Tweener:SetValue(value)
@@ -111,7 +123,11 @@ function Tweener:Sample(normalizedTime)
 		to = self.To
 	end
 	
-	self.Value = LerpUtil:LerpUnclamped(from, to, factor)
+	if self.LerpFunction then
+		self.Value = self.LerpFunction(self, from, to, factor)
+	else
+		self.Value = to
+	end
 end
 
 -- Update
@@ -119,19 +135,22 @@ end
 function Tweener:Update(deltaTime)
 	if self.State ~= TweenEnum.PlayState.Playing then return end
 
+	local delayValue = self.Delay
+	local duration = self.Duration
+
 	-- Delay
-	if self.Delay > 0 and self.DelayTimer < self.Delay then
+	if delayValue > 0 and self.DelayTimer < delayValue then
 		self.DelayTimer += deltaTime
-		if self.DelayTimer < self.Delay then
+		if self.DelayTimer < delayValue then
 			return
 		end
 
-		deltaTime = self.DelayTimer - self.Delay
-		self.DelayTimer = self.Delay
+		deltaTime = self.DelayTimer - delayValue
+		self.DelayTimer = delayValue
 	end
 	
 	-- /0
-	if self.Duration <= 0 then self.Duration = 1e-6 end
+	if duration <= 0 then duration = 1e-6 end
 
 	local dir = 1
 	if self.Forward == TweenEnum.ForwardType.Backward then
@@ -145,9 +164,9 @@ function Tweener:Update(deltaTime)
 	local finishedThisPass = false
 	local overflow = 0
 
-	if dir == 1 and self.PlayTimer >= self.Duration then
-		overflow = self.PlayTimer - self.Duration
-		self.PlayTimer = self.Duration
+	if dir == 1 and self.PlayTimer >= duration then
+		overflow = self.PlayTimer - duration
+		self.PlayTimer = duration
 		finishedThisPass = true
 	elseif dir == -1 and self.PlayTimer <= 0 then
 		overflow = -self.PlayTimer
@@ -190,17 +209,7 @@ function Tweener:Update(deltaTime)
 
 		-- Complete
 		if not continuePlay then
-			self.State = TweenEnum.PlayState.Complete
-			if self.OnComplete then 
-				self.OnComplete() 
-			end
-			
-			if self.AutoDeSpawn then
-				DeSpawnInternal(self)
-			else
-				self:ResetPlayState()
-			end
-			
+			self:Complete()		
 			return
 		end
 
@@ -209,28 +218,18 @@ function Tweener:Update(deltaTime)
 			if dir == 1 then
 				self.PlayTimer = 0 + overflow
 			else
-				self.PlayTimer = self.Duration - overflow
+				self.PlayTimer = duration - overflow
 			end
 		elseif isPingPong then
 			if self.Forward == TweenEnum.ForwardType.Forward then
 				self.Forward = TweenEnum.ForwardType.Backward
-				self.PlayTimer = self.Duration - overflow
+				self.PlayTimer = duration - overflow
 			else
 				self.Forward = TweenEnum.ForwardType.Forward
 				self.PlayTimer = 0 + overflow
 			end
 		else
-			self.State = TweenEnum.PlayState.Complete
-			if self.OnComplete then 
-				self.OnComplete()
-			end
-			
-			if self.AutoDeSpawn then
-				DeSpawnInternal(self)
-			else
-				self:ResetPlayState()
-			end
-			
+			self:Complete()			
 			return
 		end
 	end
@@ -258,12 +257,15 @@ function Tweener:Play()
 		end
 		
 		self:SetValue(self.From)
-		TweenMnaager:AddTweener(self)
+		
+		TweenMnaager:ActiveTweener(self)
 	elseif self.State == TweenEnum.PlayState.Pasue then
 		self.State = TweenEnum.PlayState.Playing
 		if self.OnResume then
 			self.OnResume()
 		end
+		
+		TweenMnaager:ActiveTweener(self)
 	end
 	
 	return self
@@ -275,26 +277,41 @@ function Tweener:Pause()
 	if self.OnPause then
 		self.OnPause()
 	end
+	
+	TweenMnaager:DeActiveTweener(self)
+	return self
+end
+
+function Tweener:Complete()
+	self.State = TweenEnum.PlayState.Complete
+	if self.OnComplete then 
+		self.OnComplete()
+	end
+
+	if self.AutoDeSpawn then
+		DeSpawnInternal(self)
+	else
+		TweenMnaager:DeActiveTweener(self)
+		self:ResetPlayState()
+	end
+	
 	return self
 end
 
 function Tweener:Stop()
-	TweenMnaager:RemoveTweener(self)
-	self:ResetPlayState()
-
 	self.State = TweenEnum.PlayState.Stop
 	if self.OnStop then
 		self.OnStop()
 	end
 	
-	if not self.AutoDeSpawn then
-		if self.State == TweenEnum.PlayState.Stop then
-			return self
-		end	
-	else
+	if self.AutoDeSpawn then
 		DeSpawnInternal(self)
-		return self
+	else
+		TweenMnaager:DeActiveTweener(self)
+		self:ResetPlayState()		
 	end
+	
+	return self
 end
 
 function Tweener:DeSpawn()
@@ -391,23 +408,56 @@ end
 
 -- Reset
 
-local function ResetParam(tweener, param)
-	for k, v in pairs(param) do
-		tweener[k] = v
-	end
-	return tweener
-end
-
 function Tweener:ResetPlayState()
-	ResetParam(self, DefaultState)
+	self.State = TweenEnum.PlayState.Stop
+	self.Forward = TweenEnum.ForwardType.Forward
+	self.Value = 0
+	self.PlayTimer = 0
+	self.DelayTimer = 0
+	self.NormalizedTime = 0
+	self.LoopCounter = 0
+	
 	return self
 end
 
 function Tweener:Reset()
-	self = ResetParam(self, DefaultParam)
-	self = ResetParam(self, DefualtCallbcak)
-	self = ResetParam(self, DefaultState)	
-	self.EaseFunction = EaseUtil:GetEaseFunction(self.EaseType)
+	-- Param
+	self.ID = nil
+	self.TweenType = nil
+	self.Target = nil
+	self.From = 0
+	self.FromGetter = nil
+	self.To = 1
+	self.ToGetter = nil
+	self.Duration = 1
+	self.Delay = 0
+	self.EaseType = TweenEnum.EaseType.Linear
+	self.Strength = 1
+	self.LoopType = TweenEnum.LoopType.Onece
+	self.LoopCount = 1
+	self.AutoDeSpawn = true
+
+	-- Interal Function
+	self.OnSpawn = nil
+	self.OnDeSpawn = nil
+	self.ValueGetter = nil
+	self.ValueSetter = nil
+
+	self.TweenFunction = nil
+	self.EaseFunction = nil
+	self.LerpFunction = nil
+
+	-- Play State
+	self:ResetPlayState()
+
+	-- Callback
+	self.OnPlay = nil
+	self.OnUpdate = nil
+	self.OnPause = nil
+	self.OnResume = nil
+	self.OnStop = nil
+	self.OnComplete = nil
+
 	return self
 end
 

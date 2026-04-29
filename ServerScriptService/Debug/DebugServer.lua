@@ -9,6 +9,7 @@ local GameOwenrIdList = {
 	8131012789, --babon5566
 	9549385692,--birdge585
 	7551903224, --babon0309
+	-1,
 	-2,
 	-3,
 	-4,

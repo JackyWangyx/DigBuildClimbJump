@@ -1,4 +1,5 @@
 ﻿local TweenMnaager = require(script.Parent.TweenManager)
+local TweenPool = require(script.Parent.TweenPool)
 local Tweener = require(script.Parent.Tweener)
 local TweenEnum = require(script.Parent.TweenEnum)
 
@@ -10,30 +11,15 @@ UTween.PlayState = TweenEnum.PlayState
 UTween.LoopType = TweenEnum.LoopType
 UTween.ForwardType = TweenEnum.ForwardType
 
-local TweenCache = {}
-
------------------------------------------------------------------------------------------
-
-function UTween:GetTweenFunction(tweenType)
-	local tweenFunction = TweenCache[tweenType]
-	if not tweenFunction then
-		local scriptFile = script.Parent.Tween:FindFirstChild("Tween"..tweenType)
-		tweenFunction = require(scriptFile)
-		TweenCache[tweenType] = tweenFunction
-	end
-
-	return tweenFunction
-end
-
 function UTween:CraeteTweener(tweenType, target, from, to, duration)
-	local tweenFunction = UTween:GetTweenFunction(tweenType)
 	if duration == nil then
 		duration = to
 		to = from
-		from = tweenFunction:GetValue(nil, target)
+		from = nil
 	end
 	
-	local tweener = Tweener.new(tweenType, tweenFunction, target, from, to, duration)
+	local tweener = TweenPool:Spawn()
+	tweener:Init(tweenType, target, from, to, duration)
 	tweener:Play()
 	
 	return tweener

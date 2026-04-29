@@ -45,14 +45,13 @@ function Pet:GetPackageList(player)
 	end
 	
 	for _, info in ipairs(packageList) do
-		if info.UpgradeFactor == nil then
-			local data = ConfigManager:SearchData("PetUpgrade", "PetID", info.ID, "Level", info.UpgradeLevel or 1)
-			if data then
-				info.UpgradeFactor = data.Factor or 1
-			else
-				info.UpgradeFactor = 1
-			end	
-		end
+		local upgradeData = ConfigManager:SearchData("PetUpgrade", "PetID", info.ID, "Level", info.UpgradeLevel or 1)
+		if upgradeData then
+			info.UpgradeFactor = upgradeData.Factor or 1
+		else
+			info.UpgradeFactor = 1
+			warn("[Pet] Upgrade Data Not Found!", "ID", info.ID, "Level", info.UpgradeLevel)
+		end	
 	end
 	
 	return packageList
@@ -485,7 +484,14 @@ function Pet:EquipBest(player)
 	for _, info in pairs(infoList) do
 		local data = ConfigManager:GetData("Pet", info.ID)
 		local upgradehData = ConfigManager:SearchData("PetUpgrade", "PetID", info.ID, "Level", info.UpgradeLevel)
-		info.GetCoinFactor1 = data.GetCoinFactor1 * upgradehData.Factor
+		if upgradehData then
+			info.UpgradeFactor = upgradehData.Factor or 1
+		else
+			info.UpgradeFactor = 1
+			warn("[Pet] Upgrade Data Not Found!", "ID", info.ID, "Level", info.UpgradeLevel)
+		end
+		
+		info.GetCoinFactor1 = data.GetCoinFactor1 * info.UpgradeFactor
 		if info.GetCoinFactor1 > maxGetCoinFactor1 then
 			maxGetCoinFactor1 = info.GetCoinFactor1
 		end

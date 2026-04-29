@@ -114,7 +114,7 @@ end
 -- Play / Stop
 
 local AnimationFadeInTime = 0.15
-local AnimationFadeOutTime = 0.35
+local AnimationFadeOutTime = 0.05
 
 local AnimationWeight = 4
 local AnimationPriority = Enum.AnimationPriority.Action
@@ -156,6 +156,9 @@ function PlayerAnimation:PlayAnimation(player, animationAssetID, loop, speed)
 	-- 创建动画对象
 	local animation = PlayerAnimation:GetAnimation(animationAssetID)
 	local track = cache.Animator:LoadAnimation(animation)
+	track.Stopped:Connect(function()
+		track:Destroy()
+	end)
 	
 	track.Priority = AnimationPriority
 	track.Looped = loop or false
@@ -163,6 +166,19 @@ function PlayerAnimation:PlayAnimation(player, animationAssetID, loop, speed)
 	track:AdjustSpeed(speed or 1)
 
 	cache.CurrentTrack = track
+	
+	if not loop then
+		local length = track.Length
+		task.delay(length, function()
+			if track and track.IsPlaying then
+				if cache.CurrentTrack == track then
+					cache.CurrentTrack = nil
+				end
+				
+				track:Stop()
+			end
+		end)
+	end
 end
 
 function PlayerAnimation:StopAnimation(player, animationAssetID)

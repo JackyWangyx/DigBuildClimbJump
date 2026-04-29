@@ -33,7 +33,7 @@ UIManager.GroupType = {
 UIManager.GroupCache = {}
 UIManager.Enable = true
 
----------------------------------------
+------------------------------------------------------------------------------------
 -- UI Script Param
 
 local uiScriptDemo = {
@@ -42,20 +42,20 @@ local uiScriptDemo = {
 	HideAnimationType = UIManager.AnimationType.Default,
 }
 
----------------------------------------
-
+------------------------------------------------------------------------------------
 -- UI Folder
+
 local UIPageFolder = game.ReplicatedStorage.Prefab.UIPage
 local UIDialogFolder = game.ReplicatedStorage.Prefab.UIDialog
 local UIItemFolder = game.ReplicatedStorage.Prefab.UIItem
 local UICoverFolder = game.ReplicatedStorage.Prefab.UICover
 
 -- Runtime
-local UIInfoList = {}
+local UIInfoDic = {}
 
--- ==============================
+------------------------------------------------------------------------------------
 -- Init
--- ==============================
+
 function UIManager:Init()
 	UIPage = require(game.ReplicatedStorage.ScriptAlias.UIPage)
 	local player = game.Players.LocalPlayer
@@ -104,7 +104,7 @@ function UIManager:InitImpl()
 		DisplayOrder = 2000,
 	}
 	
-	UIInfoList = {}
+	UIInfoDic = {}
 	local function initFolderPages(folder)
 		for _, uiPrefab in ipairs(folder:GetChildren()) do
 			if uiPrefab:IsA("ScreenGui") then
@@ -124,7 +124,7 @@ function UIManager:InitImpl()
 	initFolderPages(UICoverFolder)
 
 	UIManager:HideAll()
-
+	
 	task.wait()
 	UIManager:Show("UIMain")
 	task.wait()
@@ -179,13 +179,13 @@ function UIManager:InitPage(page)
 		end
 	end
 	
-	UIEffect:HanldeUIInfo(uiInfo)
-	UIInfoList[uiInfo.Name] = uiInfo
+	UIEffect:HandleUIInfo(uiInfo)
+	UIInfoDic[uiInfo.Name] = uiInfo
 end
 
--- ==============================
+------------------------------------------------------------------------------------
 -- Show / Hide Page
--- ==============================
+
 function UIManager:Show(uiName, param)
 	if not UIManager.Enable then return end
 	UIManager:ShowPageImpl(uiName, UIManager.GroupType.Page, param)
@@ -213,7 +213,7 @@ function UIManager:ShowPageImpl(uiName, uiGroupType, param)
 	local uiGroup = UIManager:GetGroup(uiGroupType)
 	local uiStack = uiGroup.Stack
 	uiName = UIManager:GetUIKey(uiName)
-	local uiInfo = UIInfoList[uiName]
+	local uiInfo = UIInfoDic[uiName]
 	if not uiInfo or uiStack:Exist(uiName) then return end
 
 	local currentUI = UIManager:GetCurrentPage()
@@ -272,7 +272,7 @@ end
 function UIManager:Hide(uiName, processBlur)
 	if not UIManager.Enable then return end
 	uiName = UIManager:GetUIKey(uiName)
-	local uiInfo = UIInfoList[uiName]
+	local uiInfo = UIInfoDic[uiName]
 	if not uiInfo then return end
 	
 	local uiStack = nil
@@ -336,9 +336,9 @@ function UIManager:Hide(uiName, processBlur)
 	EventManager:Dispatch(EventManager.Define.HideUI, uiName)
 end
 
--- ==============================
+------------------------------------------------------------------------------------
 -- Dialog
--- ==============================
+
 
 function UIManager:ShowDialog(uiName, param)
 	if not UIManager.Enable then return end
@@ -368,9 +368,9 @@ function UIManager:HideDialog(uiInstance)
 	UIAnimation:RefreshBlur(self)
 end
 
--- ==============================
+------------------------------------------------------------------------------------
 -- Message
--- ==============================
+
 function UIManager:ShowMessage(message)
 	local uiMessageInfo = UIManager:GetPage("UIMessage")
 	if uiMessageInfo and uiMessageInfo.Script then
@@ -385,9 +385,9 @@ function UIManager:ShowMessageWithIcon(icon, message)
 	end
 end
 
--- ==============================
+------------------------------------------------------------------------------------
 -- Misc
--- ==============================
+
 function UIManager:SetMaxSize(part)
 	part.Size = UDim2.new(1, 0, 1, 0)
 	part.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -398,9 +398,9 @@ function UIManager:SetMinSize(part)
 	part.Size = UDim2.new(0, 0, 0, 0)
 end
 
--- ==============================
+------------------------------------------------------------------------------------
 -- Get Info
--- ==============================
+
 
 function UIManager:GetUIKey(uiName)
 	if not Util:IsStrStartWith(uiName, "UI") then
@@ -429,7 +429,7 @@ function UIManager:GetGroup(groupType)
 end
 
 function UIManager:GetPage(uiName)
-	return UIInfoList[UIManager:GetUIKey(uiName)]
+	return UIInfoDic[UIManager:GetUIKey(uiName)]
 end
 
 function UIManager:ContainsPage(uiName)
@@ -449,7 +449,7 @@ end
 function UIManager:HideAll()
 	local uiGroup = UIManager:GetGroup(UIManager.GroupType.Page)
 	local uiStack = uiGroup.Stack
-	for _, uiInfo in pairs(UIInfoList) do
+	for _, uiInfo in pairs(UIInfoDic) do
 		if uiInfo.IsSurfaceGui then continue end
 		uiInfo.UI.Enabled = false
 		uiInfo.UI.Parent = uiGroup.HideFolder

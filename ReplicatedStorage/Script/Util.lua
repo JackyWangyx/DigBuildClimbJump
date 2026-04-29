@@ -269,6 +269,36 @@ function Util:DestroyAllChild(part)
 end
 
 ------------------------------------------------------------------------------------
+-- Part
+
+function Util:HandleWorkspaceState(instance, onAdded, onRemoved)
+	local inWorkspace = instance:IsDescendantOf(workspace)
+	if inWorkspace then
+		onAdded()
+	else
+		onRemoved()
+	end
+
+	instance.AncestryChanged:Connect(function()
+		local nowInWorkspace = instance:IsDescendantOf(workspace)
+		-- 从 Workspace 被移出
+		if inWorkspace and not nowInWorkspace then
+			inWorkspace = false
+			if onRemoved then
+				onRemoved(instance)
+			end
+
+			-- 被重新放回 Workspace
+		elseif not inWorkspace and nowInWorkspace then
+			inWorkspace = true
+			if onAdded then
+				onAdded(instance)
+			end
+		end
+	end)
+end
+
+------------------------------------------------------------------------------------
 -- Time / Date
 
 function Util:GetDateStr()

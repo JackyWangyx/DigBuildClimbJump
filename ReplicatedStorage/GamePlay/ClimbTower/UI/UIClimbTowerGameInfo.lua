@@ -88,6 +88,10 @@ function UIClimbTowerGameInfo:Init(root)
 		UIClimbTowerGameInfo:Refresh()
 	end)
 	
+	--UpdatorManager:RenderStepped(function(deltaTime)
+	
+	--end, 0.1)
+	
 	EventManager:Listen(ClimbTowerDefine.Event.BuildTower, function()
 		UIClimbTowerGameInfo:RefreshBuildInfo()
 	end)
@@ -104,11 +108,11 @@ end
 function UIClimbTowerGameInfo:Refresh()	
 	UIClimbTowerGameInfo:RefreshPlayerInfo()
 	
-	local updateGameInfo = ClimbTowerGameManager.UpdateGameInfo
-	UIClimbTowerGameInfo:RefreshBottonRank(updateGameInfo)
-	
 	UIClimbTowerGameInfo:RefreshDigInfo()
 	UIClimbTowerGameInfo:RefreshBuildInfo()
+	
+	local updateGameInfo = ClimbTowerGameManager.UpdateGameInfo
+	UIClimbTowerGameInfo:RefreshBottonRank(updateGameInfo)
 end
 
 function UIClimbTowerGameInfo:RefreshDigInfo()

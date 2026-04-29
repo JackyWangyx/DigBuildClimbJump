@@ -104,21 +104,32 @@ GuideDefine.GuideList = {
 		TargetMode = GuideDefine.TargetMode.Building,
 		TargetBuilding = "BuildingDigArea",
 	},
-	-- Build
+	-- Back To Tower
 	[6] = {
 		Key = "GuideStep_06",
+		TipText = "🏡 Back to ground!",
+		TriggerMode = GuideDefine.TriggerMode.Event,
+		TriggerEvent = ClimbTowerDefine.Event.ExitDig,
+		TargetMode = GuideDefine.TargetMode.None,
+		ShowUIList = {
+			[1] = "UIMain/MainFrame/DigFrame/Button_GoToTower/Guide_Select",
+		},
+	},
+	-- Build
+	[7] = {
+		Key = "GuideStep_07",
 		TipText = "🧱 Build your tower!",
 		TriggerMode = GuideDefine.TriggerMode.Event,
 		TriggerEvent = ClimbTowerDefine.Event.BuildTower,
 		TargetMode = GuideDefine.TargetMode.Building,
 		TargetBuilding = "BuildingTowerUpdate",
-		ShowUIList = {
-			[1] = "UIMain/MainFrame/DigFrame/Button_GoToTower/Guide_Select",
-		},
+		--ShowUIList = {
+		--	[1] = "UIMain/MainFrame/DigFrame/Button_GoToTower/Guide_Select",
+		--},
 	},
 	-- Game
-	[7] = {
-		Key = "GuideStep_07",
+	[8] = {
+		Key = "GuideStep_08",
 		TipText = "🧗 Climb up,then jump!",
 		TriggerMode = GuideDefine.TriggerMode.Event,
 		TriggerEvent = ClimbTowerDefine.Event.Exit,
@@ -130,8 +141,8 @@ GuideDefine.GuideList = {
 		end,
 	},
 	-- Pet Loot
-	[8] = {
-		Key = "GuideStep_08",
+	[9] = {
+		Key = "GuideStep_09",
 		TipText = "🥚 Get Your Pet!",
 		TriggerMode = GuideDefine.TriggerMode.Event,
 		TriggerEvent = EventManager.Define.ShowUI,
@@ -139,18 +150,19 @@ GuideDefine.GuideList = {
 		TargetMode = GuideDefine.TargetMode.Building,
 		TargetBuilding = "BuildingPetLoot1",
 	},
-	[9] = {
-		Key = "GuideStep_09",
+	[10] = {
+		Key = "GuideStep_10",
 		TipText = "✨ Hatch!",
 		TriggerMode = GuideDefine.TriggerMode.Event,
 		TriggerEvent = EventManager.Define.PetLoot,
-		TargetMode = GuideDefine.TargetMode.None,
+		TargetMode = GuideDefine.TargetMode.Building,
+		TargetBuilding = "BuildingPetLoot1",
 		ShowUIList = {
 			[1] = "UIPetLoot/MainFrame/LootFrame/Guide_PetLoot",
 		},
 	},
-	[10] = {
-		Key = "GuideStep_10",
+	[11] = {
+		Key = "GuideStep_11",
 		TipText = "✅ Awesome!",
 		TriggerMode = GuideDefine.TriggerMode.Event,
 		TriggerEvent = EventManager.Define.HideUI,
@@ -209,8 +221,8 @@ GuideDefine.GuideList = {
 	]]
 
 	-- Buy Tool
-	[11] = {
-		Key = "GuideStep_11",
+	[12] = {
+		Key = "GuideStep_12",
 		TipText = "Get a Backpack!",
 		TriggerMode = GuideDefine.TriggerMode.Event,
 		TriggerEvent = EventManager.Define.ShowUI,
@@ -218,6 +230,8 @@ GuideDefine.GuideList = {
 		TargetMode = GuideDefine.TargetMode.Building,
 		TargetBuilding = "BuildingToolStore",
 	},
+	
+	--[[
 	[12] = {
 		Key = "GuideStep_12",
 		TipText = "⚡ Choose this!",
@@ -228,6 +242,8 @@ GuideDefine.GuideList = {
 			[1] = "UIToolStore/MainFrame/Guide_Select",
 		},
 	},
+	]]
+	
 	[13] = {
 		Key = "GuideStep_13",
 		TipText = "🚀 Equip for Faster Speed",

@@ -2,6 +2,7 @@
 local GroupService = game:GetService("GroupService")
 local RunService = game:GetService("RunService")
 local ContentProvider = game:GetService("ContentProvider")
+local PhysicsService = game:GetService("PhysicsService")
 
 local AnalyticsManager = require(game.ReplicatedStorage.ScriptAlias.AnalyticsManager)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
@@ -51,6 +52,8 @@ function PlayerManager:Init()
 		end)
 		
 		PlayerManager:HandleCharacterAddRemove(function(player, character)
+			-- 关闭玩家间碰撞
+			PlayerManager:SetPhysicGroup(player, "PlayerGroup")
 		end, function(player, character)
 			local playerAnimation = require(game.ReplicatedStorage.ScriptAlias.PlayerAnimation)
 			playerAnimation:ClearPlayerAnimationCache(player)
@@ -295,6 +298,7 @@ end
 
 --------------------------------------------------------------------------------------------------
 -- Humanoid
+
 function PlayerManager:DisableHumanoid(humanoid)
 	local disableStates = {
 		Enum.HumanoidStateType.FallingDown,
@@ -354,6 +358,17 @@ function PlayerManager:DisableMove(player)
 	local humanoid = PlayerManager:GetHumanoid(player)
 	if not humanoid then return end
 	humanoid.WalkSpeed = 0
+end
+
+function PlayerManager:SetPhysicGroup(player, groupName)
+	local character = PlayerManager:GetCharacter(player)
+	if character then
+		for _, obj in ipairs(character:GetDescendants()) do
+			if obj:IsA("BasePart") then
+				obj.CollisionGroup = groupName
+			end
+		end
+	end
 end
 
 function PlayerManager:EnablePhysic(player)
@@ -438,6 +453,7 @@ end
 
 --------------------------------------------------------------------------------------------------
 -- Transform
+
 function PlayerManager:GetPosition(player)
 	local character = PlayerManager:GetCharacter(player)
 	if not character then return Vector3.zero end

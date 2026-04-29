@@ -46,7 +46,43 @@ function SceneReward:GetReward(player, param)
 		local result = RewardHandler:GetRewardRequest(player, data)
 		
 		if result.Success then
-			AnalyticsManager:Event(player, AnalyticsManager.Define.GetSceneReward .. "_" .. themeKey .. "_" .. id)
+			local analyticsKey = AnalyticsManager.Define.GetSceneReward .. "_" .. themeKey .. "_" .. id
+			AnalyticsManager:Event(player, analyticsKey)
+			
+			-----------------------------------------------------------------------
+			-- GameFunnel
+			local themeIndexStr = string.match(themeKey, "%d+$")
+			local themeIndex = tonumber(themeIndexStr)
+			
+			local stepIndex = -1
+			
+			if themeIndex == 1 and id == 1 then
+				stepIndex = 2
+			elseif themeIndex == 1 and id == 2 then
+				stepIndex = 3
+			elseif themeIndex == 1 and id == 3 then
+				stepIndex = 4
+			elseif themeIndex == 1 and id == 4 then
+				stepIndex = 5
+			elseif themeIndex == 1 and id == 5 then
+				stepIndex = 6
+			elseif themeIndex == 2 and id == 1 then
+				stepIndex = 8
+			elseif themeIndex == 2 and id == 2 then
+				stepIndex = 9
+			elseif themeIndex == 2 and id == 3 then
+				stepIndex = 10
+			elseif themeIndex == 2 and id == 4 then
+				stepIndex = 11
+			elseif themeIndex == 2 and id == 5 then
+				stepIndex = 12
+			end
+			
+			if stepIndex > 1 then
+				AnalyticsManager:Funnel(player, AnalyticsManager.Define.Game, stepIndex, analyticsKey)
+			end
+			
+			-----------------------------------------------------------------------
 		end
 		
 		return result

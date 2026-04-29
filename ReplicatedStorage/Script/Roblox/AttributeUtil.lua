@@ -30,12 +30,14 @@ end
 local function getAll(part, prefix)
 	if not part then return nil end
 	local result = {}
-	for name, val in pairs(part:GetAttributes()) do
+	local attributes = part:GetAttributes()
+	for name, val in pairs(attributes) do
 		if Util:IsStrStartWith(name, prefix) then
 			local shortKey = string.gsub(name, "^" .. prefix, "")
 			result[shortKey] = val
 		end
 	end
+	
 	return result
 end
 
@@ -63,7 +65,8 @@ function AttributeUtil:SetInfo(part, info) return setAll(part, PREFIX.Info, info
 -- 清理所有属性
 function AttributeUtil:Clear(part)
 	if not part then return end
-	for name in pairs(part:GetAttributes()) do
+	local attributes = part:GetAttributes()
+	for name in pairs(attributes) do
 		part:SetAttribute(name, nil)
 	end
 end

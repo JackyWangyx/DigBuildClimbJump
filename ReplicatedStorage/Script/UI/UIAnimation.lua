@@ -51,6 +51,8 @@ function UIAnimation:HandlePageShow(uiInfo, animationType)
 	
 	for _, tweener in ipairs(uiInfo.ShowTweener) do
 		tweener:SetAutoDeSpawn(false)
+		tweener:Stop()
+		tweener:Sample(1)
 	end
 end
 
@@ -99,6 +101,7 @@ function UIAnimation:HandlePageHide(uiInfo, animationType)
 	
 	for _, tweener in ipairs(uiInfo.HideTweener) do
 		tweener:SetAutoDeSpawn(false)
+		tweener:Stop()
 	end
 end
 

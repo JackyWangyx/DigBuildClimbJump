@@ -21,7 +21,7 @@ function UIEffect:Init()
 	end)
 end
 
-function UIEffect:HanldeUIInfo(uiInfo)
+function UIEffect:HandleUIInfo(uiInfo)
 	local parts = uiInfo.UI:GetDescendants()
 	for _, part in ipairs(parts) do
 		UIEffect:HandlePartWithUIInfo(uiInfo, part)

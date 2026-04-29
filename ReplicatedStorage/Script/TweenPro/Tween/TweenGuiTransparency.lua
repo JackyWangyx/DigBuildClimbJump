@@ -1,23 +1,32 @@
 ﻿local TweenGuiTransparency = {}
 
+local ClassMap = {
+	TextLabel = "TextTransparency",
+	TextButton = "TextTransparency",
+	TextBox = "TextTransparency",
+
+	ImageLabel = "ImageTransparency",
+	ImageButton = "ImageTransparency",
+
+	Frame = "BackgroundTransparency",
+	ScrollingFrame = "BackgroundTransparency",
+	ViewportFrame = "BackgroundTransparency",
+
+	UIStroke = "Transparency",
+}
+
+local function getProperty(target)
+	return ClassMap[target.ClassName] or "BackgroundTransparency"
+end
+
 function TweenGuiTransparency:GetValue(tweener, target)
-	if target:IsA("TextLabel") or target:IsA("TextButton") then
-		return target.TextTransparency
-	elseif target:IsA("ImageLabel") or target:IsA("ImageButton") then
-		return target.ImageTransparency
-	else
-		return target.BackgroundTransparency
-	end
+	local prop = getProperty(target)
+	return target[prop]
 end
 
 function TweenGuiTransparency:SetValue(tweener, target, value)
-	if target:IsA("TextLabel") or target:IsA("TextButton") then
-		target.TextTransparency = value
-	elseif target:IsA("ImageLabel") or target:IsA("ImageButton") then
-		target.ImageTransparency = value
-	else
-		target.BackgroundTransparency = value
-	end
+	local prop = getProperty(target)
+	target[prop] = value
 end
 
 return TweenGuiTransparency

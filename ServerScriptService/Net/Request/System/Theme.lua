@@ -139,7 +139,27 @@ function Theme:UnlockTheme(player, param)
 	accountRequest:SpendWins(player, { Value = data.CostWins })
 	info.IsUnlock = true
 	
-	AnalyticsManager:Event(player, AnalyticsManager.Define.UnlockTheme .. "_" .. themeKey)
+	local analyticsKey = AnalyticsManager.Define.UnlockTheme .. "_" .. themeKey
+	AnalyticsManager:Event(player, analyticsKey)
+	
+	-----------------------------------------------------------------------
+	-- GameFunnel
+	local themeIndexStr = string.match(themeKey, "%d+$")
+	local themeIndex = tonumber(themeIndexStr)
+
+	local stepIndex = -1
+
+	if themeIndex == 2 then
+		stepIndex = 7
+	elseif themeIndex == 3 then
+		stepIndex = 13
+	end
+
+	if stepIndex > 1 then
+		AnalyticsManager:Funnel(player, AnalyticsManager.Define.Game, stepIndex, analyticsKey)
+	end
+	
+	-----------------------------------------------------------------------
 	
 	return {
 		Success = true,

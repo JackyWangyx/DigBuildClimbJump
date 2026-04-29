@@ -19,12 +19,13 @@ function SceneRewardManager:Init()
 	
 	SceneRewardManager:HideOthers()
 	task.spawn(function()
+		SceneRewardManager:Clear()
 		SceneRewardManager:Spawn()
 	end)
 	
-	EventManager:Listen(EventManager.Define.RefreshArea, function()
-		SceneRewardManager:Clear()
+	EventManager:Listen(EventManager.Define.RefreshArea, function()	
 		task.spawn(function()
+			SceneRewardManager:Clear()
 			SceneRewardManager:Spawn()
 		end)
 	end)
@@ -54,10 +55,13 @@ function SceneRewardManager:Spawn()
 	local themeInfoDic = RewardInfoCache[themeKey]
 	if not themeInfoDic then
 		themeInfoDic = {}
-		SceneRewardManager.RewardSaveInfo = NetClient:RequestWait("SceneReward", "GetThemeInfo", { ThemeKey = themeKey })
 		RewardInfoCache[themeKey] = themeInfoDic
-		
-		--warn(rewardSaveInfo)
+	end
+	
+	--warn("Start")
+	NetClient:Request("SceneReward", "GetThemeInfo", { ThemeKey = themeKey }, function(result)
+		SceneRewardManager.RewardSaveInfo = result
+		--warn("End", result)
 		
 		local rewardItemList = rewardRoot:GetChildren()
 		local prefix = "SceneReward"
@@ -81,19 +85,21 @@ function SceneRewardManager:Spawn()
 				State = state,
 			}
 
+			themeInfoDic[key] = info
+
 			TriggerArea:Handle(rewardItem.Trigger, function()
 				NetClient:Request("SceneReward", "GetReward", { ID = id, ThemeKey = themeKey }, function(result)
 					if result.Success then
 						info.State = true
 						SceneRewardManager.RewardSaveInfo[key] = true
-						
+
 						SoundManager:PlaySFX(SoundManager.Define.OpenRewardBox)
 						local fxPrefab = ResourcesManager:Load("Fx/Fx_GetWin")
 						Util:SpawnFxEmit(fxPrefab, rewardItem.Trigger.Position, 10, 3)
-						
+
 						Util:DeActiveObject(info.Item)				
 						EventManager:Dispatch(EventManager.Define.GetSceneReward)
-						
+
 						--warn(result)
 						local rewardList = result.RewardList
 						for _, data in ipairs(rewardList) do
@@ -107,22 +113,22 @@ function SceneRewardManager:Spawn()
 			end, function()
 
 			end, true)
-			
-			themeInfoDic[key] = info
 		end	
-	end
-	
-	if themeInfoDic then
-		for key, info in pairs(themeInfoDic) do
-			if info.State then
-				Util:DeActiveObject(info.Item)
-			else
-				Util:ActiveObject(info.Item)
+
+		if themeInfoDic then
+			for key, info in pairs(themeInfoDic) do
+				if info.State then
+					Util:DeActiveObject(info.Item)
+				else
+					Util:ActiveObject(info.Item)
+				end
 			end
 		end
-	end
-	
-	EventManager:Dispatch(EventManager.Define.RefreshSceneReward)
+
+		task.defer(function()
+			EventManager:Dispatch(EventManager.Define.RefreshSceneReward)
+		end)
+	end)
 end
 
 function SceneRewardManager:Clear()

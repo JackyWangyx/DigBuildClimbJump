@@ -59,6 +59,19 @@ function Guide:Complete(player, param)
 	end
 	
 	info.IsComplete = true
+	
+	local stepStr = string.match(key, "%d+$")
+	local stepIndex = tonumber(stepStr)
+	AnalyticsManager:Funnel(player, AnalyticsManager.Define.Guide, stepIndex, key)
+	
+	-----------------------------------------------------------------------
+	-- GameFunnel
+	if stepIndex == 1 then
+		AnalyticsManager:Funnel(player, AnalyticsManager.Define.Game, 1, key)
+	end
+	
+	-----------------------------------------------------------------------
+		
 	return true
 end
 

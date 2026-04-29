@@ -417,6 +417,10 @@ Define.Event = {
 -----------------------------------------------------------------------------------
 -- Analystics 事件定义
 Define.Analytics = {
+	Game = "Game",
+	
+	Guide = "Guide",
+
 	PlayerLogin = "PlayerLogin",
 	PlayGame = "PlayGame",
 	PlayTraining = "PlayTraining",

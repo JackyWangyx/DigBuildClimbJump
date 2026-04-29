@@ -17,6 +17,7 @@ function BuildingPetLoot:Handle(buildingPart, opts, lootKey, eggPrefab)
 	if egg then
 		local tweenRotate = UTween:ModelRotation(egg, Vector3.new(0,0,0), Vector3.new(0, 360, 0), 10)
 			:SetLoop(UTween.LoopType.Loop, 0)
+		
 		local eggPos = Util:GetPosition(egg)
 		NearTrigger:Register(building.TriggerPart, 15, 2, function()
 			UTween:ModelPosition(egg, eggPos, eggPos + Vector3.new(0, 2.5, 0), 0.5)
@@ -25,12 +26,20 @@ function BuildingPetLoot:Handle(buildingPart, opts, lootKey, eggPrefab)
 			local rotation = Util:GetRotation(egg)
 			local y = rotation.Y
 			tweenRotate:Pause()
+			
 			UTween:ModelRotation(egg, Vector3.new(0,y,0), Vector3.new(0, y, 25), 0.75)
 				:SetEase(UTween.EaseType.Shake, 4)
 				:SetOnComplete(function()
 					tweenRotate:Play()
 				end)
-		end)	
+		end)
+		
+		-- 动画优化，非当前主题不播放
+		Util:HandleWorkspaceState(egg, function()
+			tweenRotate:Play()
+		end, function()
+			tweenRotate:Pause()
+		end)
 	end
 end
 

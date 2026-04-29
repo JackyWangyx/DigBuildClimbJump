@@ -36,6 +36,7 @@ function ClimbTowerGameManager:Init()
 	DigAreaRewardManager:Init()
 	
 	ClimbTowerGameManager:ResetDigArea()
+	
 	TerrainManager:InitDig(function()
 		return ClimbTowerGameManager:CheckCanDig()
 	end, function(success, hitPos)
@@ -116,8 +117,8 @@ function ClimbTowerGameManager:Enter(index)
 			EventManager:Dispatch(EventManager.Define.GameStart)			
 			NetClient:Request("Equipment", "HideEquipment")
 			
-			local buildingGetWins = BuildingManager:GetBuilding("BuildingGetWins")
-			Util:ActiveObject(buildingGetWins.BuildingPart)
+			--local buildingGetWins = BuildingManager:GetBuilding("BuildingGetWins")
+			--Util:ActiveObject(buildingGetWins.BuildingPart)
 		end
 		
 		isEntering = false
@@ -130,7 +131,7 @@ end
 
 function ClimbTowerGameManager:Slide(index)
 	if ClimbTowerGameLoop.GamePhase ~= ClimbTowerDefine.GamePhase.Up and 
-		ClimbTowerGameLoop.GamePhase ~=ClimbTowerDefine.GamePhase.ArriveEnd then
+		ClimbTowerGameLoop.GamePhase ~= ClimbTowerDefine.GamePhase.ArriveEnd then
 		return
 	end
 	
@@ -160,8 +161,8 @@ end
 function ClimbTowerGameManager:GetWins(index)
 	NetClient:Request("ClimbTower", "GetWins", function(success)
 		if success then
-			local buildingGetWins = BuildingManager:GetBuilding("BuildingGetWins")
-			Util:DeActiveObject(buildingGetWins.BuildingPart)
+			--local buildingGetWins = BuildingManager:GetBuilding("BuildingGetWins")
+			--Util:DeActiveObject(buildingGetWins.BuildingPart)
 		end
 	end)
 	--if ClimbTowerGameLoop.GamePhase == ClimbTowerDefine.GamePhase.ArriveEnd then
@@ -276,7 +277,7 @@ function ClimbTowerGameManager:OnDigSuccess(success, hitPos)
 	if equipmentData then
 		local animationID = equipmentData.DigAnimation
 		PlayerAnimation:PlayAnimation(player, animationID, false, equipmentData.AnimationSpeed)
-		task.delay(equipmentData.DigInterval * 0.8, function()
+		task.delay(equipmentData.DigInterval, function()
 			PlayerAnimation:StopAnimation(player, animationID)
 		end)
 
@@ -327,13 +328,13 @@ end
 
 function ClimbTowerGameManager:ResetToDigArea()
 	NetClient:Request("ClimbTower", "ResetToDigArea", function()
-		
+		EventManager:Dispatch(ClimbTowerDefine.Event.ResetToDig)
 	end)
 end
 
 function ClimbTowerGameManager:ResetToTower()
 	NetClient:Request("ClimbTower", "ResetToTower", function()
-
+		EventManager:Dispatch(ClimbTowerDefine.Event.ResetToTower)
 	end)
 end
 

@@ -1,7 +1,7 @@
 ﻿local PetConfig = {}
 
 PetConfig.Data = [[
-ID,Name,Rarity,Icon,Prefab,Size,Indexable,World,MaxExistGetCoinFactor1,GetCoinFactor1,DisplayGetPowerFactor,ProductKey
+ID,Name,Rarity,Icon,Prefab,Size,Indexable,World,MaxExistGetCoinFactor1,GetCoinFactor1,DisplayGetCoinFactor,ProductKey
 1,Doggy,1,rbxassetid://86721141310393,PetNew/Rank01/Egg01_01_Doggy,Tiny,true,1,0,1.5,x1.5,nil
 2,Doggy,1,rbxassetid://86721141310393,PetNew/Rank01/Egg01_01_Doggy_Mid,Normal,false,1,0,1.8,x1.8,nil
 3,Doggy,1,rbxassetid://86721141310393,PetNew/Rank01/Egg01_01_Doggy_Large,Large,false,1,0,2.25,x2.25,nil
