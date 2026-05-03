@@ -1,25 +1,35 @@
-﻿local TweenServiceManager = require(game.ReplicatedStorage.ScriptAlias.TweenServiceManager)
+﻿local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
+local TweenServiceManager = require(game.ReplicatedStorage.ScriptAlias.TweenServiceManager)
+local SoundManager = require(game.ReplicatedStorage.ScriptAlias.SoundManager)
+local UIButtonToolTip = require(game.ReplicatedStorage.ScriptAlias.UIButtonTooltip)
 
 local UIIcon = {}
 
-function UIIcon:HandleAnimation(button, icon)
-	
-	local tweenEnter = TweenServiceManager.New(icon)
-		:To({ Rotation = 10 })
-		:SetDuration(0.15)
+local function CreateTween(target, props, duration)
+	return TweenServiceManager.New(target)
+		:To(props)
+		:SetDuration(duration)
 		:SetEase(Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+end
+
+function UIIcon:Handle(icon)
+	local iconTween
+	local function PlayIcon(rotation)
+		if not icon then return end
+		if iconTween then
+			iconTween:Stop()
+		end
+
+		iconTween = CreateTween(icon, { Rotation = rotation }, 0.15)
+		iconTween:Play()
+	end
 	
-	local tweenLeave = TweenServiceManager.New(icon)
-		:To({ Rotation = 0 })
-		:SetDuration(0.15)
-		:SetEase(Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-	
-	button.MouseEnter:Connect(function()
-		tweenEnter:Play()
+	icon.MouseEnter:Connect(function()
+		PlayIcon(15)
 	end)
 	
-	button.MouseLeave:Connect(function()
-		tweenLeave:Play()
+	icon.MouseLeave:Connect(function()
+		PlayIcon(0)
 	end)
 end
 

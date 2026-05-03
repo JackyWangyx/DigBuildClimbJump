@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local UIListSelect = require(game.ReplicatedStorage.ScriptAlias.UIListSelect)
@@ -14,6 +14,7 @@ local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 local ActivityUtil = require(game.ReplicatedStorage.ScriptAlias.ActivityUtil)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -27,7 +28,7 @@ UIToolStore.SelectIndex = 1
 
 function UIToolStore:Init(root)
 	UIToolStore.UIRoot = root
-	UIToolStore.InfoPart = Util:GetChildByName(UIToolStore.UIRoot, "InfoLab")
+	UIToolStore.InfoPart = UIIndexManager:GetChildByName(UIToolStore.UIRoot, "InfoLab")
 end
 
 function UIToolStore:OnShow(param)
@@ -49,6 +50,11 @@ function UIToolStore:RefreshItemList()
 		local showInfoList = {}
 		for index, info in ipairs(infoList) do
 			local data = ConfigManager:GetData("Tool", info.ID)
+			if not data then
+				warn("[Tool] Data Not Found!", info.ID)
+				return
+			end
+			
 			local isRobuxTool = not Util:IsStrEmpty(data.ProductKey)
 			--print(isRobuxTool, data)
 
@@ -142,9 +148,9 @@ function UIToolStore:SelectItem(index)
 	if index > #UIToolStore.ItemList then index = #UIToolStore.ItemList end
 	UIToolStore.SelectIndex = index
 	local item = UIToolStore.ItemList[index]
-	local data = AttributeUtil:GetData(item)
+	local data = ObjectInfo:GetData(item)
 	UIInfo:SetInfo(UIToolStore.InfoPart, data)
-	local info = AttributeUtil:GetInfo(item)
+	local info = ObjectInfo:GetInfo(item)
 	UIInfo:SetInfo(UIToolStore.InfoPart, info)
 	
 	--local infoNewbiePart = Util:GetChildByName(UIToolStore.InfoPart, "Info_CostNewbie")
@@ -157,7 +163,7 @@ function UIToolStore:Button_Equip()
 	if not UIToolStore.ItemList or #UIToolStore.ItemList == 0 then return end
 	UIToolStore:CheckBeforeChangeTool()
 	local selectItem = UIToolStore.ItemList[UIToolStore.SelectIndex]
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
 	NetClient:Request("Tool", "Equip", {ID = id}, function()
 		UIToolStore:Refresh()
 		EventManager:Dispatch(EventManager.Define.RefreshTool)
@@ -168,7 +174,7 @@ function UIToolStore:Button_UnEquip()
 	if not UIToolStore.ItemList or #UIToolStore.ItemList == 0 then return end
 	UIToolStore:CheckBeforeChangeTool()
 	local selectItem = UIToolStore.ItemList[UIToolStore.SelectIndex]
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
 	NetClient:Request("Tool", "UnEquip", function()
 		UIToolStore:Refresh()
 		EventManager:Dispatch(EventManager.Define.RefreshTool)
@@ -187,7 +193,7 @@ end
 function UIToolStore:Button_Buy()
 	if not UIToolStore.ItemList or #UIToolStore.ItemList == 0 then return end
 	local selectItem = UIToolStore.ItemList[UIToolStore.SelectIndex]
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
 	NetClient:Request("Tool", "Buy", {ID = id}, function(result)
 		if result.Success then
 			task.wait()
@@ -205,8 +211,8 @@ end
 function UIToolStore:Button_BuyRobux()
 	if not UIToolStore.ItemList or #UIToolStore.ItemList == 0 then return end
 	local selectItem = UIToolStore.ItemList[UIToolStore.SelectIndex]
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
-	local productKey = AttributeUtil:GetInfoValue(selectItem, "ProductKey")
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
+	local productKey = ObjectInfo:GetInfoValue(selectItem, "ProductKey")
 	IAPClient:Purchase(productKey, function(success)
 		if success then
 			task.wait()
@@ -221,7 +227,7 @@ end
 function UIToolStore:Button_Activity()
 	if not UIToolStore.ItemList or #UIToolStore.ItemList == 0 then return end
 	local selectItem = UIToolStore.ItemList[UIToolStore.SelectIndex]
-	local info = AttributeUtil:GetInfo(selectItem)
+	local info = ObjectInfo:GetInfo(selectItem)
 	local activityKey = info.ActivityKey
 	if activityKey then
 		UIManager:ShowAndHideOther("UISignActivity", {

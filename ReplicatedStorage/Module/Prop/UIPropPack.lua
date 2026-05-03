@@ -6,6 +6,7 @@ local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIPropList = require(game.ReplicatedStorage.ScriptAlias.UIPropList)
 local PetUtil = require(game.ReplicatedStorage.ScriptAlias.PetUtil)
 local BigNumber = require(game.ReplicatedStorage.ScriptAlias.BigNumber)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -16,7 +17,7 @@ UIPropPack.UIPropFrame = nil
 
 function UIPropPack:Init(root)
 	UIPropPack.UIRoot = root
-	UIPropPack.UIPropFrame = Util:GetChildByName(root, "PropFrame")
+	UIPropPack.UIPropFrame = UIIndexManager:GetChildByName(root, "PropFrame")
 	UIPropList:Init(UIPropPack.UIPropFrame)
 end
 

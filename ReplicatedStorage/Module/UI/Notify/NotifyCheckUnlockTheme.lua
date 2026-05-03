@@ -14,7 +14,7 @@ function NotifyCheckQuestSeason:Handle(rootPart)
 		end)
 	end
 	, UINotify.RefreshType.ListenEvent
-	, EventManager.Define.RefreshQuest)
+	, EventManager.Define.RefreshUnlockThemeTip)
 end
 
 return NotifyCheckQuestSeason

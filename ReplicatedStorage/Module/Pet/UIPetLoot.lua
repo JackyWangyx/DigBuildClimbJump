@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local UIListSelect = require(game.ReplicatedStorage.ScriptAlias.UIListSelect)
@@ -12,6 +12,7 @@ local TweenUtil = require(game.ReplicatedStorage.ScriptAlias.TweenUtil)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -36,8 +37,8 @@ function UIPetLoot:Init(root)
 	UIPetLoot.UIRoot = root
 	
 	local childList= UIPetLoot.UIRoot:GetDescendants()
-	UIPetLoot.ButtonOpenAuto = Util:GetChildByName(UIPetLoot.UIRoot, "Button_OpenAuto", true, childList)
-	UIPetLoot.ButtonOpenX9 = Util:GetChildByName(UIPetLoot.UIRoot, "Button_OpenX9", true, childList)
+	UIPetLoot.ButtonOpenAuto = UIIndexManager:GetChildByName(UIPetLoot.UIRoot, "Button_OpenAuto", true, childList)
+	UIPetLoot.ButtonOpenX9 = UIIndexManager:GetChildByName(UIPetLoot.UIRoot, "Button_OpenX9", true, childList)
 end
 
 function UIPetLoot:OnShow(param)
@@ -93,9 +94,9 @@ function UIPetLoot:RefreshItemList()
 		UIPetLoot.ItemList = UIList:LoadWithInfo(UIPetLoot.UIRoot, "UIPetLootItem", infoList)
 		
 		for _, item in ipairs(UIPetLoot.ItemList)  do
-			local petID = AttributeUtil:GetInfoValue(item, "PetID")
+			local petID = ObjectInfo:GetInfoValue(item, "PetID")
 			local petData = ConfigManager:GetData("Pet", petID)
-			AttributeUtil:SetData(item, petData)
+			ObjectInfo:SetData(item, petData)
 			UIInfo:SetInfo(item, petData)
 		end
 		
@@ -226,10 +227,11 @@ end
 
 function UIPetLoot:OpenLootImpl(count, openAuto, times)
 	local selectList = UIListSelect:GetSelectList(UIPetLoot.ItemList)
-	local deleteIDList = Util:ListSelect(selectList, function(item) return AttributeUtil:GetInfoValue(item, "PetID") end)
+	local deleteIDList = Util:ListSelect(selectList, function(item) return ObjectInfo:GetInfoValue(item, "PetID") end)
 	if not times then
 		times = -1
 	end
+	
 	local param = {}
 	param.LootKey = UIPetLoot.LootKey
 	param.EggPrefab = UIPetLoot.EggPrefab
@@ -240,6 +242,7 @@ function UIPetLoot:OpenLootImpl(count, openAuto, times)
 	param.IsRewardLoot = false
 	param.Times = times
 	
+	--warn(param)
 	UIManager:ShowAndHideOther("PetLootResult", param)
 end
 

@@ -1,11 +1,14 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local UIInfo = require(game.ReplicatedStorage.ScriptAlias.UIInfo)
+local UIButton = require(game.ReplicatedStorage.ScriptAlias.UIButton)
 local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIPropList = require(game.ReplicatedStorage.ScriptAlias.UIPropList)
 local PetUtil = require(game.ReplicatedStorage.ScriptAlias.PetUtil)
 local BigNumber = require(game.ReplicatedStorage.ScriptAlias.BigNumber)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
+local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -15,6 +18,32 @@ UIRobloxStore.UIRoot = nil
 UIRobloxStore.UIPropFrame = nil
 UIRobloxStore.TextInput = nil -- [新增] 存储输入框引用
 UIRobloxStore.UICoinsFrame = nil
+
+local LimitedTimeToolButtonList = {
+	{
+		ButtonName = "Button_LimitedTime_Tool1",
+		ProductKey = "ProductStoreTool26",
+		ToolID = 26,
+	},
+	{
+		ButtonName = "Button_LimitedTime_Tool2",
+		ProductKey = "ProductStoreTool27",
+		ToolID = 27,
+	},
+}
+
+local LimitedTimeEquipmentButtonList = {
+	{
+		ButtonName = "Button_LimitedTime_Equipment1",
+		ProductKey = "ProductStoreEquipment11",
+		EquipmentID = 11,
+	},
+	{
+		ButtonName = "Button_LimitedTime_Equipment2",
+		ProductKey = "ProductStoreEquipment12",
+		EquipmentID = 12,
+	},
+}
 
 UIRobloxStore.IAPCoinList = {
 	[1] = {
@@ -47,16 +76,79 @@ UIRobloxStore.IAPCoinList = {
 	},
 }
 
+local function GetClickableButton(root, buttonName)
+	local button = Util:GetChildByName(root, buttonName, true)
+	if not button then return nil end
+	if button:IsA("GuiButton") then return button end
+	return Util:GetChildByType(button, "GuiButton", true)
+end
+
+local function PurchaseLimitedTimeTool(toolID, productKey)
+	IAPClient:Purchase(productKey, function(success)
+		if not success then return end
+
+		task.wait()
+		NetClient:Request("Tool", "Equip", { ID = toolID }, function()
+			EventManager:Dispatch(EventManager.Define.RefreshTool)
+		end)
+	end)
+end
+
+local function CheckBeforeChangeEquipment()
+	local status = NetClient:RequestWait("Player", "GetStatus")
+	if status == Define.PlayerStatus.Training then
+		local trainingMachine = require(game.ReplicatedStorage.ScriptAlias.TrainingMachine)
+		trainingMachine:End()
+	end
+end
+
+local function PurchaseLimitedTimeEquipment(equipmentID, productKey)
+	IAPClient:Purchase(productKey, function(success)
+		if not success then return end
+
+		CheckBeforeChangeEquipment()
+		task.wait()
+		NetClient:Request("Equipment", "Equip", { ID = equipmentID }, function()
+			EventManager:Dispatch(EventManager.Define.RefreshEquipment)
+		end)
+	end)
+end
+
+local function BindLimitedTimeButtons(root)
+	for _, info in ipairs(LimitedTimeToolButtonList) do
+		local button = GetClickableButton(root, info.ButtonName)
+		if button then
+			local toolID = info.ToolID
+			local productKey = info.ProductKey
+			UIButton:Handle(button, function()
+				PurchaseLimitedTimeTool(toolID, productKey)
+			end)
+		end
+	end
+
+	for _, info in ipairs(LimitedTimeEquipmentButtonList) do
+		local button = GetClickableButton(root, info.ButtonName)
+		if button then
+			local equipmentID = info.EquipmentID
+			local productKey = info.ProductKey
+			UIButton:Handle(button, function()
+				PurchaseLimitedTimeEquipment(equipmentID, productKey)
+			end)
+		end
+	end
+end
+
 function UIRobloxStore:Init(root)
 	UIRobloxStore.UIRoot = root
-	UIRobloxStore.UIPropFrame = Util:GetChildByName(root, "PropFrame")
+	UIRobloxStore.UIPropFrame = UIIndexManager:GetChildByName(root, "PropFrame")
 	UIPropList:Init(UIRobloxStore.UIPropFrame)
 
 	-- [新增] 初始化兑换码输入框
-	UIRobloxStore.TextInput = Util:GetChildByName(root, "TextInput_RedeemCode")
+	UIRobloxStore.TextInput = UIIndexManager:GetChildByName(root, "TextInput_RedeemCode")
 	UIRobloxStore:ClearInput()
 	
-	UIRobloxStore.UICoinsFrame = Util:GetChildByName(root, "CoinsFrame")
+	UIRobloxStore.UICoinsFrame = UIIndexManager:GetChildByName(root, "CoinsFrame")
+	BindLimitedTimeButtons(root)
 end
 
 function UIRobloxStore:OnShow(param)
@@ -71,6 +163,7 @@ end
 function UIRobloxStore:Refresh()
 	UIPropList:Refresh()
 	UIRobloxStore:RefreshCoinList()
+	BindLimitedTimeButtons(UIRobloxStore.UIRoot)
 end
 
 function UIRobloxStore:RefreshCoinList()
@@ -147,15 +240,21 @@ end
 -- LimitedTime Tool
 
 function UIRobloxStore:Button_LimitedTime_Tool1()
-
-	IAPClient:Purchase("ProductStoreTool26", function(result)
-	end)
+	PurchaseLimitedTimeTool(26, "ProductStoreTool26")
 end
 
 function UIRobloxStore:Button_LimitedTime_Tool2()
+	PurchaseLimitedTimeTool(27, "ProductStoreTool27")
+end
 
-	IAPClient:Purchase("ProductStoreTool27", function(result)
-	end)
+-- LimitedTime Equipment
+
+function UIRobloxStore:Button_LimitedTime_Equipment1()
+	PurchaseLimitedTimeEquipment(11, "ProductStoreEquipment11")
+end
+
+function UIRobloxStore:Button_LimitedTime_Equipment2()
+	PurchaseLimitedTimeEquipment(12, "ProductStoreEquipment12")
 end
 
 

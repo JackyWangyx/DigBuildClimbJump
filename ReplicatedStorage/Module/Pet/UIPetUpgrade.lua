@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local UIListSelect = require(game.ReplicatedStorage.ScriptAlias.UIListSelect)
@@ -10,6 +10,7 @@ local UIConfirm = require(game.ReplicatedStorage.ScriptAlias.UIConfirm)
 local PetUtil = require(game.ReplicatedStorage.ScriptAlias.PetUtil)
 local TweenUtil = require(game.ReplicatedStorage.ScriptAlias.TweenUtil)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local UIPetUpgrade = {}
 
@@ -32,13 +33,12 @@ UIPetUpgrade.FailFrame = nil
 function UIPetUpgrade:Init(root)
 	UIPetUpgrade.UIRoot = root
 	
-	local childList= UIPetUpgrade.UIRoot:GetDescendants()
-	UIPetUpgrade.PackageFrame = Util:GetChildByName(UIPetUpgrade.UIRoot, "PackageFrame", childList)
-	UIPetUpgrade.SelectFrame = Util:GetChildByName(UIPetUpgrade.UIRoot, "SelectFrame", childList)
-	UIPetUpgrade.UpgradeFrame = Util:GetChildByName(UIPetUpgrade.UIRoot, "UpgradeFrame", childList)
-	UIPetUpgrade.SuccessFrame = Util:GetChildByName(UIPetUpgrade.UIRoot, "SuccessFrame", childList)
-	UIPetUpgrade.FailFrame = Util:GetChildByName(UIPetUpgrade.UIRoot, "FailFrame", childList)	
-	UIPetUpgrade.ImageSpin = Util:GetChildByName(UIPetUpgrade.UIRoot, "Image_Spin", childList)
+	UIPetUpgrade.PackageFrame = UIIndexManager:GetChildByName(UIPetUpgrade.UIRoot, "PackageFrame")
+	UIPetUpgrade.SelectFrame = UIIndexManager:GetChildByName(UIPetUpgrade.UIRoot, "SelectFrame")
+	UIPetUpgrade.UpgradeFrame = UIIndexManager:GetChildByName(UIPetUpgrade.UIRoot, "UpgradeFrame")
+	UIPetUpgrade.SuccessFrame = UIIndexManager:GetChildByName(UIPetUpgrade.UIRoot, "SuccessFrame")
+	UIPetUpgrade.FailFrame = UIIndexManager:GetChildByName(UIPetUpgrade.UIRoot, "FailFrame")	
+	UIPetUpgrade.ImageSpin = UIIndexManager:GetChildByName(UIPetUpgrade.UIRoot, "Image_Spin")
 end
 
 function UIPetUpgrade:OnShow()
@@ -89,7 +89,7 @@ function UIPetUpgrade:SelectItem(index)
 	if not UIPetUpgrade.ItemList or #UIPetUpgrade.ItemList == 0 then return end
 	if UIPetUpgrade.Mode == 1 then
 		local selectItem = UIPetUpgrade.ItemList[index]
-		UIPetUpgrade.SelectInstanceID = AttributeUtil:GetInfoValue(selectItem, "InstanceID")
+		UIPetUpgrade.SelectInstanceID = ObjectInfo:GetInfoValue(selectItem, "InstanceID")
 		UIPetUpgrade.Mode = 2
 		UIPetUpgrade:Refresh()
 	elseif UIPetUpgrade.Mode == 2 then
@@ -142,7 +142,7 @@ function UIPetUpgrade:RefreshUpgradeSpin()
 	task.wait(0.5)
 	local selectItemList = UIListSelect:GetSelectList(UIPetUpgrade.SelectList)
 	local instanceIDList = Util:ListSelect(selectItemList, function(item)
-		return AttributeUtil:GetInfoValue(item, "InstanceID")
+		return ObjectInfo:GetInfoValue(item, "InstanceID")
 	end)
 
 	NetClient:Request("Pet", "Upgrade", { InstanceIDList = instanceIDList}, function(result)

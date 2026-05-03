@@ -36,7 +36,7 @@ function Account:Coin1M(player, param)
 end
 
 function Account:Coin1B(player, param)
-	NetServer:RequireModule("Account"):AddCoin(player, { Value = 1000000000 })
+	NetServer:RequireModule("Account"):AddCoin(player, { Value = 1000000000000000000 })
 end
 
 function Account:Coin1T(player, param)

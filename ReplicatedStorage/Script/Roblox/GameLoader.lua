@@ -12,13 +12,21 @@ function GameLoader:Init()
 	local count = 1
 	local isSaveLoaded = false
 	while true do
+		local getResult = false
 		NetClient:Request("Player", "CheckSaveLoaded", function(result)
 			isSaveLoaded = result
+			getResult = true
 		end)
-		task.wait(0.2)
+		
+		while not getResult do
+			task.wait()
+		end
+		
 		count += 1
 		if isSaveLoaded then
 			break
+		else
+			task.wait()
 		end
 	end
 end

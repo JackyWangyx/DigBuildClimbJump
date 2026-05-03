@@ -5,6 +5,7 @@ local TriggerArea = require(game.ReplicatedStorage.ScriptAlias.TriggerArea)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local SoundManager = require(game.ReplicatedStorage.ScriptAlias.SoundManager)
+local HighlightUtil = require(game.ReplicatedStorage.ScriptAlias.HighlightUtil)
 
 local DigAreaRewardManager = {}
 
@@ -21,27 +22,35 @@ function DigAreaRewardManager:Reset()
 	local root = game.Workspace:FindFirstChild("DigAreaReward")
 	if root then
 		local layerList = root:GetChildren()
-		for i = 1, #layerList do
-			local layer = layerList[i]
+		for layerIndex = 1, #layerList do
+			local layer = layerList[layerIndex]
 			local pointList = layer:GetChildren()
-			local point = Util:ListRandom(pointList, 1)
-			local data = Util:ListRandomWeight(DataList, 1)
+			local count = math.random(3, 4)
+			local points = Util:ListRandom(pointList, count)
+			local datas = Util:ListRandomWeight(DataList, count)
 
-			local prefab = ResourcesManager:Load(data.Prefab)
-			if prefab then
-				local box = prefab:Clone()
-				box.Parent = root
-				box:PivotTo(point.CFrame)
-				box.Name = "Box_" .. #BoxList .. "_" .. prefab.Name
+			for index, data in ipairs(datas) do
+				if index > #points then break end
+				
+				local prefab = ResourcesManager:Load(data.Prefab)
+				if prefab then
+					local point = points[index]
+					local box = prefab:Clone()
+					box.Parent = root
+					box:PivotTo(point.CFrame)
+					box.Name = "Box_" .. #BoxList .. "_" .. prefab.Name
 
-				TriggerArea:Handle(box.Trigger, function()
-					DigAreaRewardManager:GetReward(box, data)
-				end, function()
+					HighlightUtil:HandleLOD(box)
+					
+					TriggerArea:Handle(box.Trigger, function()
+						DigAreaRewardManager:GetReward(box, data)
+					end, function()
 
-				end, true)
+					end, true)
 
-				table.insert(BoxList, box)
-			end	
+					table.insert(BoxList, box)
+				end	
+			end
 		end
 	else
 		warn("DigAreaReward not found")
@@ -49,21 +58,21 @@ function DigAreaRewardManager:Reset()
 end
 
 function DigAreaRewardManager:GetReward(box, data)
+	if not box then return end
+	
+	local pos = box.Trigger.Position
+	box:Destroy()	
+	
 	NetClient:Request("ClimbTower", "GetDigAreaReward", { ID = data.ID },  function(result)
-		if not box then return end
 		if result.Success then
 			SoundManager:PlaySFX(SoundManager.Define.OpenRewardBox)
 			local fxPrefab = ResourcesManager:Load("Fx/Fx_GetWin")
-			Util:SpawnFxEmit(fxPrefab, box.Trigger.Position, 10, 3)
-						
+			Util:SpawnFxEmit(fxPrefab, pos, 10, 3)		
 			local rewardList = result.RewardList
 			for _, data in ipairs(rewardList) do
 				UIManager:ShowMessageWithIcon(data.Icon, "Got "..data.Description)
 				task.wait()
-			end
-			
-			task.wait()
-			box:Destroy()		
+			end	
 		else
 			UIManager:ShowMessage(result.Message)
 		end

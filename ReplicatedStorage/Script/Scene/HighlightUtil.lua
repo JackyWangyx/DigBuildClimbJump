@@ -1,4 +1,82 @@
-﻿local HighlightUtil = {}
+﻿local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
+local UpdatorManager = require(game.ReplicatedStorage.ScriptAlias.UpdatorManager)
+
+local HighlightUtil = {}
+
+function HighlightUtil:HandleLOD(part)
+	local highlight = Util:GetChildByType(part, "Highlight")
+	if not highlight then return end
+
+	local camera = workspace.CurrentCamera
+
+	local MAX_DISTANCE = 200
+	local CHECK_INTERVAL = 0.2
+	local FADE_SPEED = 3
+
+	-- 可见状态
+	local FILL_VISIBLE = 0.5
+	local OUTLINE_VISIBLE = 0
+
+	-- 隐藏状态
+	local FILL_HIDDEN = 1
+	local OUTLINE_HIDDEN = 1
+
+	-- 当前
+
+	local fillCurrent = 1
+	local outlineCurrent = 1
+
+	local fillTarget = 1
+	local outlineTarget = 1
+
+	local timer = 0
+	local isEnabled = false
+
+	local highlightPart = highlight.Parent
+
+	highlight.Enabled = false
+	highlight.FillTransparency = 1
+	highlight.OutlineTransparency = 1
+
+	local connection = UpdatorManager:RenderStepped(function(dt)
+		timer += dt
+		if timer >= CHECK_INTERVAL then
+			timer = 0
+
+			if camera then
+				local distance = (camera.CFrame.Position - highlightPart.Position).Magnitude
+
+				if distance <= MAX_DISTANCE then
+					fillTarget = FILL_VISIBLE
+					outlineTarget = OUTLINE_VISIBLE
+				else
+					fillTarget = FILL_HIDDEN
+					outlineTarget = OUTLINE_HIDDEN
+				end
+			end
+		end
+
+		fillCurrent = fillCurrent + (fillTarget - fillCurrent) * math.clamp(dt * FADE_SPEED, 0, 1)
+		outlineCurrent = outlineCurrent + (outlineTarget - outlineCurrent) * math.clamp(dt * FADE_SPEED, 0, 1)
+
+		highlight.FillTransparency = fillCurrent
+		highlight.OutlineTransparency = outlineCurrent
+
+		if not isEnabled and outlineCurrent < 0.95 then
+			highlight.Enabled = true
+			isEnabled = true
+		end
+
+		if isEnabled and outlineCurrent > 0.999 then
+			highlight.Enabled = false
+			isEnabled = false
+		end
+	end)
+
+	part.Destroying:Connect(function()
+		connection:Destroy()
+	end)
+end
 
 -- HighLight
 

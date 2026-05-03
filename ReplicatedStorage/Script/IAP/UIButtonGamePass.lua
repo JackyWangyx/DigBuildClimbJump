@@ -4,6 +4,7 @@ local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local UIButtonGamePass = {}
 
@@ -35,9 +36,9 @@ end
 
 function UIButtonGamePass:Refresh(button, hasPass)
 	local productKey = UIButtonGamePass:GetProductKey(button)
-	local togglePurchased = Util:GetChildByName(button, "Toggle_Purchased")
-	local togglePurchasedTrue = Util:GetChildByName(button, "Toggle_Purchased_True")
-	local togglePurchasedFlase = Util:GetChildByName(button, "Toggle_Purchased_False")
+	local togglePurchased = UIIndexManager:GetChildByName(button, "Toggle_Purchased")
+	local togglePurchasedTrue = UIIndexManager:GetChildByName(button, "Toggle_Purchased_True")
+	local togglePurchasedFlase = UIIndexManager:GetChildByName(button, "Toggle_Purchased_False")
 	local function RefreshImpl()
 		if togglePurchased then
 			togglePurchased.Visible = hasPass

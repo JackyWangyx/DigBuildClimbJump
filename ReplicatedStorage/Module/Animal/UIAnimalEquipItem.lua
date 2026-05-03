@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIInfo = require(game.ReplicatedStorage.ScriptAlias.UIInfo)
 local UIButton = require(game.ReplicatedStorage.ScriptAlias.UIButton)

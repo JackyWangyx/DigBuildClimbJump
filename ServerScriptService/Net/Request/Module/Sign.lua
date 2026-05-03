@@ -148,6 +148,7 @@ end
 function Sign:CheckCanSignDaily(player, param)
 	local key = param.Key
 	local isActivity = param.IsActivity or false
+	Sign:GetDailyList(player, param) -- 初次登陆可能缺数据会判断错误
 	local info = GetDailyInfo(player, key)
 	local dataList = ConfigManager:GetDataList(key)
 	local now = TimeUtil:GetNow()

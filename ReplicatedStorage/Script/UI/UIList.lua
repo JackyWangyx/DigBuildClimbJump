@@ -3,158 +3,154 @@
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIButton = require(game.ReplicatedStorage.ScriptAlias.UIButton)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local UIInfo = require(game.ReplicatedStorage.ScriptAlias.UIInfo)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local UIEffect = require(game.ReplicatedStorage.ScriptAlias.UIEffect)
+local ResourcesManager = require(game.ReplicatedStorage.ScriptAlias.ResourcesManager)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local UIList = {}
 
+local string_gmatch = string.gmatch
+local string_gsub = string.gsub
+local string_sub = string.sub
+local table_insert = table.insert
+local table_sort = table.sort
+local math_max = math.max
+
 function UIList:ClearChild(uiPart)
-	local listRootPart = Util:GetChildByName(uiPart, "ScrollingFrame")
-	local frameList = Util:GetAllChildByType(listRootPart, "Frame", false)
-	for _, frame in ipairs(frameList) do
-		frame:Destroy()
+	local listRoot = UIIndexManager:GetChildByName(uiPart, "ScrollingFrame")
+	if not listRoot then
+		listRoot = Util:GetChildByName(uiPart, "ScrollingFrame", true)
+	end
+	
+	local itemList = listRoot:GetChildren()
+	for index = 1, #itemList do
+		local item = itemList[index]
+		if item:IsA("Frame") then
+			item:Destroy()
+		end
 	end
 end
 
-local function NaturalSort(a, b)
-	local function split(str)
-		local segments = {}
-		for text, number in string.gmatch(str, "([%a_]*)(%d*)") do
-			if text ~= "" then table.insert(segments, text) end
-			if number ~= "" then table.insert(segments, tonumber(number)) end
-		end
-		return segments
+local function BuildSortKey(name)
+	local segments = {}
+	for text, number in string_gmatch(name, "([%a_]*)(%d*)") do
+		if text ~= "" then table_insert(segments, text) end
+		if number ~= "" then table_insert(segments, tonumber(number)) end
+	end
+	return segments
+end
+
+local function NaturalSort(list)
+	local mapped = {}
+
+	for index = 1, #list do
+		local obj = list[index]
+		mapped[index] = {
+			obj = obj,
+			key = BuildSortKey(obj.Name)
+		}
 	end
 
-	local aParts = split(a.Name)
-	local bParts = split(b.Name)
+	table_sort(mapped, function(a, b)
+		local aParts = a.key
+		local bParts = b.key
 
-	for i = 1, math.max(#aParts, #bParts) do
-		local aVal = aParts[i]
-		local bVal = bParts[i]
+		for i = 1, math_max(#aParts, #bParts) do
+			local aVal = aParts[i]
+			local bVal = bParts[i]
 
-		if aVal == nil then return true end
-		if bVal == nil then return false end
+			if aVal == nil then return true end
+			if bVal == nil then return false end
 
-		if type(aVal) == "string" and type(bVal) == "string" then
 			if aVal ~= bVal then
 				return aVal < bVal
 			end
-		elseif type(aVal) == "number" and type(bVal) == "number" then
-			if aVal ~= bVal then
-				return aVal < bVal
-			end
-		elseif type(aVal) ~= type(bVal) then
-			-- 字符串排在数字前面
-			return type(aVal) == "string"
 		end
-	end
 
-	return false
+		return false
+	end)
+
+	for i = 1, #mapped do
+		list[i] = mapped[i].obj
+	end
 end
 
 function UIList:ForechItem(uiPart, itemPrefabName, requireCount, func)
-	local listRootPart = Util:GetChildByName(uiPart, "ScrollingFrame")
-	local frameList = Util:GetAllChildByType(listRootPart, "Frame", false)
-	table.sort(frameList, NaturalSort)
-	for _, frame in ipairs(frameList) do
-		frame.Visible = false
+	-- 有些界面下包含多个同名，缓存有问题
+	local listRoot = UIIndexManager:GetChildByName(uiPart, "ScrollingFrame")
+	if not listRoot then
+		listRoot = Util:GetChildByName(uiPart, "ScrollingFrame", true)
 	end
 	
-	local frameCount = #frameList
-	local count = frameCount >= requireCount and frameCount or requireCount
-	
+	local frames = Util:GetAllChildByType(listRoot, "Frame", false)
+	NaturalSort(frames)
+
+	local prefab
 	if itemPrefabName then
-		-- 指定预制，则动态生成列表
-		local listItemPrefab = game.ReplicatedStorage.Prefab.UIItem:FindFirstChild(itemPrefabName)
-		if not listItemPrefab then
+		prefab = ReplicatedUIItem:FindFirstChild(itemPrefabName)
+		if not prefab then
 			warn("[UIList] Item Prefab Not Found!", itemPrefabName)
 			return
 		end
-		
-		local itemList = {}
-		for index = 1, count do
-			if index <= frameCount then
-				local frame = frameList[index]
-				if index <= requireCount then
-					-- 复用已经存在的节点
-					local item = frame
-					func(index, item)
-
-					UIList:RefreshItem(item)
-					item.Visible = true
-					item.ZIndex = index
-					table.insert(itemList, item)
-				else
-					-- 删除多余的节点
-					frame:Destroy()
-				end
-			else
-				if index <= requireCount then
-					-- 创建新节点
-					local item = listItemPrefab:Clone()
-					item.Name = "Item_"..index
-					item.Parent = listRootPart
-					func(index, item)
-
-					UIList:RefreshItem(item)
-					item.Visible = true
-					item.ZIndex = index
-					table.insert(itemList, item)
-				end
-			end
-		end
-		
-		return itemList
-	else
-		-- 未指定预制，则重新处理现有列表
-		local itemList = {}
-		for index = 1, frameCount do
-			if index <= frameCount then
-				local frame = frameList[index]
-				if index <= requireCount then
-					local item = frame
-					func(index, item)
-					UIList:RefreshItem(item)
-					item.Visible = true
-					item.ZIndex = index
-					table.insert(itemList, item)
-				end
-			end	
-		end
-		
-		return itemList
 	end
+
+	local itemList = {}
+
+	-- 1. 复用 or 创建
+	for i = 1, requireCount do
+		local item = frames[i]
+		if not item then
+			item = prefab:Clone()
+			item.Name = "Item_" .. i
+			item.Parent = listRoot
+		end
+
+		func(i, item)
+
+		UIList:RefreshItem(item)
+		item.Visible = true
+		item.ZIndex = i
+
+		itemList[i] = item
+	end
+
+	-- 2. 删除多余
+	for i = requireCount + 1, #frames do
+		frames[i]:Destroy()
+	end
+
+	return itemList
 end
 
-function UIList:LoadWithData(uiPart, itemPrefabName, configName)
+function UIList:LoadWithData(uiPart, itemPrefabName, configName, resort)
 	local dataList = ConfigManager:GetDataList(configName)
 	if not dataList then return {} end
 	local itemList = UIList:ForechItem(uiPart, itemPrefabName, #dataList, function(index, item)
 		local data = dataList[index]
 		
-		AttributeUtil:Clear(item)
-		AttributeUtil:SetData(item, data)
+		ObjectInfo:Clear(item)
+		ObjectInfo:SetData(item, data)
 	end)
 	
 	return itemList
 end
 
-function UIList:LoadWithInfo(uiPart, itemPrefabName, infoList)
+function UIList:LoadWithInfo(uiPart, itemPrefabName, infoList, resort)
 	if not infoList then return {} end
 	local itemList = UIList:ForechItem(uiPart, itemPrefabName, #infoList, function(index, item)
 		local info = infoList[index]
 		
-		AttributeUtil:Clear(item)
-		AttributeUtil:SetInfo(item, info)
+		ObjectInfo:Clear(item)
+		ObjectInfo:SetInfo(item, info)
 	end)
 	
 	return itemList
 end
 
-function UIList:LoadWithInfoData(uiPart, itemPrefabName, infoList, configName)
+function UIList:LoadWithInfoData(uiPart, itemPrefabName, infoList, configName, resort)
 	if not infoList then return {} end
 	local dataList = ConfigManager:GetDataList(configName)
 	if not dataList then return {} end
@@ -162,10 +158,10 @@ function UIList:LoadWithInfoData(uiPart, itemPrefabName, infoList, configName)
 		local info = infoList[index]
 		local data = dataList[info.ID]
 		
-		AttributeUtil:Clear(item)
+		ObjectInfo:Clear(item)
 		-- Info 中可能包含覆盖计算的 Data 数据，所以先设置 Data 后设置 Info
-		AttributeUtil:SetData(item, data)
-		AttributeUtil:SetInfo(item, info)
+		ObjectInfo:SetData(item, data)
+		ObjectInfo:SetInfo(item, info)
 	end)
 	
 	return itemList
@@ -173,42 +169,30 @@ end
 
 function UIList:HandleItemList(itemList, uiListScript, uiItemScriptName)
 	if not itemList then return end
-	local uiItemScriptFile = Util:GetChildByTypeAndName(game.ReplicatedStorage, "ModuleScript", uiItemScriptName)
+	local uiItemScriptFile = ResourcesManager:GetScript(uiItemScriptName)
 	local uiItemScript = require(uiItemScriptFile)
-	for index, item in ipairs(itemList) do
+	for index = 1, #itemList do
+		local item = itemList[index]
 		local uiItem = uiItemScript.new()
 		UIInfo:HandleAllButton(item, uiItem, {
 			UIListScript = uiListScript,
 			UIRoot = item,
-			Index = index
-		})
+			Index = index,
+		}, true)
 	end
 end
 
 function UIList:RefreshItem(itemPart)
-	local info = {}
-	for attributeName, attributeValue in pairs(itemPart:GetAttributes()) do
-		if Util:IsStrStartWith(attributeName, "Data_") then
-			local key = string.gsub(attributeName, "Data_", "")
-			local value = attributeValue
-			info[key] = value
-		end
-	end
-	
-	for attributeName, attributeValue in pairs(itemPart:GetAttributes()) do
-		if Util:IsStrStartWith(attributeName, "Info_") then
-			local key = string.gsub(attributeName, "Info_", "")
-			local value = attributeValue
-			info[key] = value
-		end
-	end
-	
+	local data = ObjectInfo:GetData(itemPart)
+	UIInfo:SetInfo(itemPart, data)
+	local info = ObjectInfo:GetInfo(itemPart)
 	UIInfo:SetInfo(itemPart, info)
 end
 
 function UIList:HadnlePlayerHeadIconAsync(itemList)
-	for index, item in ipairs(itemList) do
-		local playerID = AttributeUtil:GetInfoValue(item, "UserID")
+	for index = 1, #itemList do
+		local item = itemList[index]
+		local playerID = ObjectInfo:GetInfoValue(item, "UserID")
 		local player = PlayerManager:GetPlayerById(playerID)
 		PlayerManager:GetHeadIconAsync(player, function(icon)
 			if not item then return end
@@ -217,7 +201,6 @@ function UIList:HadnlePlayerHeadIconAsync(itemList)
 			}
 			
 			UIInfo:SetInfo(item, info)
-			--UIInfo:SetValue(item, "HeadIcon", icon)
 		end)
 	end
 end

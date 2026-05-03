@@ -5,9 +5,10 @@ local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UpdatorManager = require(game.ReplicatedStorage.ScriptAlias.UpdatorManager)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local SceneAreaManager = require(game.ReplicatedStorage.ScriptAlias.SceneAreaManager)
 local TimeUtil = require(game.ReplicatedStorage.ScriptAlias.TimeUtil)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local UISceneReward = require(game.ReplicatedStorage.ScriptAlias.UISceneReward)
 local ClimbTowerGameManager = require(game.ReplicatedStorage.ScriptAlias.ClimbTowerGameManager)
@@ -31,26 +32,36 @@ UIClimbTowerGameInfo.UIPowerTarget = nil
 UIClimbTowerGameInfo.DigFrame = nil
 UIClimbTowerGameInfo.IdleFrame = nil
 
+local RankInfoList = {}
+local RankItemList = nil
+local IsPlayerChanged = true
+
 function UIClimbTowerGameInfo:Init(root)
 	UIClimbTowerGameInfo.UIRoot = root
 	UIInfo:HandleAllButton(root, UIClimbTowerGameInfo)
 	
-	UIClimbTowerGameInfo.GameFrame = Util:GetChildByName(root, "GameFrame")
-	UIClimbTowerGameInfo.PlayerGameFrame = Util:GetChildByName(root, "PlayerGameFrame")
-	UIClimbTowerGameInfo.BottonRankTrans = Util:GetChildByName(UIClimbTowerGameInfo.GameFrame, "BottonRankTrans", true)
-	UIClimbTowerGameInfo.RankBar = Util:GetChildByName(UIClimbTowerGameInfo.GameFrame, "RankBar", true)
+	UIClimbTowerGameInfo.GameFrame = UIIndexManager:GetChildByName(root, "GameFrame")
+	UIClimbTowerGameInfo.PlayerGameFrame = UIIndexManager:GetChildByName(root, "PlayerGameFrame")
+	UIClimbTowerGameInfo.BottonRankTrans = UIIndexManager:GetChildByName(UIClimbTowerGameInfo.GameFrame, "BottonRankTrans")
+	UIClimbTowerGameInfo.RankBar = UIIndexManager:GetChildByName(UIClimbTowerGameInfo.GameFrame, "RankBar")
 	
 	UISceneReward:Init(UIClimbTowerGameInfo.GameFrame)
 	
-	UIClimbTowerGameInfo.UIPowerTarget = Util:GetChildByName(root, "UIPowerTarget", true)
+	UIClimbTowerGameInfo.UIPowerTarget = UIIndexManager:GetChildByName(root, "UIPowerTarget")
 	
 	UIClimbTowerGameInfo.PlayerGameFrame.Visible = false
 	
-	UIClimbTowerGameInfo.DigFrame = Util:GetChildByName(root, "DigFrame", true)
-	UIClimbTowerGameInfo.IdleFrame = Util:GetChildByName(root, "IdleFrame", true)
+	UIClimbTowerGameInfo.DigFrame = UIIndexManager:GetChildByName(root, "DigFrame")
+	UIClimbTowerGameInfo.IdleFrame = UIIndexManager:GetChildByName(root, "IdleFrame")
 	
 	UIClimbTowerGameInfo.DigFrame.Visible = false
 	UIClimbTowerGameInfo.IdleFrame.Visible = true
+	
+	PlayerManager:HandlePlayerAddRemove(function(player)
+		IsPlayerChanged = true
+	end, function(player)
+		IsPlayerChanged = true
+	end)
 	
 	EventManager:Listen(ClimbTowerDefine.Event.EnterDig, function(param)
 		UIClimbTowerGameInfo.DigFrame.Visible = true
@@ -156,14 +167,16 @@ function UIClimbTowerGameInfo:RefreshBuildInfo()
 	local areaInfo = SceneAreaManager.AreaInfoList[SceneAreaManager.CurrentAreaIndex]
 	local buildingProgress = 0
 	
-	local tower = areaInfo.Area.Game:FindFirstChild("Tower")
-	if tower then
-		local top = tower:FindFirstChild("Top")
-		local root = tower:FindFirstChild("Root")
-		if top and root then
-			local towerLength = top.Position.Y
-			local towerMaxLength = top.Position.Y - root.Position.Y
-			buildingProgress = towerLength / towerMaxLength
+	if areaInfo then
+		local tower = areaInfo.Area.Game:FindFirstChild("Tower")
+		if tower then
+			local top = tower:FindFirstChild("Top")
+			local root = tower:FindFirstChild("Root")
+			if top and root then
+				local towerLength = top.Position.Y
+				local towerMaxLength = top.Position.Y - root.Position.Y
+				buildingProgress = towerLength / towerMaxLength
+			end
 		end
 	end
 	
@@ -191,15 +204,31 @@ end
 
 
 ------------------------------------------------------------------------------
--- Rank
+-- Botton Rank
 
 function UIClimbTowerGameInfo:RefreshBottonRank(updateGameInfo)
-	local rankList = UIClimbTowerGameInfo:GetRankList(updateGameInfo)
-	local itemList = UIList:LoadWithInfo(UIClimbTowerGameInfo.BottonRankTrans, "UIBottonRankItem", rankList)
-	UIList:HadnlePlayerHeadIconAsync(itemList)
+	local rankList = nil
+	if IsPlayerChanged then
+		rankList = UIClimbTowerGameInfo:CreateRankList(updateGameInfo)
+		RankItemList = UIList:LoadWithInfo(UIClimbTowerGameInfo.BottonRankTrans, "UIBottonRankItem", rankList)
+		UIList:HadnlePlayerHeadIconAsync(RankItemList)
+		
+		IsPlayerChanged = false
+	else
+		UIClimbTowerGameInfo:UpdateRankList(updateGameInfo)
+		if #RankInfoList == #RankItemList then
+			for index = 1, #RankItemList  do
+				local info = RankInfoList[index]
+				local item = RankItemList[index]
+				ObjectInfo:SetInfoValue(item, "Progress", info.Progress)
+				UIInfo:SetInfo(item, info)
+			end
+		end
+	end
 
-	for _, item in ipairs(itemList) do
-		local progress = AttributeUtil:GetInfoValue(item, "Progress")
+	for index = 1, #RankItemList do
+		local item = RankItemList[index]
+		local progress = ObjectInfo:GetInfoValue(item, "Progress")
 		local bar = UIClimbTowerGameInfo.RankBar
 		UIClimbTowerGameInfo:UpdateRankPointer(bar, item, progress)
 	end
@@ -213,45 +242,50 @@ function UIClimbTowerGameInfo:UpdateRankPointer(progressBar, pointer, percent)
 	local pointerSize = pointer.AbsoluteSize
 	local targetAbsY = barAbsPos.Y + (barAbsSize.Y * percent) - (pointerSize.Y / 2)
 	local targetAbsX = barAbsPos.X + (barAbsSize.X / 2) - (pointerSize.X / 2) 
-	if pointer.Parent then
-		local parentAbsPos = pointer.Parent.AbsolutePosition
+	local parent = pointer.Parent
+	if parent then
+		local parentAbsPos = parent.AbsolutePosition
 		local relativeX = targetAbsX - parentAbsPos.X
 		local relativeY = targetAbsY - parentAbsPos.Y
 		pointer.Position = UDim2.new(0, relativeX, 0, relativeY)
 	end
 end
 
-function UIClimbTowerGameInfo:GetRankList(updateGameInfo)
-	local result = {}
-	local localPlayer = game.Players.LocalPlayer
-	local selfInfo = nil
+function UIClimbTowerGameInfo:UpdateRankList(updateGameInfo)
+	if #RankInfoList == #updateGameInfo then
+		for index = 1, #RankInfoList do
+			local rankInfo = RankInfoList[index]
+			local playerInfo = updateGameInfo[index]
+			rankInfo.Distance = playerInfo.Distance
+			rankInfo.Progress = 1 - playerInfo.Progress
+		end
+	else
+		IsPlayerChanged = true
+	end
+	
+	return RankInfoList
+end
 
+function UIClimbTowerGameInfo:CreateRankList(updateGameInfo)
+	table.clear(RankInfoList)
+	local localPlayer = game.Players.LocalPlayer
 	if not updateGameInfo then return end
 	for _, playerInfo in ipairs(updateGameInfo) do
 		local playerID = playerInfo.PlayerID
 		local player = PlayerManager:GetPlayerById(playerID)
-
 		if player then
 			local rankInfo = {
-				UserID = playerID,
+				UserID = playerInfo.PlayerID,
 				Distance = playerInfo.Distance,
 				Progress = 1 - playerInfo.Progress,
 				IsSelf = playerID == localPlayer.UserId,
 			}
 
-			if rankInfo.IsSelf then
-				selfInfo = rankInfo
-			else
-				table.insert(result, rankInfo)
-			end
+			RankInfoList[#RankInfoList + 1] = rankInfo
 		end
 	end
-
-	if selfInfo then
-		table.insert(result, selfInfo)
-	end
-
-	return result
+	
+	return RankInfoList
 end
 
 ------------------------------------------------------------------------------

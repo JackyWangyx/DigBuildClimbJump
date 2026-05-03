@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local UIListSelect = require(game.ReplicatedStorage.ScriptAlias.UIListSelect)
@@ -60,7 +60,7 @@ end
 
 function UITradeSelectTarget:Select(index)
 	local item = UITradeSelectTarget.ItemList[index]
-	local targetPlayerID = AttributeUtil:GetInfoValue(item, "UserID")
+	local targetPlayerID = ObjectInfo:GetInfoValue(item, "UserID")
 	NetClient:Request("Trade", "Invite", { TargetPlayerID = targetPlayerID }, function(trade)
 		if trade then
 			UIManager:ShowMessage(Define.Message.TradeInviteSend)

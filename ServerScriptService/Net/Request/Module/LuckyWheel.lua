@@ -57,6 +57,7 @@ function LuckyWheel:Buy(player, param)
 	end
 	
 	AnalyticsManager:EarnCurrency(player, AnalyticsManager.CurrencyType.LuckyWheel, value)
+	EventManager:DispatchToClient(player, EventManager.Define.RefreshLuckyWheel)
 	
 	return true
 end
@@ -99,6 +100,7 @@ function LuckyWheel:GetReward(player, param)
 	
 	AnalyticsManager:Event(player, AnalyticsManager.Define.LuckyWheel)
 	AnalyticsManager:SpendCurrency(player, AnalyticsManager.CurrencyType.LuckyWheel, 1)
+	EventManager:DispatchToClient(player, EventManager.Define.RefreshLuckyWheel)
 	
 	return true
 end

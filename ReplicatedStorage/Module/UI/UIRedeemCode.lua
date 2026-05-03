@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local UIListSelect = require(game.ReplicatedStorage.ScriptAlias.UIListSelect)
@@ -14,6 +14,7 @@ local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local TradeClient = require(game.ReplicatedStorage.ScriptAlias.TradeClient)
 local TimeManager = require(game.ReplicatedStorage.ScriptAlias.TimerManager)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -24,7 +25,7 @@ UIRedeemCode.TextInput = nil
 
 function UIRedeemCode:Init(root)
 	UIRedeemCode.UIRoot = root
-	UIRedeemCode.TextInput = Util:GetChildByName(UIRedeemCode.UIRoot, "TextInput_RedeemCode")
+	UIRedeemCode.TextInput = UIIndexManager:GetChildByName(UIRedeemCode.UIRoot, "TextInput_RedeemCode")
 	UIRedeemCode:ClearInput()
 end
 

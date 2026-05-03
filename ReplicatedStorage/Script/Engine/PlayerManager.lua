@@ -12,6 +12,8 @@ local Define = require(game.ReplicatedStorage.Define)
 
 local PlayerManager = {}
 
+local OnlinePlayerCache = {} -- 在线玩家缓存，用于快速查找
+
 local PlayerPrefs = nil
 local IsClient = nil
 local IsServer = nil
@@ -23,7 +25,15 @@ local HeadIconCache = {}
 function PlayerManager:Init()
 	IsClient = RunService:IsClient()
 	IsServer = not IsClient
+	
+	PlayerManager:HandlePlayerAddRemove(function(player)
+		OnlinePlayerCache[player.UserId] = player
+	end, function(player)
+		OnlinePlayerCache[player.UserId] = nil
+	end)
+	
 	if IsClient then
+		-- Client
 		local player = game.Players.LocalPlayer
 		while not player or not player.Character do
 			player = game.Players.LocalPlayer
@@ -38,11 +48,15 @@ function PlayerManager:Init()
 			
 		end)
 	else	
+		-- Server
 		game.Players.CharacterAutoLoads = true
 		PlayerPrefs = require(game.ServerScriptService.ScriptAlias.PlayerPrefs)
 		PlayerManager:HandlePlayerAddRemove(function(player)
 			AnalyticsManager:Event(player, AnalyticsManager.Define.PlayerLogin)
+			
+			-- 预缓存头像图标
 			PlayerManager:GetHeadIconAsync(player)
+			
 			--local policy = RobloxUtil:GetPlayerPolicy(player)
 			--print(policy)
 		end, function(player)
@@ -196,15 +210,12 @@ end
 
 function PlayerManager:GetPlayerById(playerId)
 	if not playerId then return nil end
-	if typeof(playerId) ~= "number" then
-		playerId = tonumber(playerId)
-	end
-	local player = game.Players:GetPlayerByUserId(playerId)
+	local player = OnlinePlayerCache[playerId]
 	return player
 end
 
 function PlayerManager:IsPlayerInServerById(playerId)
-	local player = PlayerManager:GetPlayerById(playerId)
+	local player = OnlinePlayerCache[playerId]
 	return player ~= nil
 end
 

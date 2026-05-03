@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local UIListSelect = require(game.ReplicatedStorage.ScriptAlias.UIListSelect)
@@ -10,6 +10,7 @@ local UIConfirm = require(game.ReplicatedStorage.ScriptAlias.UIConfirm)
 local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local AnimalUtil = require(game.ReplicatedStorage.ScriptAlias.AnimalUtil)
 
@@ -25,8 +26,8 @@ UIAnimalEquip.ItemList = nil
 
 function UIAnimalEquip:Init(root)
 	UIAnimalEquip.UIRoot = root
-	UIAnimalEquip.UIAnimalEquipFrame = Util:GetChildByName(root, "UIAnimalEquip")
-	UIAnimalEquip.ButtonToolStore = Util:GetChildByName(UIAnimalEquip.UIAnimalEquipFrame, "Button_ToolStore")
+	UIAnimalEquip.UIAnimalEquipFrame = UIIndexManager:GetChildByName(root, "UIAnimalEquip")
+	UIAnimalEquip.ButtonToolStore = UIIndexManager:GetChildByName(UIAnimalEquip.UIAnimalEquipFrame, "Button_ToolStore")
 	
 	EventManager:Listen(EventManager.Define.RefreshAnimal, function()
 		UIAnimalEquip:RefreshEquip()

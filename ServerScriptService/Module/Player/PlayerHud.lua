@@ -47,6 +47,10 @@ function PlayerHud:OnPlayerAdded(player, character)
 	info = {}
 	PlayerCache[player] = info
 	
+	-- 隐藏原有名称
+	local humanoid = PlayerManager:GetHumanoid(player)
+	humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+	
 	PlayerHud:CreateHud(player, character)
 	PlayerHud:RefreshInfo(player)
 end

@@ -5,12 +5,13 @@ local UIInfo = require(game.ReplicatedStorage.ScriptAlias.UIInfo)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 local UIConditionChecker = require(game.ReplicatedStorage.ScriptAlias.UIConditionChecker)
 local ConditionUtil = require(game.ReplicatedStorage.ScriptAlias.ConditionUtil)
 local TweenUtil = require(game.ReplicatedStorage.ScriptAlias.TweenUtil)
 local UIAccountInfo = require(game.ReplicatedStorage.ScriptAlias.UIAccountInfo)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local UIGamePassState = require(game.ReplicatedStorage.ScriptAlias.UIGamePassState)
 local UIPropStateList = require(game.ReplicatedStorage.ScriptAlias.UIPropStateList)
@@ -37,8 +38,7 @@ UIMain.UIGamePassFrame = nil
 function UIMain:Init(root)
 	UIMain.UIRoot = root
 
-	local childList = UIMain.UIRoot:GetDescendants()
-	UIMain.MainFrame = Util:GetChildByName(UIMain.UIRoot, "MainFrame", true, childList)
+	UIMain.MainFrame = UIIndexManager:GetChildByName(UIMain.UIRoot, "MainFrame")
 	
 	UIClimbTowerGameInfo:Init(root)
 	UIClimbTowerAutoPlay:Init(root)
@@ -46,12 +46,12 @@ function UIMain:Init(root)
 	--UIAnimalEquip:Init(root)
 	UIBuffInfo:Init(root)
 	
-	UIMain.UIPropBuffFrame = Util:GetChildByName(UIMain.UIRoot, "UIPropBuffFrame", true, childList)
+	UIMain.UIPropBuffFrame = UIIndexManager:GetChildByName(UIMain.UIRoot, "UIPropBuffFrame")
 	UIPropStateList:Init(UIMain.UIPropBuffFrame)
-	UIMain.UIGamePassFrame = Util:GetChildByName(UIMain.UIRoot, "UIGamePassFrame", true, childList)
+	UIMain.UIGamePassFrame = UIIndexManager:GetChildByName(UIMain.UIRoot, "UIGamePassFrame")
 	UIGamePassState:Init(UIMain.UIGamePassFrame)
 	
-	UIMain.TradeConditon = Util:GetChildByName(UIMain.UIRoot, "ConditionChecker_TradeUnlock", true, childList)
+	UIMain.TradeConditon = UIIndexManager:GetChildByName(UIMain.UIRoot, "ConditionChecker_TradeUnlock")
 	if UIMain.TradeConditon then
 		UIConditionChecker:Handle(UIMain.TradeConditon, UIConditionChecker.Define.TradeUnlock, nil, nil, EventManager.Define.RefreshRebirth)
 	end
@@ -129,6 +129,10 @@ end
 
 function UIMain:Button_ToolStore()
 	UIManager:ShowAndHideOther("ToolStore")
+end
+
+function UIMain:Button_PropPack()
+	UIManager:ShowAndHideOther("PropPack")
 end
 
 function UIMain:Button_DailyReward()

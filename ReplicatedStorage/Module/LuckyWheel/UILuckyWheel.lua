@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local UIListSelect = require(game.ReplicatedStorage.ScriptAlias.UIListSelect)
@@ -14,6 +14,7 @@ local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 local RewardUtil = require(game.ReplicatedStorage.ScriptAlias.RewardUtil)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -28,8 +29,7 @@ UILuckyWheel.IsWorking = false
 function UILuckyWheel:Init(root)
 	UILuckyWheel.UIRoot = root
 
-	local childList= UILuckyWheel.UIRoot:GetDescendants()
-	UILuckyWheel.ScrollingFrame = Util:GetChildByName(root, "ScrollingFrame", true, childList)
+	UILuckyWheel.ScrollingFrame = UIIndexManager:GetChildByName(root, "ScrollingFrame", true)
 end
 
 function UILuckyWheel:OnShow(param)
@@ -60,21 +60,18 @@ end
 function UILuckyWheel:Button_Spin1()
 	IAPClient:Purchase("LuckyWheelX1", function(result)
 		UILuckyWheel:Refresh()
-		EventManager:Dispatch(EventManager.Define.RefreshLuckyWheel)
 	end)
 end
 
 function UILuckyWheel:Button_Spin10()
 	IAPClient:Purchase("LuckyWheelX10", function(result)
 		UILuckyWheel:Refresh()
-		EventManager:Dispatch(EventManager.Define.RefreshLuckyWheel)
 	end)
 end
 
 function UILuckyWheel:Button_Spin100()
 	IAPClient:Purchase("LuckyWheelX100", function(result)
 		UILuckyWheel:Refresh()
-		EventManager:Dispatch(EventManager.Define.RefreshLuckyWheel)
 	end)
 end
 
@@ -95,8 +92,8 @@ function UILuckyWheel:Spin()
 						local data = result.RewardData
 						UIManager:ShowMessageWithIcon(data.Icon, "Got "..data.Description)
 						UILuckyWheel:Refresh()
-						EventManager:Dispatch(EventManager.Define.RefreshLuckyWheel)
 					end
+					
 					UILuckyWheel.IsWorking = false
 				end)	
 			end)

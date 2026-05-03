@@ -88,6 +88,7 @@ function Prop:Buy(player, param)
 	end
 	
 	AnalyticsManager:Event(player, AnalyticsManager.Define.BuyProp, id, count)
+	EventManager:DispatchToClient(player, EventManager.Define.RefreshProp)
 	
 	return true
 end
@@ -156,6 +157,8 @@ function Prop:Use(player, param)
 		
 		AnalyticsManager:Event(player, AnalyticsManager.Define.UseProp, id, 1)
 		EventManager:Dispatch(EventManager.Define.RefreshPlayerProperty, player)
+		EventManager:DispatchToClient(player, EventManager.Define.RefreshProp)
+		
 		return {
 			Success = true,
 			Message = "Add Duration"
@@ -173,6 +176,8 @@ function Prop:Use(player, param)
 		
 		AnalyticsManager:Event(player, AnalyticsManager.Define.UseProp, id, 1)
 		EventManager:Dispatch(EventManager.Define.RefreshPlayerProperty, player)
+		EventManager:DispatchToClient(player, EventManager.Define.RefreshProp)
+		
 		return {
 			Success = true,
 			Message = "Use New",

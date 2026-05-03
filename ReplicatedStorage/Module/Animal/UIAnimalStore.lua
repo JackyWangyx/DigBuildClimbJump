@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local UIListSelect = require(game.ReplicatedStorage.ScriptAlias.UIListSelect)
@@ -13,6 +13,7 @@ local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local ActivityUtil = require(game.ReplicatedStorage.ScriptAlias.ActivityUtil)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local UIAnimalStore = {}
 
@@ -24,7 +25,7 @@ UIAnimalStore.SelectIndex = 1
 
 function UIAnimalStore:Init(root)
 	UIAnimalStore.UIRoot = root
-	UIAnimalStore.InfoPart = Util:GetChildByName(UIAnimalStore.UIRoot, "InfoLab")
+	UIAnimalStore.InfoPart = UIIndexManager:GetChildByName(UIAnimalStore.UIRoot, "InfoLab")
 end
 
 function UIAnimalStore:OnShow(param)
@@ -71,16 +72,16 @@ function UIAnimalStore:SelectItem(index)
 	if index > #UIAnimalStore.ItemList then index = #UIAnimalStore.ItemList end
 	UIAnimalStore.SelectIndex = index
 	local item = UIAnimalStore.ItemList[index]
-	local data = AttributeUtil:GetData(item)
+	local data = ObjectInfo:GetData(item)
 	UIInfo:SetInfo(UIAnimalStore.InfoPart, data)
-	local info = AttributeUtil:GetInfo(item)
+	local info = ObjectInfo:GetInfo(item)
 	UIInfo:SetInfo(UIAnimalStore.InfoPart, info)
 end
 
 function UIAnimalStore:Button_Equip()
 	if not UIAnimalStore.ItemList or #UIAnimalStore.ItemList == 0 then return end
 	local selectItem = UIAnimalStore.ItemList[UIAnimalStore.SelectIndex]
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
 	NetClient:Request("Animal", "Equip", {ID = id}, function()
 		UIAnimalStore:Refresh()
 	end)
@@ -89,7 +90,7 @@ end
 function UIAnimalStore:Button_UnEquip()
 	if not UIAnimalStore.ItemList or #UIAnimalStore.ItemList == 0 then return end
 	local selectItem = UIAnimalStore.ItemList[UIAnimalStore.SelectIndex]
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
 	NetClient:Request("Animal", "UnEquip", function()
 		UIAnimalStore:Refresh()
 	end)
@@ -98,8 +99,8 @@ end
 function UIAnimalStore:Button_Buy()
 	if not UIAnimalStore.ItemList or #UIAnimalStore.ItemList == 0 then return end
 	local selectItem = UIAnimalStore.ItemList[UIAnimalStore.SelectIndex]
-	local data = AttributeUtil:GetInfo(selectItem)
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
+	local data = ObjectInfo:GetInfo(selectItem)
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
 	NetClient:Request("Animal", "Buy", {ID = id}, function(result)
 		if result.Success then
 			UIManager:ShowMessageWithIcon(data.Icon, "Got "..data.Name.." X1")
@@ -112,9 +113,9 @@ end
 function UIAnimalStore:Button_BuyRobux()
 	if not UIAnimalStore.ItemList or #UIAnimalStore.ItemList == 0 then return end
 	local selectItem = UIAnimalStore.ItemList[UIAnimalStore.SelectIndex]
-	local data = AttributeUtil:GetInfo(selectItem)
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
-	local productKey = AttributeUtil:GetInfoValue(selectItem, "ProductKey")
+	local data = ObjectInfo:GetInfo(selectItem)
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
+	local productKey = ObjectInfo:GetInfoValue(selectItem, "ProductKey")
 	IAPClient:Purchase(productKey, function(success)
 		if success then
 			UIManager:ShowMessageWithIcon(data.Icon, "Got "..data.Name.." X1")
@@ -125,7 +126,7 @@ end
 function UIAnimalStore:Button_Activity()
 	if not UIAnimalStore.ItemList or #UIAnimalStore.ItemList == 0 then return end
 	local selectItem = UIAnimalStore.ItemList[UIAnimalStore.SelectIndex]
-	local info = AttributeUtil:GetInfo(selectItem)
+	local info = ObjectInfo:GetInfo(selectItem)
 	local activityKey = info.ActivityKey
 	if activityKey then
 		UIManager:ShowAndHideOther("UISignActivity", {

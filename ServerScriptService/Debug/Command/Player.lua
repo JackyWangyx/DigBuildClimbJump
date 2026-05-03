@@ -37,4 +37,9 @@ function Player:AddAcceleration(player)
 	PlayerProperty:SetPlayerPropertyValue(player, PlayerProperty.Define.ACCELERATION, value)
 end
 
+function Player:Donate5(player)
+	local donateRank = require(game.ServerScriptService.ScriptAlias.DonateRank)
+	donateRank:Donate(player, 1)
+end
+
 return Player

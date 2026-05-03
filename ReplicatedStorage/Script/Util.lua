@@ -9,6 +9,31 @@ local TweenService = game:GetService("TweenService")
 
 local Util = {}
 
+local table_insert = table.insert
+local table_remove = table.remove
+local table_clone = table.clone
+local table_sort = table.sort
+local table_clear = table.clear
+local math_min = math.min
+local math_max = math.max
+local math_random = math.random
+local math_floor = math.floor
+local math_ceil = math.ceil
+local math_abs = math.abs
+local math_pow = math.pow
+local math_sqrt = math.sqrt
+local math_round = math.round
+local math_rad = math.rad
+local math_deg = math.deg
+local string_sub = string.sub
+local string_match = string.match
+local string_format = string.format
+local string_gmatch = string.gmatch
+local string_find = string.find
+local Vector3_new = Vector3.new
+local Vector2_new = Vector2.new
+local CFrame_new = CFrame.new
+
 ------------------------------------------------------------------------------------
 -- Valid
 
@@ -32,9 +57,9 @@ function Util:HandleError(err)
 	for line in trace:gmatch("[^\n]+") do
 		local scriptName, lineNum = line:match("([^:]+):(%d+)") 
 		if scriptName and lineNum then
-			table.insert(formattedTrace,  "Script '" .. scriptName .. "': Line " .. lineNum)
+			table_insert(formattedTrace,  "Script '" .. scriptName .. "': Line " .. lineNum)
 		else
-			table.insert(formattedTrace, line) -- 其他非代码定位行也保留
+			table_insert(formattedTrace, line) -- 其他非代码定位行也保留
 		end
 	end
 
@@ -50,33 +75,9 @@ function Util:Test(name, func)
 	local startTime = tick()
 	func()
 	local endTime = tick()
-	local time = math.round((endTime - startTime) * 1000)
+	local time = math_round((endTime - startTime) * 1000)
 	print("[🛠️ Test] "..name.." : "..time.." ms")
 end
-
--- Roblox Update
-
---function Util:Update(func)
---	if not func then return nil end
---	local connection = RunService.Heartbeat:Connect(function(deltaTime)
---		func(deltaTime)
---	end)
---	return connection
---end
-
---function Util:UpdateInterval(func, interval)
---	if not func then return nil end
---	if not interval then interval = 1 end
---	local timer = 0
---	local connection = RunService.Heartbeat:Connect(function(deltaTime)
---		timer += deltaTime
---		while timer > interval do
---			func(deltaTime)
---			timer -= interval
---		end
---	end)
---	return connection
---end
 
 -- Roblox Part
 
@@ -158,7 +159,7 @@ function Util:GetParentByName(part, name)
 	return nil
 end
 
-function Util:GetChildByType(part, typeName, isRecursive, cacheChildList)
+function Util:GetChildByType(part, typeName, isRecursive)
 	isRecursive = isRecursive == nil or isRecursive
 	local result = nil
 	Util:ForEachChild(part, function(child)
@@ -166,23 +167,23 @@ function Util:GetChildByType(part, typeName, isRecursive, cacheChildList)
 			result = child
 			return true
 		end
-	end, isRecursive, true, cacheChildList)
+	end, isRecursive, true)
 	return result
 end
 
-function Util:GetAllChildByType(part, typeName, isRecursive, cacheChildList)
+function Util:GetAllChildByType(part, typeName, isRecursive)
 	isRecursive = isRecursive == nil or isRecursive
 	local result = {}
 	Util:ForEachChild(part, function(child)
 		if child:IsA(typeName) then
-			table.insert(result, child)
+			table_insert(result, child)
 		end
-	end, isRecursive, false, cacheChildList)
+	end, isRecursive, false)
 	
 	return result
 end
 
-function Util:GetChildByTypeAndName(part, typeName, name, isRecursive, cacheChildList)
+function Util:GetChildByTypeAndName(part, typeName, name, isRecursive)
 	isRecursive = isRecursive == nil or isRecursive
 	local result = nil
 	Util:ForEachChild(part, function(child)
@@ -190,76 +191,85 @@ function Util:GetChildByTypeAndName(part, typeName, name, isRecursive, cacheChil
 			result = child
 			return true
 		end
-	end, isRecursive, true, cacheChildList)
+	end, isRecursive, true)
 	return result
 end
 
-function Util:GetAllChildByTypeAndName(part, typeName, name, isRecursive, cacheChildList)
+function Util:GetAllChildByTypeAndName(part, typeName, name, isRecursive)
 	local result = {}
 	Util:ForEachChild(part, function(child)
 		if child:IsA(typeName) and child.Name == name then
-			table.insert(result, child)
+			table_insert(result, child)
 		end
-	end, isRecursive, true, cacheChildList)
+	end, isRecursive, true)
 	return result
 end
 
-function Util:GetChildByName(part, name, isRecursive, cacheChildList)
+function Util:GetChildByName(part, name, isRecursive)
 	local result = nil
 	Util:ForEachChild(part, function(child)
 		if child.Name == name then
 			result = child
 			return true
 		end
-	end, isRecursive, true, cacheChildList)
+	end, isRecursive, true)
 	return result
 end
 
-function Util:GetAllChildByName(part, name, isRecursive, cacheChildList)
+function Util:GetAllChildByName(part, name, isRecursive)
 	isRecursive = isRecursive == nil or isRecursive
 	local result ={}
 	Util:ForEachChild(part, function(child)
 		if child.Name == name then
-			table.insert(result, child)
+			table_insert(result, child)
 		end
-	end, isRecursive, true, cacheChildList)
+	end, isRecursive, true)
 	return result
 end
 
-function Util:GetChildByNameFuzzy(part, name, isRecursive, cacheChildList)
+function Util:GetChildByNameFuzzy(part, name, isRecursive)
 	local result = nil
 	Util:ForEachChild(part, function(child)
-		if string.find(child.Name, name) then
+		if string_find(child.Name, name) then
 			result = child
 			return true
 		end
-	end, isRecursive, true, cacheChildList)
+	end, isRecursive, true)
 	return result
 end
 
-function Util:GetAllChildByNameFuzzy(part, name, isRecursive, cacheChildList)
+function Util:GetAllChildByNameFuzzy(part, name, isRecursive)
 	local result = {}
 	Util:ForEachChild(part, function(child)
-		if string.find(child.Name, name) then
-			table.insert(result, child)
+		if string_find(child.Name, name) then
+			table_insert(result, child)
 		end
-	end, isRecursive, false, cacheChildList)
+	end, isRecursive, false)
 	return result
 end
 
-function Util:ForEachChild(root, func, isRecursive, onlyFirst, cacheChildList)
+function Util:ForEachChild(root, func, isRecursive, onlyFirst)
 	if not root then return end
-	
-	isRecursive = isRecursive ~= false -- 默认true	
-	local childList = cacheChildList or (isRecursive and root:GetDescendants() or root:GetChildren())
-	
-	for _, child in ipairs(childList) do
-		if not child then continue end
-		local result = func(child)
-		if onlyFirst and result then 
-			return 
+
+	isRecursive = isRecursive ~= false
+	local function traverse(node)
+		local childList = node:GetChildren()
+		for index = 1, #childList do
+			local child = childList[index]
+			local result = func(child)
+			if onlyFirst and result then
+				return true
+			end
+
+			if isRecursive then
+				if traverse(child) then
+					return true
+				end
+			end
 		end
 	end
+
+	traverse(root)
 end
 
 function Util:DestroyAllChild(part)
@@ -272,30 +282,37 @@ end
 -- Part
 
 function Util:HandleWorkspaceState(instance, onAdded, onRemoved)
+	if not instance then return end
+
 	local inWorkspace = instance:IsDescendantOf(workspace)
+
 	if inWorkspace then
-		onAdded()
+		if onAdded then onAdded(instance) end
 	else
-		onRemoved()
+		if onRemoved then onRemoved(instance) end
 	end
 
-	instance.AncestryChanged:Connect(function()
-		local nowInWorkspace = instance:IsDescendantOf(workspace)
-		-- 从 Workspace 被移出
-		if inWorkspace and not nowInWorkspace then
-			inWorkspace = false
-			if onRemoved then
-				onRemoved(instance)
-			end
+	local connection
+	connection = instance.AncestryChanged:Connect(function()
+		if not instance.Parent then
+			connection:Disconnect()
+			return
+		end
 
-			-- 被重新放回 Workspace
-		elseif not inWorkspace and nowInWorkspace then
-			inWorkspace = true
-			if onAdded then
-				onAdded(instance)
+		local nowInWorkspace = instance:IsDescendantOf(workspace)
+
+		if inWorkspace ~= nowInWorkspace then
+			inWorkspace = nowInWorkspace
+
+			if nowInWorkspace then
+				if onAdded then onAdded(instance) end
+			else
+				if onRemoved then onRemoved(instance) end
 			end
 		end
 	end)
+
+	return connection
 end
 
 ------------------------------------------------------------------------------------
@@ -311,7 +328,7 @@ end
 
 function Util:RoundFloat(num, decimals)
 	local factor = 10 ^ decimals
-	return math.floor(num * factor + 0.5) / factor
+	return math_floor(num * factor + 0.5) / factor
 	--return tonumber(string.format("%." .. decimals .. "f", num))
 end
 
@@ -319,7 +336,7 @@ end
 -- Vector3
 
 function Util:RoundVector3(vec, decimals)
-	return Vector3.new(
+	return Vector3_new(
 		Util:RoundFloat(vec.X, decimals),
 		Util:RoundFloat(vec.Y, decimals),
 		Util:RoundFloat(vec.Z, decimals)
@@ -327,7 +344,7 @@ function Util:RoundVector3(vec, decimals)
 end
 
 function Util:Vector3Multiply(vector1, vector2)
-	return Vector3.new(vector1.X * vector2.X, vector1.Y * vector2.Y, vector1.Z * vector2.Z)
+	return Vector3_new(vector1.X * vector2.X, vector1.Y * vector2.Y, vector1.Z * vector2.Z)
 end
 
 ------------------------------------------------------------------------------------
@@ -341,9 +358,11 @@ function Util:IsStrEmpty(str)
 end
 
 function Util:IsValidAssetID(str)
-	local c1 = string.match(str, "^rbxassetid://%d+$") ~= nil
-	local c2 = string.match(str, "^rbxthumb://type=%w+&id=%d+&w=%d+&h=%d+$") ~= nil
-	return c1 or c2
+	local c1 = string_sub(str, 1, 13) == "rbxassetid://"
+	if c1 then return true end
+	local c2 = string_sub(str, 1, 11) == "rbxthumb://"
+	if c2 then return true end
+	return false
 end
 
 function Util:IsStrStartWith(str, startValue)
@@ -367,7 +386,7 @@ function Util:IsStrEndWith(str, endValue)
 end
 
 function Util:FormatProbability(probability)
-	local result = string.format("%.3f", probability * 100)
+	local result = string_format("%.3f", probability * 100)
 	result = result:gsub("0+$", "") -- 去掉末尾的零
 	result = result:gsub("%.$", "") -- 小数点后面没数字则去掉小数点
 	result = result.."%"
@@ -383,10 +402,11 @@ function Util:IsListEmpty(target)
 	return false
 end
 
-function Util:ListContainsWithCondition(array, checker)
+function Util:ListContainsWithCondition(array, condition)
 	if not array then return false end
-	for _, item in ipairs(array) do
-		if checker(item) then
+	for index = 1, #array do
+		local item = array[index]
+		if condition(item) then
 			return true
 		end
 	end
@@ -395,7 +415,8 @@ end
 
 function Util:ListContains(array, value)
 	if not array then return false end
-	for _, item in ipairs(array) do
+	for index = 1, #array do
+		local item = array[index]
 		if item == value then
 			return true
 		end
@@ -406,7 +427,8 @@ end
 function Util:ListSum(array, valueGetter)
 	if not array then return 0 end
 	local count = 0
-	for _, item in ipairs(array) do
+	for index = 1, #array do
+		local item = array[index]
 		count = count + valueGetter(item)
 	end
 	return count
@@ -416,7 +438,8 @@ function Util:ListCount(array, condition)
 	if not array then return 0 end
 	if not condition then return #array end
 	local count = 0
-	for _, item in ipairs(array) do
+	for index = 1, #array do
+		local item = array[index]
 		if condition(item) then
 			count += 1
 		end
@@ -424,13 +447,13 @@ function Util:ListCount(array, condition)
 	return count
 end
 
-function Util:ListRemoveWithCondition(array, checker)
+function Util:ListRemoveWithCondition(array, condition)
 	if not array then return false end
 	local result = false
 	for i = #array, 1, -1 do
 		local item = array[i]
-		if checker(item) then
-			table.remove(array, i)
+		if condition(item) then
+			table_remove(array, i)
 			result = true
 		end
 	end
@@ -440,50 +463,70 @@ end
 
 function Util:ListRemove(array, value)
 	if not array then return false end
-	local result = false
-	for i = #array, 1, -1 do
-		if array[i] == value then
-			table.remove(array, i)
-			result = true
+
+	local count = 0
+	for index = 1, #array do
+		local item = array[index]
+		if item == value then
+			count += 1
 		end
 	end
-	
-	return result
+
+	-- 少量删除 → 用 remove
+	if count <= 2 then
+		local removed = false
+		for i = #array, 1, -1 do
+			if array[i] == value then
+				table_remove(array, i)
+				removed = true
+			end
+		end
+		return removed
+	end
+
+	-- 大量删除 → rebuild
+	local new = {}
+	local removed = false
+
+	for index = 1, #array do
+		local item = array[index]
+		if item ~= value then
+			new[#new + 1] = item
+		else
+			removed = true
+		end
+	end
+
+	table_clear(array)
+	for i = 1, #new do
+		array[i] = new[i]
+	end
+
+	return removed
 end
 
 function Util:ListRandom(array, count)
 	count = count or 1
-	local results = {}
+	if not array or #array == 0 then return nil end
 
-	-- 保护：空表直接返回空结果
-	if not array or #array == 0 then
-		return nil
+	local pool = table_clone(array)
+
+	-- Fisher-Yates 洗牌
+	for i = #pool, 2, -1 do
+		local j = math_random(i)
+		pool[i], pool[j] = pool[j], pool[i]
 	end
 
-	-- 创建副本，避免修改原表
-	local pool = table.clone(array)
-
-	-- 如果 count >= 长度，直接返回打乱的副本
-	if count >= #pool then
-		for i = #pool, 2, -1 do
-			local j = math.random(i)
-			pool[i], pool[j] = pool[j], pool[i]
-		end
-		return pool
-	end
-
-	for n = 1, count do
-		local idx = math.random(#pool)
-		table.insert(results, pool[idx])
-		table.remove(pool, idx)
-	end
-
-	-- 返回结果
 	if count == 1 then
-		return results[1]
-	else
-		return results
+		return pool[1]
 	end
+
+	local result = {}
+	for i = 1, math_min(count, #pool) do
+		result[i] = pool[i]
+	end
+
+	return result
 end
 
 -- 排序
@@ -496,17 +539,17 @@ end
 function Util:ListSort(array, compareItemGetters)
 	if not array then return array end
 	local comparors = Util:CreateSortComparers(compareItemGetters)
-	table.sort(array, comparors)
+	table_sort(array, comparors)
 	return array
 end
 
 function Util:ListSortByPartName(partList)
-	table.sort(partList, function(a, b)
+	table_sort(partList, function(a, b)
 		local function split(str)
 			local segments = {}
-			for text, number in string.gmatch(str, "([%a_]*)(%d*)") do
-				if text ~= "" then table.insert(segments, text) end
-				if number ~= "" then table.insert(segments, tonumber(number)) end
+			for text, number in string_gmatch(str, "([%a_]*)(%d*)") do
+				if text ~= "" then table_insert(segments, text) end
+				if number ~= "" then table_insert(segments, tonumber(number)) end
 			end
 			return segments
 		end
@@ -514,23 +557,25 @@ function Util:ListSortByPartName(partList)
 		local aParts = split(a.Name)
 		local bParts = split(b.Name)
 
-		for i = 1, math.max(#aParts, #bParts) do
+		for i = 1, math_max(#aParts, #bParts) do
 			local aVal = aParts[i]
 			local bVal = bParts[i]
 
 			if aVal == nil then return true end
 			if bVal == nil then return false end
 
-			if type(aVal) == "string" and type(bVal) == "string" then
+			local typeNameA = type(aVal)
+			local typeNameB = type(bVal)
+			if typeNameA == "string" and typeNameB == "string" then
 				if aVal ~= bVal then
 					return aVal < bVal
 				end
-			elseif type(aVal) == "number" and type(bVal) == "number" then
+			elseif typeNameA == "number" and typeNameB == "number" then
 				if aVal ~= bVal then
 					return aVal < bVal
 				end
-			elseif type(aVal) ~= type(bVal) then
-				return type(aVal) == "string"
+			elseif typeNameA ~= type(bVal) then
+				return typeNameA == "string"
 			end
 		end
 
@@ -542,7 +587,8 @@ end
 
 function Util:CreateSortComparers(comparers)
 	return function(a, b)
-		for _, comparer in ipairs(comparers) do
+		for index = 1, #comparers do
+			local comparer = comparers[index]
 			local val_a = comparer(a)
 			local val_b = comparer(b)
 			if val_a < val_b then
@@ -558,11 +604,11 @@ end
 
 function Util:ListFind(array, condition)
 	if not array then return nil end
-	for _, item in ipairs(array) do
-		if condition then
-			if condition(item) then
-				return item
-			end
+	if not condition then return nil end
+	for index = 1, #array do
+		local item = array[index]
+		if condition(item) then
+			return item
 		end
 	end
 	return nil
@@ -571,13 +617,11 @@ end
 function Util:ListFindAll(array, condition)
 	local result = {}
 	if not array then return result end
-	for _, item in ipairs(array) do
-		if condition then
-			if condition(item) then
-				table.insert(result, item)
-			end
-		else
-			table.insert(result, item)
+	if not condition then return result end
+	for index = 1, #array do
+		local item = array[index]
+		if condition(item) then
+			table_insert(result, item)
 		end
 	end
 	return result
@@ -586,14 +630,14 @@ end
 function Util:ListFindMany(array, count, condition)
 	local result = {}
 	if not array then return result end
-	for _, item in ipairs(array) do
-		if condition then
-			if condition(item) then
-				table.insert(result, item)
-			end
+	for index = 1, #array do
+		local item = array[index]
+		if condition and condition(item) then
+			table_insert(result, item)
 		else
-			table.insert(result, item)
+			table_insert(result, item)
 		end
+		
 		if #result >= count then
 			break
 		end
@@ -604,9 +648,10 @@ end
 function Util:ListSelect(array, selector)
 	local result = {}
 	if not array then return result end
-	for _, item in ipairs(array) do
+	for index = 1, #array do
+		local item = array[index]
 		local selectItem = selector(item)
-		table.insert(result, selectItem)
+		table_insert(result, selectItem)
 	end
 	return result
 end
@@ -614,7 +659,8 @@ end
 function Util:ListMax(array, selector)
   	local max = -999999999999999
 	local findItem = nil
-	for _, item in ipairs(array) do
+	for index = 1, #array do
+		local item = array[index]
 		local selectItem = selector(item)
 		if selectItem > max then
 			max = selectItem
@@ -628,7 +674,8 @@ end
 function Util:ListMin(array, selector)
 	local min = 999999999999999
 	local findItem = nil
-	for _, item in ipairs(array) do
+	for index = 1, #array do
+		local item = array[index]
 		local selectItem = selector(item)
 		if selectItem < min then
 			min = selectItem
@@ -642,9 +689,10 @@ end
 function Util:ListSelectStart(array, count)
 	local result = {}
 	local counter = 0
-	for key, value in ipairs(array) do
+	for index = 1, #array do
+		local item = array[index]
 		if counter < count then
-			result[key] = value
+			result[index] = item
 			counter = counter + 1
 		else
 			break
@@ -653,9 +701,10 @@ function Util:ListSelectStart(array, count)
 	return result
 end
 
-function Util:ListIndexOf(array, item)
-	for index, data in ipairs(array) do
-		if data == item then
+function Util:ListIndexOf(array, value)
+	for index = 1, #array do
+		local item = array[index]
+		if item == value then
 			return index
 		end
 	end
@@ -669,51 +718,37 @@ end
 
 function Util:ListRandomWeight(weightList, count)
 	count = count or 1
-	local results = {}
+	if not weightList or #weightList == 0 then return nil end
 
-	-- 创建副本，避免修改原表
-	local pool = table.clone(weightList)
+	local prefix = {}
+	local total = 0
 
-	-- 保护：如果 count >= 列表长度，直接返回打乱的整个副本
-	if count >= #pool then
-		for i = #pool, 2, -1 do
-			local j = math.random(i)
-			pool[i], pool[j] = pool[j], pool[i]
-		end
-		return pool
+	for index = 1, #weightList do
+		local item = weightList[index]
+		total += item.Weight
+		prefix[index] = total
 	end
 
-	for n = 1, count do
-		local totalWeight = 0
-		for _, item in ipairs(pool) do
-			totalWeight = totalWeight + item.Weight
-		end
-
-		local randValue = math.random() * totalWeight
-		local cumulativeWeight = 0
-		local chosenIndex = nil
-
-		for i, item in ipairs(pool) do
-			cumulativeWeight = cumulativeWeight + item.Weight
-			if randValue <= cumulativeWeight then
-				chosenIndex = i
-				table.insert(results, item)
-				break
+	local function pickOne()
+		local r = math_random() * total
+		for index = 1, #prefix do
+			local value = prefix[index]
+			if r <= value then
+				return weightList[index]
 			end
 		end
-
-		-- 从副本中移除，保证不重复
-		if chosenIndex then
-			table.remove(pool, chosenIndex)
-		end
 	end
 
-	-- 如果 count = 1，返回单个元素；否则返回列表
 	if count == 1 then
-		return results[1]
-	else
-		return results
+		return pickOne()
 	end
+
+	local result = {}
+	for i = 1, count do
+		result[i] = pickOne()
+	end
+
+	return result
 end
 
 ------------------------------------------------------------------------------------
@@ -769,10 +804,10 @@ function Util:TableFindAll(luaTable, condition)
 	for _, item in pairs(luaTable) do
 		if condition then
 			if condition(item) then
-				table.insert(result, item)
+				table_insert(result, item)
 			end
 		else
-			table.insert(result, item)
+			table_insert(result, item)
 		end
 	end
 	return result
@@ -784,10 +819,10 @@ function Util:TableFindMany(luaTable, count, condition)
 	for _, item in pairs(luaTable) do
 		if condition then
 			if condition(item) then
-				table.insert(result, item)
+				table_insert(result, item)
 			end
 		else
-			table.insert(result, item)
+			table_insert(result, item)
 		end
 		if #result >= count then
 			break
@@ -801,7 +836,7 @@ function Util:TableSelect(luaTable, selector)
 	if not luaTable then return result end
 	for _, item in pairs(luaTable) do
 		local selectItem = selector(item)
-		table.insert(result, selectItem)
+		table_insert(result, selectItem)
 	end
 	return result
 end
@@ -868,10 +903,10 @@ function Util:TableRandom(luaTable)
 	if not luaTable then return nil end
 	local keys = {}
 	for k in pairs(luaTable) do
-		table.insert(keys, k)
+		table_insert(keys, k)
 	end
 	if #keys == 0 then return nil end
-	local randomKey = keys[math.random(#keys)]
+	local randomKey = keys[math_random(#keys)]
 	return luaTable[randomKey], randomKey
 end
 
@@ -887,12 +922,12 @@ end
 
 function Util:ColorToHtml(color)
 	-- RGB
-	local r = math.floor(color.R * 255 + 0.5)
-	local g = math.floor(color.G * 255 + 0.5)
-	local b = math.floor(color.B * 255 + 0.5)
+	local r = math_floor(color.R * 255 + 0.5)
+	local g = math_floor(color.G * 255 + 0.5)
+	local b = math_floor(color.B * 255 + 0.5)
 
 	-- #RRGGBB
-	return string.format("#%02X%02X%02X", r, g, b)
+	return string_format("#%02X%02X%02X", r, g, b)
 end
 
 function Util:ToColorText(str, color)
@@ -907,7 +942,7 @@ end
 function Util:SetPosition(object, position)
 	if object:IsA("Model") then
 		local pivot = object:GetPivot()
-		local newCFrame = CFrame.new(position) * CFrame.Angles(pivot:ToEulerAnglesXYZ())
+		local newCFrame = CFrame_new(position) * CFrame.Angles(pivot:ToEulerAnglesXYZ())
 		object:PivotTo(newCFrame)
 	else
 		object.Position = position
@@ -923,7 +958,7 @@ function Util:GetPosition(object, position)
 end
 
 function Util:SetScaleValue(object, scaleValue)
-	Util:SetScale(object, Vector3.new(scaleValue, scaleValue, scaleValue))
+	Util:SetScale(object, Vector3_new(scaleValue, scaleValue, scaleValue))
 end
 
 function Util:GetScaleValue(object, scaleValue)
@@ -952,21 +987,21 @@ end
 function Util:SetRotation(object, rotation)
 	if object:IsA("Model") then
 		local pivot = object:GetPivot()
-		local newCFrame = CFrame.new(pivot.Position) * CFrame.Angles(
-			math.rad(rotation.X),
-			math.rad(rotation.Y),
-			math.rad(rotation.Z)
+		local newCFrame = CFrame_new(pivot.Position) * CFrame.Angles(
+			math_rad(rotation.X),
+			math_rad(rotation.Y),
+			math_rad(rotation.Z)
 		)
 		object:PivotTo(newCFrame)
 	else
-		object.Orientation = Vector3.new(rotation.X, rotation.Y, rotation.Z)
+		object.Orientation = Vector3_new(rotation.X, rotation.Y, rotation.Z)
 	end
 end
 
 function Util:GetRotation(object)
 	if object:IsA("Model") then
 		local rx, ry, rz = object:GetPivot():ToOrientation()
-		return Vector3.new(math.deg(rx), math.deg(ry), math.deg(rz))
+		return Vector3_new(math_deg(rx), math_deg(ry), math_deg(rz))
 	else
 		return object.Orientation
 	end
@@ -986,7 +1021,7 @@ end
 -- CFrame
 
 function Util:CFrameFromAngles360(rotation)
-	return CFrame.fromEulerAnglesXYZ(math.rad(rotation.x), math.rad(rotation.y), math.rad(rotation.z))
+	return CFrame.fromEulerAnglesXYZ(math_rad(rotation.x), math_rad(rotation.y), math_rad(rotation.z))
 end
 
 ------------------------------------------------------------------------------------
@@ -1059,7 +1094,7 @@ function Util:SpawnFxEmit(fxPrefab, pos, rate, destroyTime)
 	local sceneMnaager = require(game.ReplicatedStorage.ScriptAlias.SceneManager)
 	fx.Parent = sceneMnaager.LevelRoot.Game.Fx
 	local particleEmitters = Util:GetAllChildByType(fx, "ParticleEmitter")
-	for _, particleEmitter in pairs(particleEmitters) do
+	for _, particleEmitter in ipairs(particleEmitters) do
 		particleEmitter:Emit(rate)
 	end
 	

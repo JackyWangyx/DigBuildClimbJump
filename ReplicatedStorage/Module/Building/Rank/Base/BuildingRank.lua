@@ -31,6 +31,13 @@ end
 
 function BuildingRank:Refresh(buildingPart, rankKey, onRankList)
 	NetClient:Request("Rank", "GetRankList", { RankKey = rankKey }, function(rankList)
+		if not rankList then
+			task.delay(10, function()
+				BuildingRank:Refresh(buildingPart, rankKey, onRankList)
+			end)
+			
+			return
+		end
 		
 		for index, info in ipairs(rankList) do
 			info.IsTop1 = false

@@ -102,11 +102,11 @@ end
 
 function Theme:CheckCanUnlockNext(player)
 	local infoList = Theme:GetInfoList(player)
+	local accountRequest = require(game.ServerScriptService.ScriptAlias.Account)
+	local remainWins = accountRequest:GetWins(player)
 	for index, info in ipairs(infoList) do
 		if not info.IsUnlock then
 			local data = ConfigManager:GetData("Theme", info.ID)
-			local accountRequest = require(game.ServerScriptService.ScriptAlias.Account)
-			local remainWins = accountRequest:GetWins(player)
 			if remainWins >= data.CostWins  then
 				return true
 			end

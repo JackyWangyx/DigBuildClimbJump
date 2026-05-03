@@ -43,7 +43,8 @@ function Tool:GetPackageList(player)
 		saveInfo.PackageList = packageList
 	end
 
-	for index, data in ipairs(dataList) do
+	for index = 1, #dataList do
+		local data = dataList[index]
 		local id = data.ID
 		local existInfo = packageList[id]
 		-- 创建不存在的信息

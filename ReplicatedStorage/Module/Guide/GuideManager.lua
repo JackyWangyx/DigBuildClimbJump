@@ -1,4 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
+local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
+local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 
 local GuideDefine = require(game.ReplicatedStorage.ScriptAlias.GuideDefine)
 
@@ -57,10 +59,21 @@ function GuideManager:GetGuide(key)
 end
 
 function GuideManager:Refresh()
+	local find = false
 	for _, guide in ipairs(RunGuideList) do
 		if not guide.Info.IsComplete then
 			guide:Enable()
+			find = true
 			break
+		end
+	end
+	
+	if not find then
+		local page = UIManager:GetPage("UIMain")
+		local root = page.MainFrame
+		local uiGuide = Util:GetChildByName(root, "GuideFrame", true)
+		if uiGuide then
+			uiGuide.Visible = false
 		end
 	end
 end

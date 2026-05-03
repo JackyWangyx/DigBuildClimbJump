@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local UIListSelect = require(game.ReplicatedStorage.ScriptAlias.UIListSelect)
@@ -13,6 +13,7 @@ local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local ActivityUtil = require(game.ReplicatedStorage.ScriptAlias.ActivityUtil)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -26,7 +27,7 @@ UIPartnerStore.SelectIndex = 1
 
 function UIPartnerStore:Init(root)
 	UIPartnerStore.UIRoot = root
-	UIPartnerStore.InfoPart = Util:GetChildByName(UIPartnerStore.UIRoot, "InfoLab")
+	UIPartnerStore.InfoPart = UIIndexManager:GetChildByName(UIPartnerStore.UIRoot, "InfoLab")
 end
 
 function UIPartnerStore:OnShow(param)
@@ -46,6 +47,11 @@ function UIPartnerStore:RefreshItemList()
 	NetClient:Request("Partner", "GetPackageList", function(infoList)
 		for _, info in pairs(infoList) do
 			local data = ConfigManager:GetData("Partner", info.ID)
+			if not data then
+				warn("[Partner] Data Not Found!", info.ID)
+				return
+			end
+			
 			Util:TableMerge(info, data)
 		end
 		
@@ -109,16 +115,16 @@ function UIPartnerStore:SelectItem(index)
 	if index > #UIPartnerStore.ItemList then index = #UIPartnerStore.ItemList end
 	UIPartnerStore.SelectIndex = index
 	local item = UIPartnerStore.ItemList[index]
-	local data = AttributeUtil:GetData(item)
+	local data = ObjectInfo:GetData(item)
 	UIInfo:SetInfo(UIPartnerStore.InfoPart, data)
-	local info = AttributeUtil:GetInfo(item)
+	local info = ObjectInfo:GetInfo(item)
 	UIInfo:SetInfo(UIPartnerStore.InfoPart, info)
 end
 
 function UIPartnerStore:Button_Equip()
 	if not UIPartnerStore.ItemList or #UIPartnerStore.ItemList == 0 then return end
 	local selectItem = UIPartnerStore.ItemList[UIPartnerStore.SelectIndex]
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
 	NetClient:Request("Partner", "Equip", {ID = id}, function()
 		UIPartnerStore:Refresh()
 	end)
@@ -127,7 +133,7 @@ end
 function UIPartnerStore:Button_UnEquip()
 	if not UIPartnerStore.ItemList or #UIPartnerStore.ItemList == 0 then return end
 	local selectItem = UIPartnerStore.ItemList[UIPartnerStore.SelectIndex]
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
 	NetClient:Request("Partner", "UnEquip", function()
 		UIPartnerStore:Refresh()
 	end)
@@ -136,7 +142,7 @@ end
 function UIPartnerStore:Button_Buy()
 	if not UIPartnerStore.ItemList or #UIPartnerStore.ItemList == 0 then return end
 	local selectItem = UIPartnerStore.ItemList[UIPartnerStore.SelectIndex]
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
 	NetClient:Request("Partner", "Buy", {ID = id}, function(result)
 		if result.Success then
 			task.wait()
@@ -153,8 +159,8 @@ end
 function UIPartnerStore:Button_BuyRobux()
 	if not UIPartnerStore.ItemList or #UIPartnerStore.ItemList == 0 then return end
 	local selectItem = UIPartnerStore.ItemList[UIPartnerStore.SelectIndex]
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
-	local productKey = AttributeUtil:GetInfoValue(selectItem, "ProductKey")
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
+	local productKey = ObjectInfo:GetInfoValue(selectItem, "ProductKey")
 	IAPClient:Purchase(productKey, function(success)
 		if success then
 			task.wait()
@@ -168,7 +174,7 @@ end
 function UIPartnerStore:Button_Activity()
 	if not UIPartnerStore.ItemList or #UIPartnerStore.ItemList == 0 then return end
 	local selectItem = UIPartnerStore.ItemList[UIPartnerStore.SelectIndex]
-	local info = AttributeUtil:GetInfo(selectItem)
+	local info = ObjectInfo:GetInfo(selectItem)
 	local activityKey = info.ActivityKey
 	if activityKey then
 		UIManager:ShowAndHideOther("UISignActivity", {

@@ -3,6 +3,7 @@ local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local UIInfo = require(game.ReplicatedStorage.ScriptAlias.UIInfo)
 local UTween = require(game.ReplicatedStorage.ScriptAlias.UTween)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local UIMessage = {}
 
@@ -14,7 +15,7 @@ UIMessage.MessageList = {}
 
 function UIMessage:Init(root)
 	UIMessage.UIRoot = root	
-	UIMessage.ScrollingFrame = Util:GetChildByName(UIMessage.UIRoot, "ScrollingFrame")
+	UIMessage.ScrollingFrame = UIIndexManager:GetChildByName(UIMessage.UIRoot, "ScrollingFrame")
 	
 	task.spawn(UIMessage.AutoClearMessage)
 end

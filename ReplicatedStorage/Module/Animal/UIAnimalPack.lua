@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local UIListSelect = require(game.ReplicatedStorage.ScriptAlias.UIListSelect)
@@ -11,6 +11,7 @@ local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local AnimalUtil = require(game.ReplicatedStorage.ScriptAlias.AnimalUtil)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -35,12 +36,11 @@ UIAnimalPack.ButtonAddPackageMax = nil
 function UIAnimalPack:Init(root)
 	UIAnimalPack.UIRoot = root
 	
-	local childList= UIAnimalPack.UIRoot:GetDescendants()
-	UIAnimalPack.InfoPart = Util:GetChildByName(UIAnimalPack.UIRoot, "InfoLab", childList)
-	UIAnimalPack.DeleteButton = Util:GetChildByName(UIAnimalPack.UIRoot, "Button_Delete", childList)
-	UIAnimalPack.DeleteLab = Util:GetChildByName(UIAnimalPack.UIRoot, "DeleteLab", childList)
-	UIAnimalPack.ButtonAddPackageMax = Util:GetChildByName(UIAnimalPack.UIRoot, "Button_AddPackageMax", childList)
-	UIAnimalPack.ButtonEquip = Util:GetChildByName(UIAnimalPack.UIRoot, "Button_Equip", childList)
+	UIAnimalPack.InfoPart = UIIndexManager:GetChildByName(UIAnimalPack.UIRoot, "InfoLab")
+	UIAnimalPack.DeleteButton = UIIndexManager:GetChildByName(UIAnimalPack.UIRoot, "Button_Delete")
+	UIAnimalPack.DeleteLab = UIIndexManager:GetChildByName(UIAnimalPack.UIRoot, "DeleteLab")
+	UIAnimalPack.ButtonAddPackageMax = UIIndexManager:GetChildByName(UIAnimalPack.UIRoot, "Button_AddPackageMax")
+	UIAnimalPack.ButtonEquip = UIIndexManager:GetChildByName(UIAnimalPack.UIRoot, "Button_Equip")
 end
 
 function UIAnimalPack:OnShow()
@@ -97,7 +97,7 @@ function UIAnimalPack:RefreshInfo()
 		local equipMax = result[3]
 		UIAnimalPack.EquipMax = equipMax
 		local equipCount = Util:ListCount(UIAnimalPack.ItemList, function(item)
-			local isEquip = AttributeUtil:GetInfoValue(item, "IsEquip")
+			local isEquip = ObjectInfo:GetInfoValue(item, "IsEquip")
 			return isEquip
 		end)
 		
@@ -133,9 +133,9 @@ function UIAnimalPack:SelectItem(index)
 	if index > #UIAnimalPack.ItemList then index = #UIAnimalPack.ItemList end
 	UIAnimalPack.SelectIndex = index
 	local item = UIAnimalPack.ItemList[index]
-	local data = AttributeUtil:GetData(item)
+	local data = ObjectInfo:GetData(item)
 	UIInfo:SetInfo(UIAnimalPack.InfoPart, data)
-	local info = AttributeUtil:GetInfo(item)
+	local info = ObjectInfo:GetInfo(item)
 	UIInfo:SetInfo(UIAnimalPack.InfoPart, info)
 
 	local isLock = info.IsLock;
@@ -151,10 +151,10 @@ end
 function UIAnimalPack:Button_Equip()
 	if not UIAnimalPack.ItemList or #UIAnimalPack.ItemList == 0 then return end
 	local selectItem = UIAnimalPack.ItemList[UIAnimalPack.SelectIndex]
-	local instanceID = AttributeUtil:GetInfoValue(selectItem, "InstanceID")
+	local instanceID = ObjectInfo:GetInfoValue(selectItem, "InstanceID")
 	NetClient:Request("Animal", "Equip", {InstanceID = instanceID}, function(result)
 		if result  then
-			AttributeUtil:SetInfoValue(selectItem, "IsEquip", true)
+			ObjectInfo:SetInfoValue(selectItem, "IsEquip", true)
 			UIInfo:SetValue(selectItem, "IsEquip", true)
 			UIAnimalPack:RefreshInfo()
 			
@@ -166,10 +166,10 @@ end
 function UIAnimalPack:Button_UnEquip()
 	if not UIAnimalPack.ItemList or #UIAnimalPack.ItemList == 0 then return end
 	local selectItem = UIAnimalPack.ItemList[UIAnimalPack.SelectIndex]
-	local instanceID = AttributeUtil:GetInfoValue(selectItem, "InstanceID")
+	local instanceID = ObjectInfo:GetInfoValue(selectItem, "InstanceID")
 	NetClient:Request("Animal", "UnEquip", {InstanceID = instanceID}, function(result)
 		if result  then
-			AttributeUtil:SetInfoValue(selectItem, "IsEquip", false)
+			ObjectInfo:SetInfoValue(selectItem, "IsEquip", false)
 			UIInfo:SetValue(selectItem, "IsEquip", false)
 			UIAnimalPack:RefreshInfo()
 			
@@ -260,7 +260,7 @@ function UIAnimalPack:Button_DeleteSelect()
 		}
 
 		for _, selectItem in ipairs(selectList) do
-			local instanceID = AttributeUtil:GetInfoValue(selectItem, "InstanceID")
+			local instanceID = ObjectInfo:GetInfoValue(selectItem, "InstanceID")
 			table.insert(requestParam.InstanceIDList, instanceID)
 		end
 	
@@ -283,7 +283,7 @@ end
 function UIAnimalPack:SelectAll(isSelect)
 	if not UIAnimalPack.ItemList or #UIAnimalPack.ItemList == 0 then return end
 	for _, item in ipairs(UIAnimalPack.ItemList) do
-		local isLock = AttributeUtil:GetInfoValue(item, "IsLock")
+		local isLock = ObjectInfo:GetInfoValue(item, "IsLock")
 		if isLock then
 			isSelect = false
 		end

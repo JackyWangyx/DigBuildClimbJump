@@ -7,6 +7,7 @@ local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local SceneAreaManager = require(game.ReplicatedStorage.ScriptAlias.SceneAreaManager)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 local SoundManager = require(game.ReplicatedStorage.ScriptAlias.SoundManager)
+local HighlightUtil = require(game.ReplicatedStorage.ScriptAlias.HighlightUtil)
 
 local SceneRewardManager = {}
 

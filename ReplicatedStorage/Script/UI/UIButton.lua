@@ -1,15 +1,50 @@
 ﻿local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local TweenServiceManager = require(game.ReplicatedStorage.ScriptAlias.TweenServiceManager)
-local UTween = require(game.ReplicatedStorage.ScriptAlias.UTween)
 local SoundManager = require(game.ReplicatedStorage.ScriptAlias.SoundManager)
 local UIButtonToolTip = require(game.ReplicatedStorage.ScriptAlias.UIButtonTooltip)
-local UIIcon = require(game.ReplicatedStorage.ScriptAlias.UIIcon)
 
 local UIButton = {}
 
-UIButton.ConnectionCache = {}
-UIButton.SizeInfoCache = {}
-UIButton.ClickFuncCache = {}
+local table_insert = table.insert
+local UDim2_new = UDim2.new
+
+UIButton.ConnectionCache = setmetatable({}, { __mode = "k" })
+UIButton.SizeInfoCache = setmetatable({}, { __mode = "k" })
+UIButton.ClickFuncCache = setmetatable({}, { __mode = "k" })
+
+----------------------------------------------------------------------------------
+-- Connection
+
+function UIButton:CacheConnect(button, signal, callback)
+	local connection = signal:Connect(callback)
+
+	local list = UIButton.ConnectionCache[button]
+	if not list then
+		list = {}
+		UIButton.ConnectionCache[button] = list
+	end
+
+	table_insert(list, connection)
+end
+
+function UIButton:Clear(button)
+	local list = UIButton.ConnectionCache[button]
+	if list then
+		for i = 1, #list do
+			local conn = list[i]
+			if conn and conn.Connected then
+				conn:Disconnect()
+			end
+		end
+	end
+
+	UIButton.ConnectionCache[button] = nil
+	UIButton.SizeInfoCache[button] = nil
+	UIButton.ClickFuncCache[button] = nil
+end
+
+----------------------------------------------------------------------------------
+-- Handle Click
 
 function UIButton:Handle(button, func, param)
 	if not button or not button:IsA("GuiButton") then return end
@@ -17,157 +52,119 @@ function UIButton:Handle(button, func, param)
 
 	self:Clear(button)
 
-	-- 点击事件	
-	local function ClockFunc()
+	local function ClickFunc()
 		SoundManager:PlaySFX(SoundManager.Define.UIClick)
-		local success, result = pcall(function()
-			func(UIButton, button, param)
-		end)
-
+		local success, err = pcall(func, UIButton, button, param)
 		if not success then
-			warn("[Button] Error : ", button.Name, debug.traceback(result, 2))
+			warn("[UIButton Error]", button.Name, err)
 		end
 	end
-	
-	UIButton:CacheConnect(button, button.MouseButton1Click, "Click", ClockFunc)
-	UIButton.ClickFuncCache[button] = ClockFunc
 
-	-- 动画 & 提示
+	UIButton.ClickFuncCache[button] = ClickFunc
+	self:CacheConnect(button, button.MouseButton1Click, ClickFunc)
+
 	self:HandleAnimation(button)
 	UIButtonToolTip:Handle(button)
 end
 
-function UIButton:CacheConnect(button, signal, signalType, callback)
-	local connection = signal:Connect(callback)
-	local cacheInfo = UIButton.ConnectionCache[button]
-	if not cacheInfo then
-		cacheInfo = {
-			Button = button,
-			Connections = {}
-		}
-		
-		UIButton.ConnectionCache[button] = cacheInfo
-	end
-	
-	local signalDic = cacheInfo.Connections[signalType]
-	if not signalDic then
-		signalDic = {}
-		cacheInfo.Connections[signalType] = signalDic
-	end
-	
-	table.insert(signalDic , {
-		Connection = connection,
-		Function = callback,
-	})
-end
-
 function UIButton:Click(button)
-	local cacheInfo = UIButton.ConnectionCache[button]
-	if not cacheInfo then return end
-	cacheInfo.Connections["Click"][1].Function()
-	cacheInfo.Connections["Down"][1].Function()
-	task.delay(0.1, function()
-		if not cacheInfo then return end
-		local signalCache = cacheInfo.Connections["Up"]
-		if signalCache then
-			signalCache[1].Function()
-		end
-	end)	
-end
-
-function UIButton:Clear(button)
-	if not button then return end
-	local cacheInfo = UIButton.ConnectionCache[button]
-	if cacheInfo then 
-		for signalType, signalInfo in pairs(cacheInfo.Connections) do
-			for _, connectionInfo in ipairs(signalInfo) do
-				if connectionInfo.Connection.Connected then
-					connectionInfo.Connection:Disconnect()
-				end
-			end	
-			
-			cacheInfo.Connections[signalType] = nil
-		end
+	local func = UIButton.ClickFuncCache[button]
+	if func then
+		func()
 	end
-	
-	UIButton.ConnectionCache[button] = nil
-	UIButton.SizeInfoCache[button] = nil
-	UIButton.ClickFuncCache[button] = nil
 end
 
--- 动画
-local function MakeTween(button, size, duration)
-	return TweenServiceManager.New(button)
-		:To({ Size = size })
+----------------------------------------------------------------------------------
+-- Tween
+
+local function CreateTween(target, props, duration)
+	return TweenServiceManager.New(target)
+		:To(props)
 		:SetDuration(duration)
 		:SetEase(Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 end
 
-function UIButton:HandleAnimation(button)
-	local hoverScale, clickScale, duration = 1.075, 0.925, 0.1
+----------------------------------------------------------------------------------
+-- Animation
 
+function UIButton:HandleAnimation(button)
+	local hoverScale = 1.075
+	local clickScale = 0.925
+	local duration = 0.1
+
+	-- Cache Size
 	local sizeInfo = UIButton.SizeInfoCache[button]
 	if not sizeInfo then
+		local sx, sy = button.Size.X.Scale, button.Size.Y.Scale
+		local ox, oy = button.Size.X.Offset, button.Size.Y.Offset
+
 		sizeInfo = {
-			ScaleX = button.Size.X.Scale,
-			ScaleY = button.Size.Y.Scale,
-			OffsetX = button.Size.X.Offset,
-			OffsetY = button.Size.Y.Offset,
+			Normal = UDim2_new(sx, ox, sy, oy),
+			Hover  = UDim2_new(sx * hoverScale, ox * hoverScale, sy * hoverScale, oy * hoverScale),
+			Click  = UDim2_new(sx * clickScale, ox * clickScale, sy * clickScale, oy * clickScale),
 		}
-		
+
 		UIButton.SizeInfoCache[button] = sizeInfo
 	end
 
-	local normalSize = UDim2.new(sizeInfo.ScaleX, sizeInfo.OffsetX, sizeInfo.ScaleY, sizeInfo.OffsetY)
-	local hoverSize  = UDim2.new(sizeInfo.ScaleX * hoverScale, sizeInfo.OffsetX * hoverScale, sizeInfo.ScaleY * hoverScale, sizeInfo.OffsetY * hoverScale)
-	local clickSize  = UDim2.new(sizeInfo.ScaleX * clickScale, sizeInfo.OffsetX * clickScale, sizeInfo.ScaleY * clickScale, sizeInfo.OffsetY * clickScale)
+	-- 单Tween复用
+	local currentTween
+	local function PlaySizeTween(size)
+		if currentTween then
+			currentTween:Stop()
+		end
+		
+		currentTween = CreateTween(button, { Size = size }, duration)
+		currentTween:Play()
+	end
 
-	local hoverTween = MakeTween(button, hoverSize, duration)
-	local normalTween = MakeTween(button, normalSize, duration)
-	local clickTween = MakeTween(button, clickSize, duration)
+	-- Icon
+	local icon = Util:GetChildByName(button, "Button_Icon")
+	if not icon then
+		icon = Util:GetChildByName(button, "Image_Icon")
+	end
+	
+	local iconTween
+
+	local function PlayIcon(rotation)
+		if not icon then return end
+		if iconTween then
+			iconTween:Stop()
+		end
+		
+		iconTween = CreateTween(icon, { Rotation = rotation }, 0.15)
+		iconTween:Play()
+	end
 
 	local isHover = false
-	UIButton:CacheConnect(button, button.MouseEnter, "Enter", function() 
+
+	-- Enter
+	self:CacheConnect(button, button.MouseEnter, function()
 		isHover = true
-		hoverTween:Play() 
+		PlaySizeTween(sizeInfo.Hover)
+		PlayIcon(10)
 	end)
-	UIButton:CacheConnect(button, button.MouseLeave, "Leave", function() 
+
+	-- Leave
+	self:CacheConnect(button, button.MouseLeave, function()
 		isHover = false
-		normalTween:Play() 
+		PlaySizeTween(sizeInfo.Normal)
+		PlayIcon(0)
 	end)
-	UIButton:CacheConnect(button, button.MouseButton1Down, "Down", function()
-		clickTween:Play() 
+
+	-- Down
+	self:CacheConnect(button, button.MouseButton1Down, function()
+		PlaySizeTween(sizeInfo.Click)
 	end)
-	UIButton:CacheConnect(button, button.MouseButton1Up, "Up", function() 	
+
+	-- Up
+	self:CacheConnect(button, button.MouseButton1Up, function()
 		if isHover then
-			hoverTween:Play() 
+			PlaySizeTween(sizeInfo.Hover)
 		else
-			normalTween:Play()
+			PlaySizeTween(sizeInfo.Normal)
 		end
 	end)
-	
-	local icon = Util:GetChildByName(button, "Button_Icon")
-	if icon then
-		--UIIcon:HandleAnimation(button, icon)
-
-		local tweenEnter = TweenServiceManager.New(icon)
-			:To({ Rotation = 10 })
-			:SetDuration(0.15)
-			:SetEase(Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
-		local tweenLeave = TweenServiceManager.New(icon)
-			:To({ Rotation = 0 })
-			:SetDuration(0.15)
-			:SetEase(Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
-		UIButton:CacheConnect(button, button.MouseEnter, "Enter", function() 
-			tweenEnter:Play()
-		end)
-		
-		UIButton:CacheConnect(button, button.MouseLeave, "Leave", function() 
-			tweenLeave:Play()
-		end)
-	end
 end
 
 return UIButton

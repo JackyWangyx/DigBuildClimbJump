@@ -102,6 +102,7 @@ function PetLoot:Open(player, param)
 	
 	for i = 1, count do
 		local randLootData = Util:ListRandomWeight(lootDataList)
+		--warn(lootDataList, randLootData)
 		local petID = randLootData.PetID
 
 		-- 随机突破

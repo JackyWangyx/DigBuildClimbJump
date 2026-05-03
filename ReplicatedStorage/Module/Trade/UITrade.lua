@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local UIListSelect = require(game.ReplicatedStorage.ScriptAlias.UIListSelect)
@@ -15,6 +15,7 @@ local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local TradeClient = require(game.ReplicatedStorage.ScriptAlias.TradeClient)
 local TimerManager = require(game.ReplicatedStorage.ScriptAlias.TimerManager)
 local TimeUtil = require(game.ReplicatedStorage.ScriptAlias.TimeUtil)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -29,8 +30,8 @@ UITrade.ItemList = nil
 function UITrade:Init(root)
 	UITrade.UIRoot = root
 	
-	UITrade.SelfFrame = Util:GetChildByName(UITrade.UIRoot, "SelfFrame")
-	UITrade.OtherFrame = Util:GetChildByName(UITrade.UIRoot, "OtherFrame")
+	UITrade.SelfFrame = UIIndexManager:GetChildByName(UITrade.UIRoot, "SelfFrame")
+	UITrade.OtherFrame = UIIndexManager:GetChildByName(UITrade.UIRoot, "OtherFrame")
 end
 
 local RefreshTimer = nil
@@ -143,15 +144,15 @@ function UITrade:Select(index)
 	if TradeClient.SelfInfo.Confirm then return end
 	
 	local item = UITrade.ItemList[index]
-	AttributeUtil:SetInfoValue(item, "IsSelected", not AttributeUtil:GetInfoValue(item, "IsSelected"))
+	ObjectInfo:SetInfoValue(item, "IsSelected", not ObjectInfo:GetInfoValue(item, "IsSelected"))
 	local selectList = {}
 	for _, item in ipairs(UITrade.ItemList) do
-		local isSelected = AttributeUtil:GetInfoValue(item, "IsSelected")
+		local isSelected = ObjectInfo:GetInfoValue(item, "IsSelected")
 		if isSelected then
 			local info = {
-				ID = AttributeUtil:GetInfoValue(item, "ID"),
-				InstanceID = AttributeUtil:GetInfoValue(item, "InstanceID"),
-				UpgradeLevel = AttributeUtil:GetInfoValue(item, "UpgradeLevel"),
+				ID = ObjectInfo:GetInfoValue(item, "ID"),
+				InstanceID = ObjectInfo:GetInfoValue(item, "InstanceID"),
+				UpgradeLevel = ObjectInfo:GetInfoValue(item, "UpgradeLevel"),
 			}
 			table.insert(selectList, info)
 		end	

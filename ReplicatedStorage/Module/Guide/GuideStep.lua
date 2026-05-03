@@ -130,12 +130,16 @@ function GuideStep:SetTip(active)
 	local uiGuide = Util:GetChildByName(root, "GuideFrame", true)
 	local info = nil
 	if active then
+		uiGuide.Visible = true
 		info = {
+			IsGuiding = true,
 			GuideTip = self.Config.TipText
 		}
 	else
+		uiGuide.Visible = false
 		info = {
-			GuideTip = ""
+			IsGuiding = false,
+			GuideTip = "",
 		}
 	end
 

@@ -1,9 +1,11 @@
-﻿local TweenUtil   = require(game.ReplicatedStorage.ScriptAlias.TweenUtil)
+﻿local TweenUtil = require(game.ReplicatedStorage.ScriptAlias.TweenUtil)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
-local Util        = require(game.ReplicatedStorage.ScriptAlias.Util)
-local NetClient   = require(game.ReplicatedStorage.ScriptAlias.NetClient)
-local BigNumber   = require(game.ReplicatedStorage.ScriptAlias.BigNumber)
-local Define      = require(game.ReplicatedStorage.Define)
+local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
+local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
+local BigNumber = require(game.ReplicatedStorage.ScriptAlias.BigNumber)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
+
+local Define = require(game.ReplicatedStorage.Define)
 
 local UIAccountInfo = {}
 
@@ -65,14 +67,12 @@ function UIAccountInfo:Init(root)
 	end
 end
 
-function UIAccountInfo:Handle(uiRoot, cacheChildList)
-	if not cacheChildList then
-		cacheChildList = uiRoot:GetDescendants()
-	end
-
-	for _, part in ipairs(cacheChildList) do
+function UIAccountInfo:Handle(uiRoot)
+	UIIndexManager:ForeachInNode(uiRoot, function(part)
+		local partType = part.ClassName
+		if partType ~= "TextLabel" then return end
 		for key, cfg in pairs(TRACKED_RESOURCES) do
-			if part.Name == cfg.TextName and part:IsA("TextLabel") then
+			if part.Name == cfg.TextName then
 				-- 初次请求
 				NetClient:Request(cfg.GetRemote[1], cfg.GetRemote[2], function(result)
 					cfg.LastValue = result
@@ -95,7 +95,7 @@ function UIAccountInfo:Handle(uiRoot, cacheChildList)
 				break
 			end
 		end
-	end
+	end)
 end
 
 -- 统一的飞行动画处理

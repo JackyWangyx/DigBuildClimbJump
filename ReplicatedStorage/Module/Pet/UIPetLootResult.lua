@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local UIListSelect = require(game.ReplicatedStorage.ScriptAlias.UIListSelect)
@@ -15,6 +15,7 @@ local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local SoundManager = require(game.ReplicatedStorage.ScriptAlias.SoundManager)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local UIPetLootResult = {}
 
@@ -37,9 +38,8 @@ UIPetLootResult.CacheObjectList = {}
 function UIPetLootResult:Init(root)
 	UIPetLootResult.UIRoot = root
 
-	local childList = UIPetLootResult.UIRoot:GetDescendants()
-	UIPetLootResult.ManualFrame = Util:GetChildByName(UIPetLootResult.UIRoot, "ManualFrame", childList)
-	UIPetLootResult.AutoFrame = Util:GetChildByName(UIPetLootResult.UIRoot, "AutoFrame", childList)
+	UIPetLootResult.ManualFrame = UIIndexManager:GetChildByName(UIPetLootResult.UIRoot, "ManualFrame")
+	UIPetLootResult.AutoFrame = UIIndexManager:GetChildByName(UIPetLootResult.UIRoot, "AutoFrame")
 	
 	EventManager:Listen("OpenPetLoot", function(param)
 		UIManager:ShowAndHideOther("PetLootResult", param)

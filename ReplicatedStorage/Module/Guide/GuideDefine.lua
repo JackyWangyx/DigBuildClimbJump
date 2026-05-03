@@ -107,7 +107,7 @@ GuideDefine.GuideList = {
 	-- Back To Tower
 	[6] = {
 		Key = "GuideStep_06",
-		TipText = "🏡 Back to ground!",
+		TipText = "🏡 Tap “To Ground” to return!",
 		TriggerMode = GuideDefine.TriggerMode.Event,
 		TriggerEvent = ClimbTowerDefine.Event.ExitDig,
 		TargetMode = GuideDefine.TargetMode.None,
@@ -230,7 +230,7 @@ GuideDefine.GuideList = {
 		TargetMode = GuideDefine.TargetMode.Building,
 		TargetBuilding = "BuildingToolStore",
 	},
-	
+
 	--[[
 	[12] = {
 		Key = "GuideStep_12",
@@ -243,7 +243,7 @@ GuideDefine.GuideList = {
 		},
 	},
 	]]
-	
+
 	[13] = {
 		Key = "GuideStep_13",
 		TipText = "🚀 Equip for Faster Speed",
@@ -254,6 +254,8 @@ GuideDefine.GuideList = {
 			[1] =  "UIToolStore/MainFrame/StoreGui/InfoLab/Toggle_IsBuy_False/Info_CostCoin/Button_Buy/GuideHand",
 		},
 	},
+
+	--[[
 	[14] = {
 		Key = "GuideStep_14",
 		TipText = "All Set! Let’s Race 🏁",
@@ -265,6 +267,7 @@ GuideDefine.GuideList = {
 			[1] = "UIToolStore/MainFrame/StoreGui/Button_Close/Guide_Select",
 		},
 	},
+	]]
 }
 
 return GuideDefine

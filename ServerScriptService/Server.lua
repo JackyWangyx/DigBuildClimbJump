@@ -3,6 +3,7 @@
 local function Init()
 	require(game.ReplicatedStorage.ScriptAlias.LogUtil):Init()
 	require(game.ServerScriptService.ScriptAlias.NetServer):Init()
+	require(game.ReplicatedStorage.ScriptAlias.ResourcesManager):Init()
 	--require(game.ServerScriptService.ScriptAlias.MasterServer):Init()
 	
 	-- Data

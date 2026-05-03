@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local UIListSelect = require(game.ReplicatedStorage.ScriptAlias.UIListSelect)
@@ -14,6 +14,7 @@ local TimerManager = require(game.ReplicatedStorage.ScriptAlias.TimerManager)
 local TimeUtil = require(game.ReplicatedStorage.ScriptAlias.TimeUtil)
 local UpdatorManager = require(game.ReplicatedStorage.ScriptAlias.UpdatorManager)
 local RewardUtil = require(game.ReplicatedStorage.ScriptAlias.RewardUtil)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -30,14 +31,22 @@ function UISignOnline:Init(root)
 	UISignOnline.UIRoot = root
 
 	task.delay(0.5, function()
-		local uiMain = UIManager:GetPage("UIMain")
-		UISignOnline.MainSignOnlineButton = Util:GetChildByName(uiMain.UI, "Button_SignOnline")
-
-		if UISignOnline.MainSignOnlineButton then
-			TimerManager:Interval(0.5, function()
-				UISignOnline:RefreshMainButton()
-			end)
-		end	
+		local uiMain = nil
+		while uiMain == nil do
+			uiMain = UIManager:GetPage("UIMain")	
+			if uiMain then
+				UISignOnline.MainSignOnlineButton = UIIndexManager:GetChildByName(uiMain.UI, "Button_SignOnline")
+				if UISignOnline.MainSignOnlineButton then
+					TimerManager:Interval(0.5, function()
+						UISignOnline:RefreshMainButton()
+					end)
+				end	
+				
+				break
+			else
+				task.wait()
+			end
+		end
 	end)
 end
 

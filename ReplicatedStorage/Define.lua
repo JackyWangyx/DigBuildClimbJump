@@ -1,6 +1,6 @@
 ﻿local Define = {}
 
-Define.Version = "2026.04.25.1"
+Define.Version = "2026.05.01.1"
 Define.Project = "DigBuildClimbJump"
 
 -----------------------------------------------------------------------------------

@@ -477,7 +477,6 @@ function Pet:EquipBest(player)
 	local packageList = Pet:GetPackageList(player)
 	Pet:UnEquipAll(player)
 	local equipMax = Pet:GetEquipMax(player)
-	
 	local infoList = Pet:GetPackageList(player)
 	
 	local maxGetCoinFactor1 = 0
@@ -510,7 +509,8 @@ function Pet:EquipBest(player)
 
 	local idList = {}
 	local equipInfoList = Util:ListFindMany(infoList, equipMax)
-	for _, info in pairs(equipInfoList) do
+	--warn(infoList, equipInfoList)
+	for _, info in ipairs(equipInfoList) do
 		table.insert(idList, info.InstanceID)
 	end
 	

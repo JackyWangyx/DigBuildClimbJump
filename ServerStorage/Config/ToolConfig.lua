@@ -26,7 +26,7 @@ ID,Name,BuyOrder,Rarity,Icon,ThemeKey,Prefab,MaxExistSpeed1,Speed1,PowerCapacity
 22,Crystal Aegis,22,4,rbxassetid://114893038207870,World01,Tool/Tool22,0.0,27000,62,27K,42.0,112000000000000,0,0,Tool,nil,nil,nil
 23,Vibe Pack,23,4,rbxassetid://103025395971330,World01,Tool/Tool23,0.0,36000,64,36K,44.0,780000000000000,0,0,Tool,nil,nil,nil
 24,Pink Shell,24,4,rbxassetid://125259628815607,World01,Tool/Tool24,0.0,47500,66,47.5K,46.0,780000000000000,0,0,Tool,nil,nil,nil
-25,Sphere Core,25,4,rbxassetid://73465215998800,World01,Tool/Tool25,0.0,6800000,100,68K,48.0,2100000000000000,0,0,Tool,nil,nil,nil
+25,Sphere Core,25,4,rbxassetid://73465215998800,World01,Tool/Tool25,0.0,68000,68,68K,48.0,2100000000000000,0,0,Tool,nil,nil,nil
 26,Ace Mech,-1,6,rbxassetid://127493067549471,nil,Tool/ToolRBStore01,1.25,1,100,25%,80.0,0,299,0,Tool,ProductStoreTool26,nil,nil
 27,Cyber Wings,-1,6,rbxassetid://127958630368452,nil,Tool/ToolRBStore02,1.5,1,100,50%,100.0,0,1999,0,Tool,ProductStoreTool27,nil,nil
 28,Dragonfly,-1,6,rbxassetid://131749869143723,nil,Tool/ToolRBLv01,0.0,2000,50,2K,50.0,0,299,0,Tool,ProductStoreTool28,nil,nil
@@ -35,6 +35,11 @@ ID,Name,BuyOrder,Rarity,Icon,ThemeKey,Prefab,MaxExistSpeed1,Speed1,PowerCapacity
 31,Default,-1,6,rbxassetid://91735701899201,nil,Tool/Tool03,0.0,1,1,1,1.0,0,9999999,0,Tool,ProductStoreTool31,nil,nil
 32,Default,-1,6,rbxassetid://88796490670238,nil,Tool/Tool04,0.0,1,1,1,1.0,0,9999999,0,Tool,ProductStoreTool32,nil,nil
 33,Default,-1,6,rbxassetid://91735701899201,nil,Tool/Tool05,0.0,1,1,1,1.0,0,9999999,0,Tool,ProductStoreTool33,nil,nil
+34,Turbo Wings,26,4,rbxassetid://111487803070788,World01,Tool/Tool26,0.0,98250,70,98.25K,50.0,18000000000000000,0,0,Tool,nil,nil,nil
+35,Blue Booster,27,4,rbxassetid://100774837929443,World01,Tool/Tool27,0.0,135000,71,135K,51.0,99000000000000000,0,0,Tool,nil,nil,nil
+36,Mega Thruster,28,4,rbxassetid://93317790227228,World01,Tool/Tool28,0.0,193500,72,193.5K,52.0,350000000000000000,0,0,Tool,nil,nil,nil
+37,Cyber Rocket,29,4,rbxassetid://103440847998690,World01,Tool/Tool29,0.0,260000,73,260K,53.0,1500000000000000000,0,0,Tool,nil,nil,nil
+38,Fusion Blaster,30,4,rbxassetid://131066400550553,World01,Tool/Tool30,0.0,375000,74,375K,54.0,9300000000000000000,0,0,Tool,nil,nil,nil
 ]]
 
 return ToolConfig

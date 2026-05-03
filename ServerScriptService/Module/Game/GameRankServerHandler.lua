@@ -100,6 +100,9 @@ function GameRankServerHandler:RefreshTopNpc(rankKey)
 				local animationID = GameRankServerHandler.DanceAnimationList[index]
 				NpcManager:PlayAnimation(npc, animationID, true)
 
+				local staticNpc = game.ReplicatedStorage.Script.NPC.StaticNPC:Clone()
+				staticNpc.Parent = npc
+
 				table.insert(info.TopNpcList, npc)
 			end		
 		end

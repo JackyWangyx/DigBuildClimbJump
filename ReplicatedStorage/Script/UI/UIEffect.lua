@@ -3,17 +3,54 @@ local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 
 local UIEffect = {}
 
+local UDim2_new = UDim2.new
+
 UIEffect.EffectType = {
 	Rotate = "Rotate",
-	Scale = "Scale",
-	Shake = "Shake",
-	Float = "Float",
+	Scale  = "Scale",
+	Shake  = "Shake",
+	Float  = "Float",
 	Bounce = "Bounce",
 }
 
-local PartEffectList = {}
+-- 分组存储（核心优化）
+local EffectGroups = {
+	Rotate = {},
+	Scale  = {},
+	Shake  = {},
+	Float  = {},
+	Bounce = {},
+}
 
--- Impl
+-- ========= Effect函数映射（避免字符串拼接） =========
+local EffectFuncMap = {}
+
+-- 全局时间（减少 sin 重复计算）
+UIEffect.GlobalTime = 0
+
+-- ========= 工具函数（O(1) 删除） =========
+
+local function AddToGroup(list, info)
+	info._index = #list + 1
+	list[info._index] = info
+end
+
+local function RemoveFromGroup(list, info)
+	local index = info._index
+	if not index then return end
+
+	local last = list[#list]
+	list[index] = last
+
+	if last then
+		last._index = index
+	end
+
+	list[#list] = nil
+	info._index = nil
+end
+
+-- ========= 初始化 =========
 
 function UIEffect:Init()
 	UpdatorManager:RenderStepped(function(deltaTime)
@@ -21,88 +58,135 @@ function UIEffect:Init()
 	end)
 end
 
+-- ========= UI 扫描 =========
+
 function UIEffect:HandleUIInfo(uiInfo)
 	local parts = uiInfo.UI:GetDescendants()
-	for _, part in ipairs(parts) do
-		UIEffect:HandlePartWithUIInfo(uiInfo, part)
+
+	for i = 1, #parts do
+		self:HandlePartWithUIInfo(uiInfo, parts[i])
 	end
 end
 
 function UIEffect:HandlePartWithUIInfo(uiInfo, part)
 	local partName = part.Name
 	local prefix = "UIEffect_"
+
 	if string.sub(partName, 1, #prefix) ~= prefix then
 		return
 	end
 
 	local suffixType = string.sub(partName, #prefix + 1)
 	local effectType = UIEffect.EffectType[suffixType]
+	if not effectType then return end
+
+	local list = EffectGroups[effectType]
+
 	local effectInfo = {
-		UI = uiInfo.UI,
+		UI   = uiInfo.UI,
 		Part = part,
 		Type = effectType,
-		Value = 0,
+		Func = EffectFuncMap[effectType],
 	}
 
-	Util:BindPartEnabled(uiInfo.UI, function()
-		table.insert(PartEffectList, effectInfo)
-	end, function()
-		Util:ListRemove(PartEffectList, effectInfo)
-	end)
+	Util:BindPartEnabled(uiInfo.UI,
+		function()
+			AddToGroup(list, effectInfo)
+		end,
+		function()
+			RemoveFromGroup(list, effectInfo)
+		end
+	)
 end
 
 function UIEffect:HandlePart(part, effectType)
 	if not part then return end
+
+	local list = EffectGroups[effectType]
+	if not list then return end
+
 	local effectInfo = {
-		UI = nil,
+		UI   = nil,
 		Part = part,
 		Type = effectType,
-		Value = 0,
+		Func = EffectFuncMap[effectType],
 	}
-	
-	Util:BindPartVisible(part, function()
-		table.insert(PartEffectList, effectInfo)
-	end, function()
-		Util:ListRemove(PartEffectList, effectInfo)
-	end)
+
+	Util:BindPartVisible(part,
+		function()
+			AddToGroup(list, effectInfo)
+		end,
+		function()
+			RemoveFromGroup(list, effectInfo)
+		end
+	)
 end
+
+-- ========= Update =========
 
 function UIEffect:Update(deltaTime)
-	for _, effectInfo in ipairs(PartEffectList) do
-		local funcName = "Update"..effectInfo.Type
-		local func = UIEffect[funcName]
-		func(UIEffect, effectInfo, deltaTime)
+	self.GlobalTime += deltaTime
+
+	-- Rotate
+	local list = EffectGroups.Rotate
+	for i = 1, #list do
+		local info = list[i]
+		info.Func(self, info, deltaTime)
+	end
+
+	-- Scale
+	list = EffectGroups.Scale
+	for i = 1, #list do
+		local info = list[i]
+		info.Func(self, info, deltaTime)
+	end
+
+	-- Shake
+	list = EffectGroups.Shake
+	for i = 1, #list do
+		local info = list[i]
+		info.Func(self, info, deltaTime)
+	end
+
+	-- Float
+	list = EffectGroups.Float
+	for i = 1, #list do
+		local info = list[i]
+		info.Func(self, info, deltaTime)
+	end
+
+	-- Bounce
+	list = EffectGroups.Bounce
+	for i = 1, #list do
+		local info = list[i]
+		info.Func(self, info, deltaTime)
 	end
 end
 
--- Effect
+-- ========= Effect实现 =========
 
-function UIEffect:UpdateRotate(effectInfo, deltaTime)
-	effectInfo.Value = (effectInfo.Value + deltaTime * 20) % 360
-	effectInfo.Part.Rotation = effectInfo.Value
+-- Rotate
+function UIEffect:UpdateRotate(info, dt)
+	info.Value = (info.Value or 0) + dt * 20
+	info.Part.Rotation = info.Value % 360
 end
 
+-- Float（使用全局时间）
 function UIEffect:UpdateFloat(info, dt)
-	-- 参数
-	local speed     = info.Speed or 0.5    -- 浮动速度 (次/秒)
-	local amplitude = info.Amplitude or 0.015 -- 振幅 (屏幕高度的比例, 0.02 = 上下2%)
+	local speed     = info.Speed or 0.5
+	local amplitude = info.Amplitude or 0.015
 
-	-- 初始化
 	if not info.BasePos then
 		info.BasePos = info.Part.Position
-		info.Time    = math.random() * 10 -- 随机初相位，避免所有对象一起浮动
+		info.Phase   = math.random() * 10
 	end
 
-	-- 累积时间
-	info.Time += dt
-
-	-- 正弦波计算 (y方向偏移)
 	local omega  = 2 * math.pi * speed
-	local offset = math.sin(info.Time * omega) * amplitude
+	local t      = self.GlobalTime + info.Phase
+	local offset = math.sin(t * omega) * amplitude
 
-	-- 应用位置 (基于 Scale 偏移，不再依赖像素 Offset)
 	local base = info.BasePos
-	info.Part.Position = UDim2.new(
+	info.Part.Position = UDim2_new(
 		base.X.Scale,
 		base.X.Offset,
 		base.Y.Scale + offset,
@@ -110,135 +194,118 @@ function UIEffect:UpdateFloat(info, dt)
 	)
 end
 
-function UIEffect:UpdateShake(effectInfo, deltaTime)
-	-- 参数（可以根据需要调）
-	local sequence = {
-		{ time = 0.08, angle = -20 },  -- 快速往左
-		{ time = 0.16, angle = 15 },   -- 回到右
-		{ time = 0.24, angle = -12 },  -- 再往左
-		{ time = 0.32, angle = 10 },   -- 再回右
-		{ time = 0.40, angle = -6 },   -- 最后小幅左
-		{ time = 0.48, angle = 0 },    -- 归位
-		{ time = 1.2, angle = 0 },     -- 停顿（比之前略长）
-	}
+-- Scale
+function UIEffect:UpdateScale(info, dt)
+	info.Value = (info.Value or 0) + dt * 2
 
-	if not effectInfo.BaseRotation then
-		effectInfo.BaseRotation = effectInfo.Part.Rotation
-		effectInfo.StateTime = 0
+	local scale = 1 + math.sin(info.Value) * 0.1
+
+	if not info.BaseSize then
+		info.BaseSize = info.Part.Size
 	end
 
-	effectInfo.StateTime = (effectInfo.StateTime + deltaTime) % sequence[#sequence].time
+	local base = info.BaseSize
 
-	-- 找到当前所处的 keyframe 区间
+	info.Part.Size = UDim2_new(
+		base.X.Scale * scale,
+		base.X.Offset * scale,
+		base.Y.Scale * scale,
+		base.Y.Offset * scale
+	)
+end
+
+-- Shake
+function UIEffect:UpdateShake(info, dt)
+	local sequence = {
+		{ time = 0.08, angle = -20 },
+		{ time = 0.16, angle = 15 },
+		{ time = 0.24, angle = -12 },
+		{ time = 0.32, angle = 10 },
+		{ time = 0.40, angle = -6 },
+		{ time = 0.48, angle = 0 },
+		{ time = 1.2, angle = 0 },
+	}
+
+	if not info.BaseRotation then
+		info.BaseRotation = info.Part.Rotation
+		info.StateTime = 0
+	end
+
+	info.StateTime = (info.StateTime + dt) % sequence[#sequence].time
+
 	for i = 1, #sequence - 1 do
 		local kf1 = sequence[i]
 		local kf2 = sequence[i + 1]
 
-		if effectInfo.StateTime >= kf1.time and effectInfo.StateTime < kf2.time then
-			local alpha = (effectInfo.StateTime - kf1.time) / (kf2.time - kf1.time)
+		if info.StateTime >= kf1.time and info.StateTime < kf2.time then
+			local alpha = (info.StateTime - kf1.time) / (kf2.time - kf1.time)
 			local angle = kf1.angle + (kf2.angle - kf1.angle) * alpha
-			effectInfo.Part.Rotation = effectInfo.BaseRotation + angle
+			info.Part.Rotation = info.BaseRotation + angle
 			break
 		end
 	end
 end
 
-function UIEffect:UpdateScale(effectInfo, deltaTime)
-	effectInfo.Value = (effectInfo.Value + deltaTime * 2) % (2 * math.pi)
-	local scale = 1 + math.sin(effectInfo.Value) * 0.1
-	local baseSize = effectInfo.BaseSize
-
-	if not baseSize then
-		effectInfo.BaseSize = effectInfo.Part.Size
-		baseSize = effectInfo.BaseSize
-	end
-
-	effectInfo.Part.Size = UDim2.new(
-		baseSize.X.Scale * scale,
-		baseSize.X.Offset * scale,
-		baseSize.Y.Scale * scale,
-		baseSize.Y.Offset * scale
-	)
-end
-
+-- Bounce（基本保持，但结构优化）
 function UIEffect:UpdateBounce(info, dt)
-	-- ==== 参数 ====
-	local g            = info.Gravity       or 600    -- 像素/s^2
-	local bounceFactor = info.BounceFactor  or 0.6
-	local stopV        = info.StopThreshold or 10     -- 建议 5~20，单位：像素/s
-	local pauseTime    = info.PauseTime     or 1      -- 秒
-	local initialUpV   = info.InitialUpV    or 150    -- 每轮开始向上初速度（像素/s）
+	local g            = info.Gravity or 600
+	local bounceFactor = info.BounceFactor or 0.6
+	local stopV        = info.StopThreshold or 10
+	local pauseTime    = info.PauseTime or 1
+	local initialUpV   = info.InitialUpV or 150
 
-	-- ==== 初始化 ====
 	if not info.BasePos then
 		info.BasePos  = info.Part.Position
-		info.State    = "Bounce"          -- "Bounce" / "Pause"
-		info.Velocity = -initialUpV       -- 向上为负
+		info.State    = "Bounce"
+		info.Velocity = -initialUpV
 		info.OffsetY  = 0
 		info.StateTime= 0
 	end
 
-	-- 把这一帧的时间吃干净，确保状态切换后剩余时间继续生效
 	local remaining = dt
-	-- 可选：限制子步长，避免大 dt 时“穿地”
 	local MAX_SUBSTEP = 1/120
 
 	while remaining > 0 do
+		local step = math.min(remaining, MAX_SUBSTEP)
+		remaining -= step
+
 		if info.State == "Bounce" then
-			-- 用较小子步整合，提升稳定性
-			local step = math.min(remaining, MAX_SUBSTEP)
-			remaining -= step
+			info.Velocity += g * step
+			info.OffsetY  += info.Velocity * step
 
-			-- 简单双显式欧拉
-			info.Velocity = info.Velocity + g * step
-			info.OffsetY  = info.OffsetY  + info.Velocity * step
-
-			-- 触地（基准为 0；正值表示往下越过了地面）
 			if info.OffsetY > 0 then
-				-- 贴地
 				info.OffsetY  = 0
 				info.Velocity = -info.Velocity * bounceFactor
 
-				-- 速度太小 -> 进入暂停
 				if math.abs(info.Velocity) < stopV then
-					info.Velocity  = 0
-					info.State     = "Pause"
-					-- 关键：不要丢弃这帧剩余时间，继续在 Pause 里消耗
-					-- 这里不直接加 StateTime，交给下面 while 的 Pause 分支去消耗 remaining
+					info.State = "Pause"
+					info.Velocity = 0
 				end
 			end
-
-		else -- "Pause"
-			-- 需要的剩余停顿时间
-			local need = pauseTime - info.StateTime
-			if need <= 0 then
-				-- 立刻开启下一轮弹跳，并继续用掉 remaining
+		else
+			info.StateTime += step
+			if info.StateTime >= pauseTime then
 				info.State     = "Bounce"
 				info.Velocity  = -initialUpV
 				info.OffsetY   = 0
 				info.StateTime = 0
-			else
-				-- 消耗本帧 remaining 的一部分到 Pause
-				local use = math.min(remaining, need)
-				info.StateTime = info.StateTime + use
-				remaining      = remaining - use
-
-				-- 如果刚好/已经达到停顿时间，下一轮立刻开始（仍然在同一帧里继续模拟剩余时间）
-				if info.StateTime >= pauseTime then
-					info.State     = "Bounce"
-					info.Velocity  = -initialUpV
-					info.OffsetY   = 0
-					info.StateTime = 0
-				end
 			end
 		end
 	end
 
-	-- 应用位置（基于 OffsetY 的像素位移）
 	local b = info.BasePos
-	info.Part.Position = UDim2.new(b.X.Scale, b.X.Offset, b.Y.Scale, b.Y.Offset + info.OffsetY)
+	
+	info.Part.Position = UDim2_new(
+		b.X.Scale, b.X.Offset,
+		b.Y.Scale, b.Y.Offset + info.OffsetY
+	)
 end
 
-
+-- 绑定函数
+EffectFuncMap.Rotate = UIEffect.UpdateRotate
+EffectFuncMap.Scale  = UIEffect.UpdateScale
+EffectFuncMap.Shake  = UIEffect.UpdateShake
+EffectFuncMap.Float  = UIEffect.UpdateFloat
+EffectFuncMap.Bounce = UIEffect.UpdateBounce
 
 return UIEffect

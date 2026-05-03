@@ -4,13 +4,19 @@ local UIButtonClose = require(game.ReplicatedStorage.ScriptAlias.UIButtonClose)
 local UIButtonGamePass = require(game.ReplicatedStorage.ScriptAlias.UIButtonGamePass)
 local UIButtonDevelopProduct = require(game.ReplicatedStorage.ScriptAlias.UIButtonDevelopProduct)
 local UIButtonNewbiePack = require(game.ReplicatedStorage.ScriptAlias.UIButtonNewbiePack)
+local UIIcon = require(game.ReplicatedStorage.ScriptAlias.UIIcon)
 local BigNumber = require(game.ReplicatedStorage.ScriptAlias.BigNumber)
 local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local TimeUtil = require(game.ReplicatedStorage.ScriptAlias.TimeUtil)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local UIInfo = {}
 
-local Cache = {}
+local string_match = string.match
+local string_format = string.format
+local UDim2_new = UDim2.new
+
+local Cache = setmetatable({}, { __mode = "k" })
 
 function UIInfo:GetAllCache()
 	return Cache
@@ -40,9 +46,6 @@ function UIInfo:SetInfo(itemPart, info)
 	if not itemPart then return end
 	if not info then return end
 	local cache = UIInfo:GetCache(itemPart)
-	if not cache.ChildList then
-		cache.ChildList = itemPart:GetDescendants()
-	end
 
 	for key, value in pairs(info) do
 		UIInfo:SetValue(itemPart , key, value, cache)
@@ -53,18 +56,20 @@ function UIInfo:SetValueByNameImpl(itemPart, infoPartName, func, cache)
 	if cache then
 		local infoPartList = cache.InfoPartDic[infoPartName]
 		if not infoPartList then
-			infoPartList = Util:GetAllChildByName(itemPart, infoPartName, true, cache.ChildList)
+			infoPartList = Util:GetAllChildByName(itemPart, infoPartName, true)
 			cache.InfoPartDic[infoPartName] = infoPartList
 		end
 
-		for _, infoPart in ipairs(infoPartList) do
+		for index = 1, #infoPartList do
+			local infoPart = infoPartList[index] 
 			if infoPart and func then
 				func(infoPart)
 			end		
 		end	
 	else
 		local infoPartList = Util:GetAllChildByName(itemPart, infoPartName, true)
-		for _, infoPart in ipairs(infoPartList) do
+		for index = 1, #infoPartList do
+			local infoPart = infoPartList[index] 
 			if infoPart and func then
 				func(infoPart)
 			end		
@@ -82,18 +87,20 @@ function UIInfo:SetValueByTypeImpl(itemPart, partType, infoPartName, func, cache
 
 		local infoPartList = infoTypePartList[infoPartName]
 		if not infoPartList then
-			infoPartList = Util:GetAllChildByTypeAndName(itemPart, partType, infoPartName, true, cache.ChildList)
+			infoPartList = Util:GetAllChildByTypeAndName(itemPart, partType, infoPartName, true)
 			infoTypePartList[infoPartName] = infoPartList
 		end
 
-		for _, infoPart in ipairs(infoPartList) do
+		for index = 1, #infoPartList do
+			local infoPart = infoPartList[index] 
 			if infoPart and func then
 				func(infoPart)
 			end	
 		end	
 	else
 		local infoPartList = Util:GetAllChildByTypeAndName(itemPart, partType, infoPartName, true)
-		for _, infoPart in ipairs(infoPartList) do
+		for index = 1, #infoPartList do
+			local infoPart = infoPartList[index] 
 			if infoPart and func then
 				func(infoPart)
 			end	
@@ -158,7 +165,7 @@ function UIInfo:GetPartEnumCache(itemPart, key, value)
 	if not enumCache.EnumPrefix then
 		local enumPartNamePrefix = "Enum_" .. key .. "_"
 		enumCache.EnumPrefix = enumPartNamePrefix
-		local enumPartList = Util:GetAllChildByNameFuzzy(itemPart, enumPartNamePrefix, true, cache.ChildList)
+		local enumPartList = Util:GetAllChildByNameFuzzy(itemPart, enumPartNamePrefix, true)
 		enumCache.PartList = enumPartList
 	end
 	
@@ -218,7 +225,7 @@ function UIInfo:SetValue(itemPart, key, value, cache)
 		-- F2
 		partName = UIInfo:GetPartNameByKey("TextF2", key, cache)
 		UIInfo:SetValueByTypeImpl(itemPart, "TextLabel", partName, function(infoPart)
-			infoPart.Text = string.format("%.2f", value)
+			infoPart.Text = string_format("%.2f", value)
 		end,  cache)
 		
 		-- BigNumber
@@ -237,13 +244,13 @@ function UIInfo:SetValue(itemPart, key, value, cache)
 		partName = UIInfo:GetPartNameByKey("ImageFillAmount", key, cache)
 		UIInfo:SetValueByTypeImpl(itemPart, "ImageLabel", partName, function(infoPart)
 			local size = infoPart.Size
-			infoPart.Size = UDim2.new(value, size.X.Offset, size.Y.Scale, size.Y.Offset)
+			infoPart.Size = UDim2_new(value, size.X.Offset, size.Y.Scale, size.Y.Offset)
 		end, cache)
 		
 		partName = UIInfo:GetPartNameByKey("ImageFillAmountV", key, cache)
 		UIInfo:SetValueByTypeImpl(itemPart, "ImageLabel", partName, function(infoPart)
 			local size = infoPart.Size
-			infoPart.Size = UDim2.new(size.X.Scale, size.X.Offset, value, size.Y.Offset)
+			infoPart.Size = UDim2_new(size.X.Scale, size.X.Offset, value, size.Y.Offset)
 		end, cache)
 	
 		-- Enum Part
@@ -256,18 +263,6 @@ function UIInfo:SetValue(itemPart, key, value, cache)
 				enumPart.Visible = false
 			end
 		end
-		
-		-- Enum Part
-		--local enumPartNamePrefix = "Enum_"..key.."_"
-		--local enumPartName = enumPartNamePrefix..value
-		--local enumPartList = Util:GetAllChildByNameFuzzy(itemPart, enumPartNamePrefix, true, cache.ChildList)
-		--for _, enumPart in ipairs(enumPartList) do
-		--	if enumPart.Name == enumPartName then
-		--		enumPart.Visible = true
-		--	else
-		--		enumPart.Visible = false
-		--	end
-		--end
 	end
 
 	-- Boolean
@@ -285,11 +280,21 @@ function UIInfo:SetValue(itemPart, key, value, cache)
 	end
 end
 
-function UIInfo:HandleAllButton(uiRoot, uiScript, param, cacheChildList)
+function UIInfo:HandleAllButton(uiRoot, uiScript, param, isDynamic)
 	if not uiRoot then return end
-	local allButtonList = Util:GetAllChildByType(uiRoot, "GuiButton", true, cacheChildList)
+	
+	local allButtonList = nil
+	if isDynamic == nil then
+		isDynamic = false
+	end
+	
+	if isDynamic then
+		allButtonList = Util:GetAllChildByType(uiRoot, "GuiButton", true)
+	else
+		allButtonList = UIIndexManager:GetAllChildByType(uiRoot, "GuiButton")
+	end
+	
 	if not allButtonList then return end
-
 	for _, button in ipairs(allButtonList) do
 		-- 处理特殊按钮
 		local buttonName = button.Name
@@ -300,19 +305,19 @@ function UIInfo:HandleAllButton(uiRoot, uiScript, param, cacheChildList)
 		
 		-- IAP GamePass
 		
-		if string.match(buttonName, "^Button_.+_GamePass$") ~= nil then
+		if string_match(buttonName, "^Button_.+_GamePass$") ~= nil then
 			UIButtonGamePass:Handle(button)
 			continue
 		end
 		
 		-- IAP DevelopProduct
-		if string.match(buttonName, "^Button_.+_DevelopProduct$") ~= nil then
+		if string_match(buttonName, "^Button_.+_DevelopProduct$") ~= nil then
 			UIButtonDevelopProduct:Handle(button)
 			continue
 		end
 		
 		-- IAP NewbiePack
-		if string.match(buttonName, "^Button_.+_NewbiePack$") ~= nil then
+		if string_match(buttonName, "^Button_.+_NewbiePack$") ~= nil then
 			UIButtonNewbiePack:Handle(button)
 			continue
 		end

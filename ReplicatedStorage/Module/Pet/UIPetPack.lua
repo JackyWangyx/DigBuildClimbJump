@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local UIListSelect = require(game.ReplicatedStorage.ScriptAlias.UIListSelect)
@@ -10,6 +10,7 @@ local UIConfirm = require(game.ReplicatedStorage.ScriptAlias.UIConfirm)
 local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local PetUtil = require(game.ReplicatedStorage.ScriptAlias.PetUtil)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -38,14 +39,14 @@ function UIPetPack:Init(root)
 	UIPetPack.UIRoot = root
 	
 	local childList= UIPetPack.UIRoot:GetDescendants()
-	UIPetPack.InfoPart = Util:GetChildByName(UIPetPack.UIRoot, "InfoLab", childList)
-	UIPetPack.DeleteButton = Util:GetChildByName(UIPetPack.UIRoot, "Button_Delete", childList)
-	UIPetPack.DeleteLab = Util:GetChildByName(UIPetPack.UIRoot, "DeleteLab", childList)
-	UIPetPack.ButtonCraft = Util:GetChildByName(UIPetPack.UIRoot, "Button_Craft", childList)
-	UIPetPack.ButtonCraftRobux = Util:GetChildByName(UIPetPack.UIRoot, "Button_CraftRobux", childList)
-	UIPetPack.ButtonAddEquipMax = Util:GetChildByName(UIPetPack.UIRoot, "Button_AddEquipMax", childList)
-	UIPetPack.ButtonAddPackageMax = Util:GetChildByName(UIPetPack.UIRoot, "Button_AddPackageMax", childList)
-	UIPetPack.ButtonEquip = Util:GetChildByName(UIPetPack.UIRoot, "Button_Equip", childList)
+	UIPetPack.InfoPart = UIIndexManager:GetChildByName(UIPetPack.UIRoot, "InfoLab", childList)
+	UIPetPack.DeleteButton = UIIndexManager:GetChildByName(UIPetPack.UIRoot, "Button_Delete", childList)
+	UIPetPack.DeleteLab = UIIndexManager:GetChildByName(UIPetPack.UIRoot, "DeleteLab", childList)
+	UIPetPack.ButtonCraft = UIIndexManager:GetChildByName(UIPetPack.UIRoot, "Button_Craft", childList)
+	UIPetPack.ButtonCraftRobux = UIIndexManager:GetChildByName(UIPetPack.UIRoot, "Button_CraftRobux", childList)
+	UIPetPack.ButtonAddEquipMax = UIIndexManager:GetChildByName(UIPetPack.UIRoot, "Button_AddEquipMax", childList)
+	UIPetPack.ButtonAddPackageMax = UIIndexManager:GetChildByName(UIPetPack.UIRoot, "Button_AddPackageMax", childList)
+	UIPetPack.ButtonEquip = UIIndexManager:GetChildByName(UIPetPack.UIRoot, "Button_Equip", childList)
 end
 
 function UIPetPack:OnShow()
@@ -97,7 +98,7 @@ function UIPetPack:RefreshInfo()
 		local equipMax = result[3]
 		UIPetPack.EquipMax = equipMax
 		local equipCount = Util:ListCount(UIPetPack.ItemList, function(item)
-			local isEquip = AttributeUtil:GetInfoValue(item, "IsEquip")
+			local isEquip = ObjectInfo:GetInfoValue(item, "IsEquip")
 			return isEquip
 		end)
 		
@@ -133,9 +134,9 @@ function UIPetPack:SelectItem(index)
 	if index > #UIPetPack.ItemList then index = #UIPetPack.ItemList end
 	UIPetPack.SelectIndex = index
 	local item = UIPetPack.ItemList[index]
-	local data = AttributeUtil:GetData(item)
+	local data = ObjectInfo:GetData(item)
 	UIInfo:SetInfo(UIPetPack.InfoPart, data)
-	local info = AttributeUtil:GetInfo(item)
+	local info = ObjectInfo:GetInfo(item)
 	UIInfo:SetInfo(UIPetPack.InfoPart, info)
 
 	local isLock = info.IsLock;
@@ -171,10 +172,10 @@ end
 function UIPetPack:Button_Equip()
 	if not UIPetPack.ItemList or #UIPetPack.ItemList == 0 then return end
 	local selectItem = UIPetPack.ItemList[UIPetPack.SelectIndex]
-	local instanceID = AttributeUtil:GetInfoValue(selectItem, "InstanceID")
+	local instanceID = ObjectInfo:GetInfoValue(selectItem, "InstanceID")
 	NetClient:Request("Pet", "Equip", {InstanceID = instanceID}, function(result)
 		if result  then
-			AttributeUtil:SetInfoValue(selectItem, "IsEquip", true)
+			ObjectInfo:SetInfoValue(selectItem, "IsEquip", true)
 			UIInfo:SetValue(selectItem, "IsEquip", true)
 			UIPetPack:RefreshInfo()
 		end
@@ -184,10 +185,10 @@ end
 function UIPetPack:Button_UnEquip()
 	if not UIPetPack.ItemList or #UIPetPack.ItemList == 0 then return end
 	local selectItem = UIPetPack.ItemList[UIPetPack.SelectIndex]
-	local instanceID = AttributeUtil:GetInfoValue(selectItem, "InstanceID")
+	local instanceID = ObjectInfo:GetInfoValue(selectItem, "InstanceID")
 	NetClient:Request("Pet", "UnEquip", {InstanceID = instanceID}, function(result)
 		if result  then
-			AttributeUtil:SetInfoValue(selectItem, "IsEquip", false)
+			ObjectInfo:SetInfoValue(selectItem, "IsEquip", false)
 			UIInfo:SetValue(selectItem, "IsEquip", false)
 			UIPetPack:RefreshInfo()
 		end
@@ -262,7 +263,7 @@ function UIPetPack:Button_DeleteSelect()
 		}
 
 		for _, selectItem in pairs(selectList) do
-			local instanceID = AttributeUtil:GetInfoValue(selectItem, "InstanceID")
+			local instanceID = ObjectInfo:GetInfoValue(selectItem, "InstanceID")
 			table.insert(requestParam.InstanceIDList, instanceID)
 		end
 	
@@ -283,7 +284,7 @@ end
 function UIPetPack:SelectAll(isSelect)
 	if not UIPetPack.ItemList or #UIPetPack.ItemList == 0 then return end
 	for _, item in pairs(UIPetPack.ItemList) do
-		local isLock = AttributeUtil:GetInfoValue(item, "IsLock")
+		local isLock = ObjectInfo:GetInfoValue(item, "IsLock")
 		if isLock then
 			isSelect = false
 		end
@@ -297,7 +298,7 @@ end
 function UIPetPack:Button_Craft()
 	if not UIPetPack.ItemList or #UIPetPack.ItemList == 0 then return end
 	local selectItem = UIPetPack.ItemList[UIPetPack.SelectIndex]
-	local instanceID = AttributeUtil:GetInfoValue(selectItem, "InstanceID")
+	local instanceID = ObjectInfo:GetInfoValue(selectItem, "InstanceID")
 	NetClient:Request("Pet", "CheckCanCraft", { InstanceID = instanceID }, function(result)
 		if result then
 			NetClient:Request("Pet", "Craft", { InstanceID = instanceID }, function(result)
@@ -314,7 +315,7 @@ end
 function UIPetPack:Button_CraftRobux()
 	if not UIPetPack.ItemList or #UIPetPack.ItemList == 0 then return end
 	local selectItem = UIPetPack.ItemList[UIPetPack.SelectIndex]
-	local instanceID = AttributeUtil:GetInfoValue(selectItem, "InstanceID")
+	local instanceID = ObjectInfo:GetInfoValue(selectItem, "InstanceID")
 	NetClient:Request("Pet", "CheckCraftMaxLevel", { InstanceID = instanceID }, function(result)
 		if not result then
 			IAPClient:Purchase("CraftPet", { InstanceID = instanceID }, function(result)

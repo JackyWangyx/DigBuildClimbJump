@@ -5,7 +5,7 @@ local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 local UIInfo = require(game.ReplicatedStorage.ScriptAlias.UIInfo)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local TimeUtil = require(game.ReplicatedStorage.ScriptAlias.TimeUtil)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
@@ -24,10 +24,8 @@ UIRunnerGameInfo.TextGameTimer = nil
 UIRunnerGameInfo.ImageSpeedArrow = nil
 
 function UIRunnerGameInfo:Init(root)
-	local childList = root:GetDescendants()
-	
-	UIRunnerGameInfo.GameFrame = Util:GetChildByName(root, "GameFrame", true, childList)
-	UIRunnerGameInfo.PlayerGameFrame = Util:GetChildByName(root, "PlayerGameFrame", true, childList)
+	UIRunnerGameInfo.GameFrame = Util:GetChildByName(root, "GameFrame", true)
+	UIRunnerGameInfo.PlayerGameFrame = Util:GetChildByName(root, "PlayerGameFrame", true)
 	
 	EventManager:Listen(EventManager.Define.PetLootStart, function()
 		UIRunnerGameInfo.GameFrame.Visible = false
@@ -37,14 +35,14 @@ function UIRunnerGameInfo:Init(root)
 		UIRunnerGameInfo.GameFrame.Visible = true
 	end)
 	
-	UIRunnerGameInfo.TopRankTrans = Util:GetChildByName(UIRunnerGameInfo.GameFrame, "TopRankTrans", true, childList)
-	UIRunnerGameInfo.BottonRankTrans = Util:GetChildByName(UIRunnerGameInfo.GameFrame, "BottonRankTrans", true, childList)
-	UIRunnerGameInfo.RankBar[1] = Util:GetChildByName(UIRunnerGameInfo.GameFrame, "RankBar01", true, childList)
-	UIRunnerGameInfo.RankBar[2] = Util:GetChildByName(UIRunnerGameInfo.GameFrame, "RankBar02", true, childList)
-	UIRunnerGameInfo.RankBar[3] = Util:GetChildByName(UIRunnerGameInfo.GameFrame, "RankBar03", true, childList)
+	UIRunnerGameInfo.TopRankTrans = Util:GetChildByName(UIRunnerGameInfo.GameFrame, "TopRankTrans", true)
+	UIRunnerGameInfo.BottonRankTrans = Util:GetChildByName(UIRunnerGameInfo.GameFrame, "BottonRankTrans", true)
+	UIRunnerGameInfo.RankBar[1] = Util:GetChildByName(UIRunnerGameInfo.GameFrame, "RankBar01", true)
+	UIRunnerGameInfo.RankBar[2] = Util:GetChildByName(UIRunnerGameInfo.GameFrame, "RankBar02", true)
+	UIRunnerGameInfo.RankBar[3] = Util:GetChildByName(UIRunnerGameInfo.GameFrame, "RankBar03", true)
 
-	UIRunnerGameInfo.TextGameTimer = Util:GetChildByName(root, "Text_GameTimer", true, childList)
-	UIRunnerGameInfo.ImageSpeedArrow = Util:GetChildByName(root, "Image_SpeedArrow", true, childList)
+	UIRunnerGameInfo.TextGameTimer = Util:GetChildByName(root, "Text_GameTimer", true)
+	UIRunnerGameInfo.ImageSpeedArrow = Util:GetChildByName(root, "Image_SpeedArrow", true)
 	
 	EventManager:Listen(EventManager.Define.RefreshGameInfo, function(gameInfo, playerList)
 		UIRunnerGameInfo:RefreshGameInfo(gameInfo, playerList)
@@ -110,7 +108,7 @@ function UIRunnerGameInfo:RefreshTopRank(gameInfo, playerList)
 	local itemList = UIList:LoadWithInfo(UIRunnerGameInfo.TopRankTrans, "UITopRankItem", rankList)
 	
 	for index, item in pairs(itemList) do
-		local playerID = AttributeUtil:GetInfoValue(item, "UserID")
+		local playerID = ObjectInfo:GetInfoValue(item, "UserID")
 		local player = PlayerManager:GetPlayerById(playerID)
 		PlayerManager:GetHeadIconAsync(player, function(icon)
 			if not item then return end
@@ -125,7 +123,7 @@ function UIRunnerGameInfo:RefreshBottonRank(gameInfo, playerList)
 	UIList:HadnlePlayerHeadIconAsync(itemList)
 	
 	for _, item in ipairs(itemList) do
-		local distance = AttributeUtil:GetInfoValue(item, "Distance")
+		local distance = ObjectInfo:GetInfoValue(item, "Distance")
 		local rankInfo = UIRunnerGameInfo:GetRankBarProgress(distance)
 		local bar = UIRunnerGameInfo.RankBar[rankInfo.Index]
 		local progress = rankInfo.Progress

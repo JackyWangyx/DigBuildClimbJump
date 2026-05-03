@@ -1,4 +1,4 @@
-﻿local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+﻿local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local UIInfo = require(game.ReplicatedStorage.ScriptAlias.UIInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 
@@ -18,7 +18,7 @@ function UIListSelect:HandleSelectMany(itemList, selectFunc)
 		end
 		connection = button.MouseButton1Click:Connect(function()
 			UIListSelect:ClickSelect(item)
-			local isSelect = AttributeUtil:GetInfoValue(item, "IsSelect")
+			local isSelect = ObjectInfo:GetInfoValue(item, "IsSelect")
 			if isSelect and selectFunc then
 				selectFunc(item)
 			end
@@ -40,7 +40,7 @@ function UIListSelect:HandleSelectOne(itemList, selectFunc)
 		connection = button.MouseButton1Click:Connect(function()
 			UIListSelect:DeSelectAll(itemList)
 			UIListSelect:ClickSelect(item)
-			local isSelect = AttributeUtil:GetInfoValue(item, "IsSelect")
+			local isSelect = ObjectInfo:GetInfoValue(item, "IsSelect")
 			if isSelect and selectFunc then
 				selectFunc(item)
 			end
@@ -52,7 +52,7 @@ end
 
 function UIListSelect:SetSelect(item, isSelect)
 	if not item then return end
-    AttributeUtil:SetInfoValue(item, "IsSelect", isSelect)
+	ObjectInfo:SetInfoValue(item, "IsSelect", isSelect)
     UIInfo:SetValue(item, "IsSelect", isSelect)
 end
 
@@ -68,7 +68,7 @@ end
 
 function UIListSelect:ClickSelect(item)
 	if not item then return end
-    local isSelect = AttributeUtil:GetInfoValue(item, "IsSelect")
+	local isSelect = ObjectInfo:GetInfoValue(item, "IsSelect")
     UIListSelect:SetSelect(item, not isSelect)
 end
 
@@ -90,7 +90,7 @@ function UIListSelect:GetSelectList(itemList)
 	if not itemList then return {} end
     local selectItemList = {}
 	for _, item in ipairs(itemList) do
-        local isSelect = AttributeUtil:GetInfoValue(item, "IsSelect")
+		local isSelect = ObjectInfo:GetInfoValue(item, "IsSelect")
         if isSelect then
             table.insert(selectItemList, item)
         end

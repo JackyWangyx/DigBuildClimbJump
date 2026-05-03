@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local UIListSelect = require(game.ReplicatedStorage.ScriptAlias.UIListSelect)
@@ -14,6 +14,7 @@ local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local TimeUtil = require(game.ReplicatedStorage.ScriptAlias.TimeUtil)
 local TimerManager = require(game.ReplicatedStorage.ScriptAlias.TimerManager)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -29,9 +30,9 @@ UICollection.SelectWorldIndex = 1
 
 function UICollection:Init(root)
 	UICollection.UIRoot = root
-	UICollection.BackFrame = Util:GetChildByName(root, "BackFrame")
-	UICollection.ListFrame = Util:GetChildByName(root, "ListFrame")
-	UICollection.WorldFrame = Util:GetChildByName(root, "WorldFrame")
+	UICollection.BackFrame = UIIndexManager:GetChildByName(root, "BackFrame")
+	UICollection.ListFrame = UIIndexManager:GetChildByName(root, "ListFrame")
+	UICollection.WorldFrame = UIIndexManager:GetChildByName(root, "WorldFrame")
 end
 
 function UICollection:OnShow(param)

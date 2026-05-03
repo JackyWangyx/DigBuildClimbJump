@@ -19,15 +19,9 @@ function UINotify:Handle(targetPart, checker, refreshType, refreshParam)
 	notifyPart.Visible = false
 	if refreshType == UINotify.RefreshType.AutoRefresh then
 		local refreshTime = refreshParam or 1
-		local lastRefreshTime = tick()
 		UpdatorManager:Heartbeat(function(deltaTime)
-			local currentTime = tick()
-			if currentTime - lastRefreshTime > refreshTime then
-				checker(notifyPart)
-				--notifyPart.Visible = show
-				lastRefreshTime = currentTime
-			end
-		end)
+			checker(notifyPart)
+		end, refreshTime)
 	elseif refreshType == UINotify.RefreshType.ListenEvent then
 		local eventName = refreshParam
 		EventManager:Listen(eventName, function()

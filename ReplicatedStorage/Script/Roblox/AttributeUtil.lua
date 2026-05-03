@@ -7,12 +7,29 @@ local PREFIX = {
 	Info = "Info_",
 }
 
--- 内部：生成完整 Key
+local CompleteKeyCache = {}
+
+-- 内部：生成完整 Key 并缓存，减少拼接
 local function getKey(prefix, key)
-	if not Util:IsStrStartWith(key, prefix) then
-		return prefix .. key
+	local keyDic = CompleteKeyCache[prefix]
+	if not keyDic then
+		keyDic = {}
+		CompleteKeyCache[prefix] = keyDic
 	end
-	return key
+
+	local result = keyDic[key]
+	if not result then
+		local prefixLen = #prefix
+		if key:sub(1, prefixLen) ~= prefix then
+			result = prefix .. key
+		else
+			result = key
+		end
+
+		keyDic[key] = result
+	end
+
+	return result
 end
 
 -- 内部：获取/设置单值
@@ -32,8 +49,8 @@ local function getAll(part, prefix)
 	local result = {}
 	local attributes = part:GetAttributes()
 	for name, val in pairs(attributes) do
-		if Util:IsStrStartWith(name, prefix) then
-			local shortKey = string.gsub(name, "^" .. prefix, "")
+		if name:sub(1, #prefix) == prefix then
+			local shortKey = name:sub(#prefix + 1)
 			result[shortKey] = val
 		end
 	end

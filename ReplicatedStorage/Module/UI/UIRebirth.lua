@@ -12,6 +12,7 @@ local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local UIRebirth = {}
 
@@ -20,7 +21,7 @@ UIRebirth.MaxFrame = nil
 
 function UIRebirth:Init(root)
 	UIRebirth.UIRoot = root
-	UIRebirth.MaxFrame = Util:GetChildByName(UIRebirth.UIRoot, "MaxFrame")
+	UIRebirth.MaxFrame = UIIndexManager:GetChildByName(UIRebirth.UIRoot, "MaxFrame")
 	
 	EventManager:Listen(EventManager.Define.RefreshRebirth, function()
 		UIRebirth:Refresh()

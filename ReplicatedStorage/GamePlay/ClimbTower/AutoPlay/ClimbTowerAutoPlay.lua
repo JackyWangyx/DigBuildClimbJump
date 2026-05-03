@@ -8,6 +8,7 @@ local SceneAreaManager = require(game.ReplicatedStorage.ScriptAlias.SceneAreaMan
 local BuildingManager = require(game.ReplicatedStorage.ScriptAlias.BuildingManager)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local UpdatorManager = require(game.ReplicatedStorage.ScriptAlias.UpdatorManager)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local ClimbTowerGameLoop = nil
 local ClimbTowerGameManager = nil

@@ -111,7 +111,10 @@ function ClimbTowerGameManager:Enter(index)
 	if isEntering then return end
 	isEntering = true
 	
-	SoundManager:PlaySFX(ClimbTowerGameManager.ToolData.Sfx)
+	--if ClimbTowerGameManager.ToolData then
+	--	SoundManager:PlaySFX(ClimbTowerGameManager.ToolData.Sfx)
+	--end
+	
 	NetClient:Request("ClimbTower", "Enter", { Index = index }, function(success)
 		if success then
 			EventManager:Dispatch(EventManager.Define.GameStart)			
@@ -258,7 +261,7 @@ end
 
 function ClimbTowerGameManager:DigGetPower()
 	NetClient:Request("ClimbTower", "DigGetPower", function(result)
-		
+
 	end)
 end
 

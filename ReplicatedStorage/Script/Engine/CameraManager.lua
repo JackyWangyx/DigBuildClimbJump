@@ -23,7 +23,7 @@ end
 local camera = game.Workspace.CurrentCamera
 
 local ShakeDurationDefault = 0.4
-local ShakePowerDefault    = 1.5
+local ShakePowerDefault    = 10.5
 
 local FADE_OUT       = true 
 

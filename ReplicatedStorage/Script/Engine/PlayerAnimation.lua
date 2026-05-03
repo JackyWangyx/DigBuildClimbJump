@@ -102,9 +102,16 @@ function PlayerAnimation:GetAnimation(animationAssetID)
 	if not animationAssetID then return nil end
 	local animation = AnimationCache[animationAssetID]
 	if not animation then
-		animation = Instance.new("Animation")
-		animation.AnimationId = animationAssetID
-		AnimationCache[animationAssetID] = animation
+		local success, err = pcall(function()
+			animation = Instance.new("Animation")
+			animation.AnimationId = animationAssetID
+		end)
+		
+		if success then
+			AnimationCache[animationAssetID] = animation
+		else
+			warn("[Player Animation] Create Faild!", animationAssetID, err)
+		end
 	end
 
 	return animation
@@ -133,7 +140,7 @@ function PlayerAnimation:PlayAnimation(player, animationAssetID, loop, speed)
 	local cache = PlayerAnimation:GetPlayerAnimationCache(player)
 	if cache.CurrentTrack then
 		cache.CurrentTrack:Stop(AnimationFadeOutTime)
-		--cache.CurrentTrack:Destroy()
+		cache.CurrentTrack:Destroy()
 		cache.CurrentTrack = nil
 	end
 
@@ -154,30 +161,38 @@ function PlayerAnimation:PlayAnimation(player, animationAssetID, loop, speed)
 	--end
 
 	-- 创建动画对象
-	local animation = PlayerAnimation:GetAnimation(animationAssetID)
-	local track = cache.Animator:LoadAnimation(animation)
-	track.Stopped:Connect(function()
-		track:Destroy()
+	local track = nil
+	local success, err = pcall(function()
+			local animation = PlayerAnimation:GetAnimation(animationAssetID)
+			track = cache.Animator:LoadAnimation(animation)
 	end)
 	
-	track.Priority = AnimationPriority
-	track.Looped = loop or false
-	track:Play(AnimationFadeInTime, AnimationWeight)
-	track:AdjustSpeed(speed or 1)
-
-	cache.CurrentTrack = track
-	
-	if not loop then
-		local length = track.Length
-		task.delay(length, function()
-			if track and track.IsPlaying then
-				if cache.CurrentTrack == track then
-					cache.CurrentTrack = nil
-				end
-				
-				track:Stop()
-			end
+	if success and track then
+		track.Stopped:Connect(function()
+			track:Destroy()
 		end)
+
+		track.Priority = AnimationPriority
+		track.Looped = loop or false
+		track:Play(AnimationFadeInTime, AnimationWeight)
+		track:AdjustSpeed(speed or 1)
+
+		cache.CurrentTrack = track
+
+		if not loop then
+			local length = track.Length
+			task.delay(length, function()
+				if track and track.IsPlaying then
+					if cache.CurrentTrack == track then
+						cache.CurrentTrack = nil
+					end
+
+					track:Stop()
+				end
+			end)
+		end
+	else
+		warn("[Player Animation] Load Faild!", animationAssetID, err)
 	end
 end
 
@@ -187,7 +202,7 @@ function PlayerAnimation:StopAnimation(player, animationAssetID)
 	local cache = PlayerAnimation:GetPlayerAnimationCache(player)
 	if cache and cache.CurrentTrack then
 		cache.CurrentTrack:Stop(AnimationFadeOutTime)
-		--cache.CurrentTrack:Destroy()
+		cache.CurrentTrack:Destroy()
 		cache.CurrentTrack = nil
 	end
 

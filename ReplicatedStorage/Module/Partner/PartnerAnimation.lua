@@ -24,6 +24,7 @@ local playerHumanoid, playerAnimator
 -- 动画缓存
 local npcTracks = {}
 local currentNPCPlayingIds = {}
+local connections = {}
 
 -- 同步节流
 local SYNC_INTERVAL = 0.1
@@ -36,13 +37,40 @@ local TIME_THRESHOLD = 0.1
 local END_BUFFER_TIME = 0.15
 local endingBuffer = {}
 
+local DEFAULT_IDLE_ANIMATION_IDS = {
+	["507766666"] = true,
+	["507766951"] = true,
+	["507766388"] = true,
+}
+
 ----------------------------------------------------
 -- 工具函数
 ----------------------------------------------------
 
 local function isIdleAnimation(animationId)
 	if not animationId then return false end
-	return string.lower(animationId):find("idle") ~= nil
+	local normalizedId = string.match(animationId, "%d+")
+	return string.lower(animationId):find("idle") ~= nil or DEFAULT_IDLE_ANIMATION_IDS[normalizedId] == true
+end
+
+local function clearAnimatorTracks()
+	for _, track in ipairs(npcAnimator:GetPlayingAnimationTracks()) do
+		track:Stop(0)
+		track:Destroy()
+	end
+end
+
+local function destroyNPCTracks()
+	for _, track in pairs(npcTracks) do
+		if track then
+			track:Stop(0)
+			track:Destroy()
+		end
+	end
+
+	npcTracks = {}
+	currentNPCPlayingIds = {}
+	endingBuffer = {}
 end
 
 local function isValidTrack(track)
@@ -78,8 +106,10 @@ end
 ----------------------------------------------------
 local function stopNPCTrack(animationId)
 	local track = npcTracks[animationId]
-	if track and track.IsPlaying then
+	if track then
 		track:Stop()
+		track:Destroy()
+		npcTracks[animationId] = nil
 	end
 end
 
@@ -148,7 +178,7 @@ local function syncAnimation()
 		if not currentNPCPlayingIds[id] then
 			npcTrack = loadAnimation(id)
 			if npcTrack then
-				npcTrack:Play()
+				npcTrack:Play(0.1)
 				currentNPCPlayingIds[id] = true
 			end
 		end
@@ -171,7 +201,11 @@ local function syncAnimation()
 			local diff = playerTrack.TimePosition - npcTrack.TimePosition
 
 			if math.abs(diff) > TIME_THRESHOLD then
-				npcTrack.TimePosition += diff * 0.35
+				if math.abs(diff) > 0.5 then
+					npcTrack.TimePosition = playerTrack.TimePosition
+				else
+					npcTrack.TimePosition += diff * 0.5
+				end
 			end
 		end
 	end
@@ -182,10 +216,10 @@ end
 ----------------------------------------------------
 local function throttledSync(deltaTime)
 	lastSync += deltaTime
-	--if lastSync >= SYNC_INTERVAL then
+	if lastSync >= SYNC_INTERVAL then
 		lastSync = 0
 		syncAnimation()
-	--end
+	end
 end
 
 ----------------------------------------------------
@@ -196,24 +230,29 @@ local function updatePlayerReferences(newCharacter)
 	playerHumanoid = character and character:FindFirstChild("Humanoid")
 	playerAnimator = playerHumanoid and playerHumanoid:FindFirstChild("Animator")
 
-	-- 清空 NPC 动画状态
-	for id in pairs(currentNPCPlayingIds) do
-		stopNPCTrack(id)
-	end
-
-	currentNPCPlayingIds = {}
-	npcTracks = {}
-	endingBuffer = {}
+	destroyNPCTracks()
 end
 
 ----------------------------------------------------
 -- 初始化
 ----------------------------------------------------
 updatePlayerReferences(character)
+clearAnimatorTracks()
 
-player.CharacterAdded:Connect(updatePlayerReferences)
+table.insert(connections, player.CharacterAdded:Connect(updatePlayerReferences))
 
 ----------------------------------------------------
 -- 主循环
 ----------------------------------------------------
-RunService.Heartbeat:Connect(throttledSync)
+table.insert(connections, RunService.Heartbeat:Connect(throttledSync))
+
+table.insert(connections, script.Destroying:Connect(function()
+	for _, connection in ipairs(connections) do
+		connection:Disconnect()
+	end
+	destroyNPCTracks()
+	clearAnimatorTracks()
+	if animateScript then
+		animateScript:Destroy()
+	end
+end))

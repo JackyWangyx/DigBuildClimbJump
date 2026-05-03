@@ -7,6 +7,7 @@ local ResourcesManager = require(game.ReplicatedStorage.ScriptAlias.ResourcesMan
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local UIAnimation = require(game.ReplicatedStorage.ScriptAlias.UIAnimation)
 local UIEffect = require(game.ReplicatedStorage.ScriptAlias.UIEffect)
@@ -106,7 +107,8 @@ function UIManager:InitImpl()
 	
 	UIInfoDic = {}
 	local function initFolderPages(folder)
-		for _, uiPrefab in ipairs(folder:GetChildren()) do
+		local pageList = folder:GetChildren()
+		for _, uiPrefab in ipairs(pageList) do
 			if uiPrefab:IsA("ScreenGui") then
 				local success, msg = pcall(function()
 					local pageInstance = uiPrefab:Clone()
@@ -127,13 +129,13 @@ function UIManager:InitImpl()
 	
 	task.wait()
 	UIManager:Show("UIMain")
-	task.wait()
 	UIManager:Cover("UIMessage")
 end
 
 function UIManager:InitPage(page)
-	local isScreenGui = page:IsA("ScreenGui")
-	local isSurfaceGui = page:IsA("SurfaceGui")
+	local pageType = page.ClassName
+	local isScreenGui = pageType == "ScreenGui"
+	local isSurfaceGui = pageType == "SurfaceGui"
 	if isScreenGui then
 		page.Parent = UIManager.PlayerGUI
 		page.Enabled = false
@@ -146,13 +148,9 @@ function UIManager:InitPage(page)
 		EnableAnimation = true,
 	}
 
-	local uiScriptFile = Util:GetChildByTypeAndName(
-		game.ReplicatedStorage, 
-		"ModuleScript", 
-		uiInfo.Name, 
-		true 
-	)
-	
+	local uiScriptFile = ResourcesManager:GetScript(uiInfo.Name)
+	UIIndexManager:BuildIndex(page)
+
 	if uiScriptFile then
 		local uiScript = require(uiScriptFile)
 		uiInfo.Script = uiScript
@@ -169,16 +167,14 @@ function UIManager:InitPage(page)
 			UIAnimation:HandlePageHide(uiInfo, uiScript.HideAnimationType)
 		end
 			
-		local childList = uiInfo.UI:GetDescendants()
-		UIPage:Handle(uiInfo.UI, uiScript, childList)
-
+		UIPage:Handle(uiInfo.UI, uiScript)
 		if uiInfo.InitFunc then
 			task.spawn(function()
 				uiInfo.InitFunc(uiScript, uiInfo.UI)
 			end)
 		end
 	end
-	
+
 	UIEffect:HandleUIInfo(uiInfo)
 	UIInfoDic[uiInfo.Name] = uiInfo
 end

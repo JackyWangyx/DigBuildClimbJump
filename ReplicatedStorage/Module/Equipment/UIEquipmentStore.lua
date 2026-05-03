@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local UIListSelect = require(game.ReplicatedStorage.ScriptAlias.UIListSelect)
@@ -14,6 +14,7 @@ local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 local ActivityUtil = require(game.ReplicatedStorage.ScriptAlias.ActivityUtil)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -27,7 +28,7 @@ UIEquipmentStore.SelectIndex = 1
 
 function UIEquipmentStore:Init(root)
 	UIEquipmentStore.UIRoot = root
-	UIEquipmentStore.InfoPart = Util:GetChildByName(UIEquipmentStore.UIRoot, "InfoLab")
+	UIEquipmentStore.InfoPart = UIIndexManager:GetChildByName(UIEquipmentStore.UIRoot, "InfoLab")
 end
 
 function UIEquipmentStore:OnShow(param)
@@ -142,9 +143,9 @@ function UIEquipmentStore:SelectItem(index)
 	if index > #UIEquipmentStore.ItemList then index = #UIEquipmentStore.ItemList end
 	UIEquipmentStore.SelectIndex = index
 	local item = UIEquipmentStore.ItemList[index]
-	local data = AttributeUtil:GetData(item)
+	local data = ObjectInfo:GetData(item)
 	UIInfo:SetInfo(UIEquipmentStore.InfoPart, data)
-	local info = AttributeUtil:GetInfo(item)
+	local info = ObjectInfo:GetInfo(item)
 	UIInfo:SetInfo(UIEquipmentStore.InfoPart, info)
 	
 	--local infoNewbiePart = Util:GetChildByName(UIEquipmentStore.InfoPart, "Info_CostNewbie")
@@ -157,7 +158,7 @@ function UIEquipmentStore:Button_Equip()
 	if not UIEquipmentStore.ItemList or #UIEquipmentStore.ItemList == 0 then return end
 	UIEquipmentStore:CheckBeforeChangeEquipment()
 	local selectItem = UIEquipmentStore.ItemList[UIEquipmentStore.SelectIndex]
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
 	NetClient:Request("Equipment", "Equip", {ID = id}, function()
 		UIEquipmentStore:Refresh()
 		EventManager:Dispatch(EventManager.Define.RefreshEquipment)
@@ -168,7 +169,7 @@ function UIEquipmentStore:Button_UnEquip()
 	if not UIEquipmentStore.ItemList or #UIEquipmentStore.ItemList == 0 then return end
 	UIEquipmentStore:CheckBeforeChangeEquipment()
 	local selectItem = UIEquipmentStore.ItemList[UIEquipmentStore.SelectIndex]
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
 	NetClient:Request("Equipment", "UnEquip", function()
 		UIEquipmentStore:Refresh()
 		EventManager:Dispatch(EventManager.Define.RefreshEquipment)
@@ -187,7 +188,7 @@ end
 function UIEquipmentStore:Button_Buy()
 	if not UIEquipmentStore.ItemList or #UIEquipmentStore.ItemList == 0 then return end
 	local selectItem = UIEquipmentStore.ItemList[UIEquipmentStore.SelectIndex]
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
 	NetClient:Request("Equipment", "Buy", {ID = id}, function(result)
 		if result.Success then
 			task.wait()
@@ -205,8 +206,8 @@ end
 function UIEquipmentStore:Button_BuyRobux()
 	if not UIEquipmentStore.ItemList or #UIEquipmentStore.ItemList == 0 then return end
 	local selectItem = UIEquipmentStore.ItemList[UIEquipmentStore.SelectIndex]
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
-	local productKey = AttributeUtil:GetInfoValue(selectItem, "ProductKey")
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
+	local productKey = ObjectInfo:GetInfoValue(selectItem, "ProductKey")
 	IAPClient:Purchase(productKey, function(success)
 		if success then
 			task.wait()
@@ -221,7 +222,7 @@ end
 function UIEquipmentStore:Button_Activity()
 	if not UIEquipmentStore.ItemList or #UIEquipmentStore.ItemList == 0 then return end
 	local selectItem = UIEquipmentStore.ItemList[UIEquipmentStore.SelectIndex]
-	local info = AttributeUtil:GetInfo(selectItem)
+	local info = ObjectInfo:GetInfo(selectItem)
 	local activityKey = info.ActivityKey
 	if activityKey then
 		UIManager:ShowAndHideOther("UISignActivity", {

@@ -1,6 +1,7 @@
 ﻿local RunService = game:GetService("RunService")
 
 local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
+local ResourcesManager = require(game.ReplicatedStorage.ScriptAlias.ResourcesManager)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local SceneAreaManager = require(game.ReplicatedStorage.ScriptAlias.SceneAreaManager)
 
@@ -28,10 +29,12 @@ function ConfigManager:GetDataSource()
 	return nil
 end
 
+-- 过滤符合当前数据源的数据
 function ConfigManager:FliterDataSource(configName, infoList)
-	local resul = {}
+	local result = {}
 	local currentDataSource = ConfigManager:GetDataSource()
-	for index, info in ipairs(infoList) do
+	for index = 1, #infoList do
+		local info = infoList[index]
 		local dataSource = info.DataSource
 		if not dataSource then
 			local data = ConfigManager:GetData(configName, info.ID)
@@ -41,12 +44,12 @@ function ConfigManager:FliterDataSource(configName, infoList)
 		end
 		
 		if dataSource == nil or dataSource == currentDataSource then
-			table.insert(resul, info)
+			result[#result + 1] = info
 		end
 	end
 	
-	infoList = resul
-	return resul
+	infoList = result
+	return result
 end
 
 function ConfigManager:GetTableName(str)
@@ -211,7 +214,8 @@ function ConfigManager:SearchData(configName, ...)
 		return nil
 	end
 	
-	for _, data in ipairs(dataList) do
+	for index = 1, #dataList do
+		local data = dataList[index]
 		local match = true
 		for i = 1, #args, 2 do
 			local key = args[i]
@@ -244,7 +248,8 @@ function ConfigManager:SearchAllData(configName, ...)
 	end
 
 	local result = {}
-	for _, data in ipairs(dataList) do
+	for index = 1, #dataList do
+		local data = dataList[index]
 		local match = true
 		for i = 1, #args, 2 do
 			local key = args[i]
@@ -256,7 +261,7 @@ function ConfigManager:SearchAllData(configName, ...)
 		end
 
 		if match then
-			table.insert(result, data)
+			result[#result + 1] = data
 		end
 	end
 
@@ -268,7 +273,8 @@ function ConfigManager:Log(dataList)
 		warn("Invalid or empty table data")
 		return
 	end
-	for i, data in pairs(dataList) do
+	for index = 1, #dataList do
+		local data = dataList[index]
 		local line = ""
 		for key, value in pairs(data) do
 			line = line..key .. ":" .. value.."\t "

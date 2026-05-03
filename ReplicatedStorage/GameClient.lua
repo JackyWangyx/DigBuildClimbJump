@@ -131,20 +131,24 @@ function GameClient:StartLoading()
 		end
 		
 		local endTime = tick()
-		local spendTime = Util:RoundFloat((endTime - startTime) * 1000, 3)	
+		local spendTime = math.round((endTime - startTime) * 1000)	
 		progress = Util:RoundFloat(index * 1.0 / count, 2)
 		Info.Time = spendTime
 		Info.Progress = progress
 		GameClient:RefreshProgress(Info)
 		
-		while spendTime < 0.15 do
-			spendTime += 1.0 / 60
-			task.wait()
-		end
+		--while spendTime < 0.15 do
+		--	spendTime += 1.0 / 60
+		--	task.wait()
+		--end
 		
 		TargetProgress = progress
 		
-		--LogUtil:Log(name, progress, spendTime.." ms")
+		--if name == "UI Manager" then
+		--	warn(name, progress, spendTime.." ms")
+		--end
+		
+		--LogUtil:Log(name, " - ", spendTime .. " ms")
 		task.wait()
 	end
 	
@@ -187,15 +191,17 @@ function GameClient:LoadProcess(loadModule, onDone)
 	if success then
 		return true
 	else
-		warn("[Client] Init Fail : ", debug.traceback(result, 2))
+		--warn("[Client] Init Fail : ", debug.traceback(result, 2))
 		return false
 	end
 end
 
 function GameClient:Update(deltaTime)
 	if not Info then return end
-	local speed = 2  
-	CurrentProgress = CurrentProgress + (TargetProgress - CurrentProgress) * math.clamp(deltaTime * speed, 0, 1)
+	
+	local speed = 2
+	CurrentProgress = math.lerp(CurrentProgress, TargetProgress, deltaTime * speed)
+	
 	Info.Progress = CurrentProgress
 	Info.ProgressText = math.round(CurrentProgress * 100) .. "%"
 	GameClient:RefreshProgress(Info)

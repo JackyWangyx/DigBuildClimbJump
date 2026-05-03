@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local UIListSelect = require(game.ReplicatedStorage.ScriptAlias.UIListSelect)
@@ -12,6 +12,7 @@ local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local EventManager = require(game.ReplicatedStorage.ScriptAlias.EventManager)
 local TimerManager = require(game.ReplicatedStorage.ScriptAlias.TimerManager)
 local TimeUtil = require(game.ReplicatedStorage.ScriptAlias.TimeUtil)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local Define = require(game.ReplicatedStorage.Define)
 
@@ -31,8 +32,8 @@ UITheme.HandleButtonList = false
 
 function UITheme:Init(root)
 	UITheme.UIRoot = root
-	UITheme.InfoFrame = Util:GetChildByName(root, "ThemeInfo")
-	UITheme.ThemeFrame = Util:GetChildByName(root, "ThemeList")
+	UITheme.InfoFrame = UIIndexManager:GetChildByName(root, "ThemeInfo")
+	UITheme.ThemeFrame = UIIndexManager:GetChildByName(root, "ThemeList")
 end
 
 function UITheme:OnShow(param)

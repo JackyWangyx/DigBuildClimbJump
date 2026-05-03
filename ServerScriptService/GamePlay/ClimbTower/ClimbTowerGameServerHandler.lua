@@ -176,6 +176,7 @@ function ClimbTowerGameServerHandler:Enter(player, param)
 		ArriveDistance = 0,
 		CurrentDistance = 0,
 		IsGetWins = false,
+		IsGetCoin = false,
 		RewardCoinPerMeter = rewardCoinPerMeter,
 		MoveSpeed = gameInitParam.Speed,
 		GamePhase = ClimbTowerDefine.GamePhase.Up,
@@ -258,7 +259,8 @@ end
 function ClimbTowerGameServerHandler:GetCoin(player)
 	local playerInfo = PlayerCache[player]
 	if not playerInfo then return false end
-	
+	if playerInfo.IsGetCoin then return false end
+
 	--print(playerInfo, playerInfo.RewardCoinPerMeter, playerInfo.ArriveDistance)
 	local getCoinFactor = PlayerProperty:GetGamePropertyValue(player, PlayerProperty.Define.GET_COIN_FACTOR)
 	local value = math.round(playerInfo.RewardCoinPerMeter * playerInfo.ArriveDistance * getCoinFactor)
@@ -267,6 +269,8 @@ function ClimbTowerGameServerHandler:GetCoin(player)
 	--warn(playerInfo.RewardCoinPerMeter, playerInfo.ArriveDistance, value, getCoinFactor)
 	
 	accountRequest:AddCoin(player, { Value = value })
+	playerInfo.IsGetCoin = true
+	
 	return true
 end
 

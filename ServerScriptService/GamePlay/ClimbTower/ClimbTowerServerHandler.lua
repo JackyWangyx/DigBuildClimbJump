@@ -64,13 +64,16 @@ function ClimbTowerTowerServerHandler:InitTower(towerPointList)
 
 		local areaInfo = SceneAreaServerHandler.AreaInfoList[index]
 		local towerInfo = {
-			Index = index,
-			Player = nil,
+			-- 固有信息
+			Index = index,	
 			TowerPos = towerPos,
 			TowerRoot = towerRoot,
 			EndList = towerEndList,
+			
+			-- 需重置信息
+			Player = nil,
 			Tower = nil,
-			ThemeKey = areaInfo.ThemeKey,
+			ThemeKey = nil,
 			IsUpgrade = false,
 		}
 		
@@ -130,20 +133,14 @@ function ClimbTowerTowerServerHandler:CreateTower(towerInfo)
 	local towerHeight = themeInfo.TowerHeight
 
 	local tower = nil
-	--warn(towerInfo.ThemeKey, themeKey)
 	if towerInfo.ThemeKey == themeKey and towerInfo.Tower then
 		if towerInfo.IsUpgrade then return end
 		
 		-- 已经存在相同的塔，不重新生成，重新计算位置
 		tower = towerInfo.Tower
-		
 		local finalCFrame = towerInfo.TowerPos.CFrame * CFrame.new(0, towerHeight - themeData.Length, 0)
 		local duration = math.abs(tower:GetPivot().Position.Y - finalCFrame.Position.Y) / ClimbTowerDefine.Game.TowerUpgradeSpeed
-		--local tweener = UTween:ModelPosition(tower, 
-		--	finalCFrame.Position, 
-		--	duration)
-		
-		--tower.PrimaryPart:SetNetworkOwner(player)
+
 		EventManager:DispatchToClient(player, ClimbTowerDefine.Event.BuildTower, { 
 			Index = towerInfo.Index,
 			ToPos = finalCFrame.Position,
@@ -161,7 +158,7 @@ function ClimbTowerTowerServerHandler:CreateTower(towerInfo)
 			towerInfo.IsUpgrade = false
 		end)
 	else
-		-- 主题变化
+		-- 主题变化 或者 塔不存在
 		-- 踢出游戏中玩家
 		local gameServerHandler = require(game.ServerScriptService.ScriptAlias.ClimbTowerGameServerHandler)
 		gameServerHandler:KickAllPlayers(towerInfo.Index)
@@ -171,12 +168,14 @@ function ClimbTowerTowerServerHandler:CreateTower(towerInfo)
 			ClimbTowerTowerServerHandler:ClearTower(towerInfo)
 		end
 		
+		towerInfo.Player = player
 		towerInfo.ThemeKey = themeKey
+		towerInfo.IsUpgrade = false
+
 		local towerPrefab = ResourcesManager:Load(themeData.TowerPrefab)
 		tower = towerPrefab:Clone()
 		tower.Name = "Tower"
 		towerInfo.Tower = tower
-		towerInfo.IsUpgrade = false
 		
 		tower.Parent = towerInfo.TowerRoot
 		
@@ -200,6 +199,10 @@ function ClimbTowerTowerServerHandler:ClearTower(towerInfo)
 		towerInfo.Tower:Destroy()
 		towerInfo.Tower = nil
 	end
+	
+	towerInfo.Player = nil
+	towerInfo.ThemeKey = nil
+	towerInfo.IsUpgrade = false
 	
 	if towerInfo.End then
 		Util:DeActiveObject(towerInfo.End)

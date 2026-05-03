@@ -88,7 +88,7 @@ function BuildingManager:OnBuildingAdded(buildingPart, opts)
 	local buildingName = buildingPart.Name
 	local buildingScriptFile = BuildingManager.BuildingScriptCache[buildingName]
 	if not buildingScriptFile then
-		buildingScriptFile = Util:GetChildByTypeAndName(game.ReplicatedStorage, "ModuleScript", buildingName, true, ResourcesManager.ReplicatedStorageCache.All)
+		buildingScriptFile = ResourcesManager:GetScript(buildingName)
 		BuildingManager.BuildingScriptCache[buildingName] = buildingScriptFile	
 	end
 	

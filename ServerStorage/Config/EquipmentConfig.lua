@@ -2,7 +2,7 @@
 
 EquipmentConfig.Data = [[
 ID,Name,BuyOrder,Rarity,Icon,ThemeKey,Prefab,DigRadius,DigGetPower,DigInterval,DisplayPower,DisplaySpeed,CostCoin,CostRobux,CostWins,ProductKey,ActivityKey,DigAnimation,AnimationSpeed
-1,Rusty Pick,1,1,rbxassetid://97316749131890,World01,Equipment/Equipment01,8,1,1.0,64,1,0,0,5,nil,nil,rbxassetid://84083040337876,1.0
+1,Rusty Pick,1,1,rbxassetid://97316749131890,World01,Equipment/Equipment01,8,1,1.0,64,1,0,0,0,nil,nil,rbxassetid://84083040337876,1.0
 2,Neon Strike,2,2,rbxassetid://72036388263569,World01,Equipment/Equipment02,12,2,0.9,140,10,0,0,10,nil,nil,rbxassetid://84083040337876,1.11
 3,Frost Cross,3,2,rbxassetid://115416105943358,World01,Equipment/Equipment03,16,2,0.8,140,21,0,0,20,nil,nil,rbxassetid://84083040337876,1.25
 4,Toxic Blade,4,3,rbxassetid://89953681184446,World01,Equipment/Equipment04,20,2,0.7,140,36,0,0,50,nil,nil,rbxassetid://84083040337876,1.42

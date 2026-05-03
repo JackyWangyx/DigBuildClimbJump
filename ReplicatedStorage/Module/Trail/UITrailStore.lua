@@ -1,6 +1,6 @@
 ﻿local NetClient = require(game.ReplicatedStorage.ScriptAlias.NetClient)
 local ConfigManager = require(game.ReplicatedStorage.ScriptAlias.ConfigManager)
-local AttributeUtil = require(game.ReplicatedStorage.ScriptAlias.AttributeUtil)
+local ObjectInfo = require(game.ReplicatedStorage.ScriptAlias.ObjectInfo)
 local Util = require(game.ReplicatedStorage.ScriptAlias.Util)
 local UIList = require(game.ReplicatedStorage.ScriptAlias.UIList)
 local UIListSelect = require(game.ReplicatedStorage.ScriptAlias.UIListSelect)
@@ -12,6 +12,7 @@ local TweenUtil = require(game.ReplicatedStorage.ScriptAlias.TweenUtil)
 local UIManager = require(game.ReplicatedStorage.ScriptAlias.UIManager)
 local IAPClient = require(game.ReplicatedStorage.ScriptAlias.IAPClient)
 local PlayerManager = require(game.ReplicatedStorage.ScriptAlias.PlayerManager)
+local UIIndexManager = require(game.ReplicatedStorage.ScriptAlias.UIIndexManager)
 
 local UITrailStore = {}
 
@@ -23,7 +24,7 @@ UITrailStore.SelectIndex = 1
 
 function UITrailStore:Init(root)
 	UITrailStore.UIRoot = root
-	UITrailStore.InfoPart = Util:GetChildByName(UITrailStore.UIRoot, "InfoLab")
+	UITrailStore.InfoPart = UIIndexManager:GetChildByName(UITrailStore.UIRoot, "InfoLab")
 end
 
 function UITrailStore:OnShow(param)
@@ -43,6 +44,11 @@ function UITrailStore:RefreshItemList()
 	NetClient:Request("Trail", "GetPackageList", function(infoList)
 		for _, info in pairs(infoList) do
 			local data = ConfigManager:GetData("Trail", info.ID)
+			if not data then
+				warn("[Trail] Data Not Found!", info.ID)
+				return
+			end
+			
 			Util:TableMerge(info, data)
 		end
 
@@ -77,16 +83,16 @@ function UITrailStore:SelectItem(index)
 	if index > #UITrailStore.ItemList then index = #UITrailStore.ItemList end
 	UITrailStore.SelectIndex = index
 	local item = UITrailStore.ItemList[index]
-	local data = AttributeUtil:GetData(item)
+	local data = ObjectInfo:GetData(item)
 	UIInfo:SetInfo(UITrailStore.InfoPart, data)
-	local info = AttributeUtil:GetInfo(item)
+	local info = ObjectInfo:GetInfo(item)
 	UIInfo:SetInfo(UITrailStore.InfoPart, info)
 end
 
 function UITrailStore:Button_Equip()
 	if not UITrailStore.ItemList or #UITrailStore.ItemList == 0 then return end
 	local selectItem = UITrailStore.ItemList[UITrailStore.SelectIndex]
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
 	NetClient:Request("Trail", "Equip", {ID = id}, function()
 		UITrailStore:Refresh()
 	end)
@@ -95,7 +101,7 @@ end
 function UITrailStore:Button_UnEquip()
 	if not UITrailStore.ItemList or #UITrailStore.ItemList == 0 then return end
 	local selectItem = UITrailStore.ItemList[UITrailStore.SelectIndex]
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
 	NetClient:Request("Trail", "UnEquip", function()
 		UITrailStore:Refresh()
 	end)
@@ -104,7 +110,7 @@ end
 function UITrailStore:Button_Buy()
 	if not UITrailStore.ItemList or #UITrailStore.ItemList == 0 then return end
 	local selectItem = UITrailStore.ItemList[UITrailStore.SelectIndex]
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
 	NetClient:Request("Trail", "Buy", {ID = id}, function(result)
 		if result.Success then
 			task.wait()
@@ -120,8 +126,8 @@ end
 function UITrailStore:Button_BuyRobux()
 	if not UITrailStore.ItemList or #UITrailStore.ItemList == 0 then return end
 	local selectItem = UITrailStore.ItemList[UITrailStore.SelectIndex]
-	local id = AttributeUtil:GetInfoValue(selectItem, "ID")
-	local productKey = AttributeUtil:GetDataValue(selectItem, "ProductKey")
+	local id = ObjectInfo:GetInfoValue(selectItem, "ID")
+	local productKey = ObjectInfo:GetDataValue(selectItem, "ProductKey")
 	IAPClient:Purchase(productKey, function(success)
 		if success then
 			task.wait()
